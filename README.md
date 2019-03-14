@@ -1,1 +1,1 @@
-SEC Grupo 31
+SEC Grupo 30
