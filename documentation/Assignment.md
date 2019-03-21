@@ -79,3 +79,14 @@ To help in your design and implementation task, we suggest that students break t
 - **Step 3**: Implement the Citizen Card usage by the Notary.
 - **Step 4**: Develop the client library and complete the server – Implement the client library and finalize the server supporting the specified crypto operations.
 - **Step 5**: Dependability and security – Extend the system to support the dependability and security guarantees specified above.
+
+### Submission
+
+Submission will be done through Fénix. The submission shall include:
+
+- a self-contained zip archive containing the source code of the project and any additional libraries required for its compilation and execution. The archive shall also include a set of demo applications/tests that demonstrate the mechanisms integrated in the project to tackle security and dependability threats (e.g., detection of attempts to tamper with the data). A README file explaining how to run the demos/tests is mandatory.
+- a concise report of up to 4,000 characters addressing:
+  - explanation and justification of the design, including an explicit analysis of the possible threats and corresponding protection mechanisms,
+  - explanation of the dependability and security guarantees provided.
+
+The deadline is  April 12 at 17:00 . More instructions on the submission will be posted in the course page.
