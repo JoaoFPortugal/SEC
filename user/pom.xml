@@ -20,7 +20,7 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 
-		<mainclass>Client.java</mainclass>
+		<mainclass>User.java</mainclass>
 
 	</properties>
 
@@ -79,7 +79,7 @@
 					</execution>
 				</executions>
 				<configuration>
-					<mainClass>Client</mainClass>
+					<mainClass>User</mainClass>
 				</configuration>
 			</plugin>
 		</plugins>

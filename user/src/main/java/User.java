@@ -1,8 +1,16 @@
 import java.net.*;
 import java.io.*;
+import java.util.HashMap;
+import java.util.List;
 
-public class Client {
+public class User {
 
+    private String name;
+    private HashMap<String,Good> setofGoods;        //name and good
+
+    public User(String name){
+        this.name = name;
+    }
     public static void main(String [] args) {
         String serverName = "localhost";
         int port = 6066;
