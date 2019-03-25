@@ -61,17 +61,4 @@ public class Server extends Thread {
             e.printStackTrace();
         }
     }
-
-    public static void main(String [] args) {
-        int port = 6066;
-        try {
-            Server server = new Server(port);
-            Thread t1 = new Thread(server,"thread1");
-            Thread t2 = new Thread(server,"thread2");
-            t1.start();
-            t2.start();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 }

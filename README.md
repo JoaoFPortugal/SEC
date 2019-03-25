@@ -32,4 +32,3 @@ mvn exec:java # Run
 ```sh
 mvn eclipse:eclipse
 ```
-
