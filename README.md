@@ -16,16 +16,16 @@ See [Assignment.md](documentation/Assignment.md)
 
 ## Maven
 
-### Build
+### Build & Run
 
 ```sh
+cd interface
 mvn compile
-```
+mvn install
 
-### Run
-
-```sh
-mvn exec:java
+cd notary
+mvn compile # Build
+mvn exec:java # Run
 ```
 
 ### Generate Eclipse project

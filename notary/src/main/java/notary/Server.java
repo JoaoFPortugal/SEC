@@ -1,3 +1,4 @@
+package notary;
 
 import java.net.*;
 import java.io.*;
