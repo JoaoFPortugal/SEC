@@ -11,6 +11,7 @@
         <!-- modules to include in the build reactor -->
         <module>notario</module>
         <module>user</module>
+        <module>interface</module>
     </modules>
 
 </project>
