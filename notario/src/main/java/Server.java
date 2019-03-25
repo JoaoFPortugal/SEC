@@ -54,7 +54,7 @@ public class Server extends Thread {
                 DataOutputStream out = new DataOutputStream(server.getOutputStream());
                 out.writeUTF("Thank you for connecting to " + server.getLocalSocketAddress()
                         + "\nGoodbye!");
-                server.close();
+
             }
         } catch (IOException e) {
             e.printStackTrace();
