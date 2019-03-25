@@ -13,3 +13,24 @@
 ### Assignment
 
 See [Assignment.md](documentation/Assignment.md)
+
+## Maven
+
+### Build
+
+```sh
+mvn compile
+```
+
+### Run
+
+```sh
+mvn exec:java
+```
+
+### Generate Eclipse project
+
+```sh
+mvn eclipse:eclipse
+```
+
