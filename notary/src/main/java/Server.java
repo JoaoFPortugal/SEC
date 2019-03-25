@@ -1,12 +1,16 @@
 
 import java.net.*;
 import java.io.*;
+import java.util.Stack;
 
 public class Server extends Thread {
     private ServerSocket serverSocket;
+    Stack<Socket> addresses;
 
     public Server(int port) throws IOException {
         serverSocket = new ServerSocket(port);
+        addresses = new Stack<Socket>();
+
 
     }
 
@@ -17,35 +21,43 @@ public class Server extends Thread {
                 runreceiver();
             }
             else{
-               // runsender();
+                runsender();
             }
         }
     }
 
     public void runreceiver() {
-        while (true) {
+        try {
+            System.out.println("Waiting for client on port " +
+                    serverSocket.getLocalPort() + "...");
+            Socket server = serverSocket.accept();
+            addresses.push(server);
+            System.out.println("pushed");
 
-            try {
-                System.out.println("Waiting for client on port " +
-                        serverSocket.getLocalPort() + "...");
-                Socket server = serverSocket.accept();
+            System.out.println("Just connected to " + server.getRemoteSocketAddress());
+            DataInputStream in = new DataInputStream(server.getInputStream());
 
-                System.out.println("Just connected to " + server.getRemoteSocketAddress());
-                DataInputStream in = new DataInputStream(server.getInputStream());
+            System.out.println(in.readUTF());
+        } catch (SocketTimeoutException s) {
+            System.out.println("Socket timed out!");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-                System.out.println(in.readUTF());
+    }
+
+    public void runsender(){
+        try {
+            if(!addresses.empty()){
+                Socket server = addresses.pop();
+                System.out.println(addresses.empty());
                 DataOutputStream out = new DataOutputStream(server.getOutputStream());
                 out.writeUTF("Thank you for connecting to " + server.getLocalSocketAddress()
                         + "\nGoodbye!");
-                server.close();
 
-            } catch (SocketTimeoutException s) {
-                System.out.println("Socket timed out!");
-                break;
-            } catch (IOException e) {
-                e.printStackTrace();
-                break;
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
