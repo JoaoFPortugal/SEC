@@ -20,7 +20,6 @@ See [Assignment.md](documentation/Assignment.md)
 
 ```sh
 cd interface
-mvn compile
 mvn install
 
 cd notary
