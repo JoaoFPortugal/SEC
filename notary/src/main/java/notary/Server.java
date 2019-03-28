@@ -11,8 +11,6 @@ public class Server extends Thread {
     public Server(int port) throws IOException {
         serverSocket = new ServerSocket(port);
         addresses = new Stack<Socket>();
-
-
     }
 
     @Override
