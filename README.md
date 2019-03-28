@@ -60,4 +60,4 @@ mvn eclipse:eclipse
 
 **How does PKI work:**
 
-    - User guarantees his authenticity by hashing the message (using for example SHA-2, hash function is passed as argument to the API) and encrypting that hash with his private key. Then the user sends the message, the encrypted hash and the hash function used (eg SHA2) to the server. The server then decrypts the hash using the user's public key, does the hash of the message and compares both hashes to see if they match.
+- User guarantees his authenticity by hashing the message (using for example SHA-2, hash function is passed as argument to the API) and encrypting that hash with his private key. Then the user sends the message, the encrypted hash and the hash function used (eg SHA2) to the server. The server then decrypts the hash using the user's public key, does the hash of the message and compares both hashes to see if they match.
