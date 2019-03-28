@@ -54,6 +54,7 @@ public class Server extends Thread {
                 out.writeUTF("Thank you for connecting to " + server.getLocalSocketAddress()
                         + "\nGoodbye!");
 
+                // Sleep 500 ms
             }
         } catch (IOException e) {
             e.printStackTrace();
