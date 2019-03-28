@@ -12,7 +12,7 @@ We persist our data using **SQLite**, which is a RDMS that requires no server, t
 
 #### Notary - User
 
-The communication between the notary and the user is made using **TCP Sockets**, and the way that the notary deals with the multiple user connections and requests is with a **producer-consumer** pattern, that is, it has a thread that listens for incoming user connections and the requests associated, placing them in a queue, and then another thread that deals with the requests in the queue.
+The communication between the notary and the user is made using **TCP Sockets**. The way that the notary deals with the multiple user connections and requests is with a **producer-consumer** pattern, that is, it has a thread that listens for incoming user connections and the requests associated, placing them in a queue, and then another thread that deals with the requests in the queue. The user uses a class that works as a "library" to interact with the server.
 
 #### User - User
 
