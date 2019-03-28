@@ -2,41 +2,45 @@ package notary;
 
 import java.net.*;
 import java.io.*;
-import java.util.Stack;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class Server extends Thread {
     private ServerSocket serverSocket;
-    Stack<Socket> addresses;
+    private Queue<Socket> addresses;
+    private Queue<String> messages;
 
     public Server(int port) throws IOException {
         serverSocket = new ServerSocket(port);
-        addresses = new Stack<Socket>();
+        addresses = new LinkedList<>();
+        messages = new LinkedList<>();
     }
 
     @Override
     public void run() {
         while(true){
-            if(Thread.currentThread().getName().equals("thread1")){
-                runreceiver();
+            if(Thread.currentThread().getName().equals("producer")){
+                runproducer();
             }
             else{
-                runsender();
+                runconsumer();
             }
         }
     }
 
-    public void runreceiver() {
+    public void runproducer() {
         try {
             System.out.println("Waiting for client on port " +
                     serverSocket.getLocalPort() + "...");
             Socket server = serverSocket.accept();
-            addresses.push(server);
+            addresses.add(server);
             System.out.println("pushed");
 
             System.out.println("Just connected to " + server.getRemoteSocketAddress());
             DataInputStream in = new DataInputStream(server.getInputStream());
+            messages.add(in.readUTF());
 
-            System.out.println(in.readUTF());
+            //System.out.println(in.readUTF());
         } catch (SocketTimeoutException s) {
             System.out.println("Socket timed out!");
         } catch (IOException e) {
@@ -45,18 +49,22 @@ public class Server extends Thread {
 
     }
 
-    public void runsender(){
+    public void runconsumer(){
         try {
-            if(!addresses.empty()){
-                Socket server = addresses.pop();
-                System.out.println(addresses.empty());
+            if(!addresses.isEmpty() || !messages.isEmpty()){
+                Socket server = addresses.remove();
+                String message = messages.remove();
+                System.out.println(addresses.isEmpty());
                 DataOutputStream out = new DataOutputStream(server.getOutputStream());
                 out.writeUTF("Thank you for connecting to " + server.getLocalSocketAddress()
-                        + "\nGoodbye!");
+                        + "\nYES on "+ message + "\nGoodbye!");
 
                 // Sleep 500 ms
             }
+            Thread.sleep(1000);
         } catch (IOException e) {
+            e.printStackTrace();
+        }catch (InterruptedException e){
             e.printStackTrace();
         }
     }

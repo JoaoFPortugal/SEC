@@ -22,7 +22,7 @@ public class User {
             OutputStream outToServer = client.getOutputStream();
             DataOutputStream out = new DataOutputStream(outToServer);
 
-            out.writeUTF("Hello from " + client.getLocalSocketAddress());
+            out.writeUTF("Sell good A");
             InputStream inFromServer = client.getInputStream();
             DataInputStream in = new DataInputStream(inFromServer);
 
