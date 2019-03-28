@@ -14,6 +14,10 @@
 
 See [Assignment.md](documentation/Assignment.md)
 
+### Methodology
+
+See [Methodology.md](documentation/Methodology.md)
+
 ## To-do
 
 - ~~Create Assignment.md~~
