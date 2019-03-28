@@ -14,25 +14,6 @@
 
 See [Assignment.md](documentation/Assignment.md)
 
-## Maven
-
-### Build & Run
-
-```sh
-cd interface
-mvn install
-
-cd notary
-mvn compile # Build
-mvn exec:java # Run
-```
-
-### Generate Eclipse project
-
-```sh
-mvn eclipse:eclipse
-```
-
 ## To-do
 
 - ~~Create Assignment.md~~

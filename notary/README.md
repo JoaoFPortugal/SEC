@@ -1,13 +1,8 @@
 # HDS Notary - Server
 
-## Maven
-
 ### Build & Run
 
 ```sh
-cd interface
-mvn install
-
 cd notary
 mvn compile # Build
 mvn exec:java # Run
