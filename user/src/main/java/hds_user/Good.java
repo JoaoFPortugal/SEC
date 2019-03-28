@@ -1,3 +1,5 @@
+package hds_user;
+
 public class Good {
     private String name;
     private String status;
