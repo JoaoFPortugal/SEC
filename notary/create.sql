@@ -2,8 +2,7 @@
 --- Users
 ---
 CREATE TABLE IF NOT EXISTS `users` (
-	`uid` INTEGER PRIMARY KEY,
-	`username` TEXT UNIQUE NOT NULL
+	`uid` INTEGER PRIMARY KEY
 );
 
 ---

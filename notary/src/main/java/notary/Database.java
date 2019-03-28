@@ -52,7 +52,7 @@ public class Database {
 	 * Select with parameters: http://www.sqlitetutorial.net/sqlite-java/select/
 	 */
 	public void selectAllUsers() {
-		String sql = "SELECT uid, username FROM users";
+		String sql = "SELECT uid FROM users";
 
 		// try-with-resources
 		// https://docs.oracle.com/javase/tutorial/essential/exceptions/tryResourceClose.html
@@ -61,8 +61,7 @@ public class Database {
 
 			// loop through the result set
 			while (rs.next()) {
-				System.out.println(rs.getInt("uid") + "\t" +
-						rs.getString("username"));
+				System.out.println(rs.getInt("uid"));
 			}
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
