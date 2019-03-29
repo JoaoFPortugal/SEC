@@ -20,7 +20,7 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 
-		<mainclass>User.java</mainclass>
+		<mainclass>hds_user.User.java</mainclass>
 
 	</properties>
 
@@ -49,7 +49,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>appassembler-maven-plugin</artifactId>
-                <version>2.0.0</version>
+				<version>2.0.0</version>
 				<executions>
 					<execution>
 						<phase>install</phase>
@@ -79,7 +79,7 @@
 					</execution>
 				</executions>
 				<configuration>
-					<mainClass>User</mainClass>
+					<mainClass>hds_user.User</mainClass>
 				</configuration>
 			</plugin>
 		</plugins>
