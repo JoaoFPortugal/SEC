@@ -4,16 +4,17 @@ import java.net.*;
 import java.io.*;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.Semaphore;
 
 public class Server extends Thread {
     private ServerSocket serverSocket;
-    private Queue<Socket> addresses;
-    private Queue<String> messages;
+    private Queue<Request> requests;
+    private Semaphore sem;
 
     public Server(int port) throws IOException {
         serverSocket = new ServerSocket(port);
-        addresses = new LinkedList<>();
-        messages = new LinkedList<>();
+        requests = new LinkedList<>();
+        sem = new Semaphore(1);
     }
 
     @Override
@@ -30,15 +31,21 @@ public class Server extends Thread {
 
     public void runproducer() {
         try {
+
             System.out.println("Waiting for client on port " +
                     serverSocket.getLocalPort() + "...");
             Socket server = serverSocket.accept();
-            addresses.add(server);
+
+            Request request = new Request(server);
+            requests.add(request);
+
             System.out.println("pushed");
 
             System.out.println("Just connected to " + server.getRemoteSocketAddress());
-            DataInputStream in = new DataInputStream(server.getInputStream());
-            messages.add(in.readUTF());
+
+
+
+            sem.release();
 
             //System.out.println(in.readUTF());
         } catch (SocketTimeoutException s) {
@@ -50,21 +57,23 @@ public class Server extends Thread {
     }
 
     public void runconsumer(){
-        try {
-            if(!addresses.isEmpty() || !messages.isEmpty()){
-                Socket server = addresses.remove();
-                String message = messages.remove();
-                System.out.println(addresses.isEmpty());
-                DataOutputStream out = new DataOutputStream(server.getOutputStream());
-                out.writeUTF("Thank you for connecting to " + server.getLocalSocketAddress()
-                        + "\nYES on "+ message + "\nGoodbye!");
 
-                // Sleep 500 ms
+        try {
+            System.out.println("a");
+            sem.acquire();
+            if(!requests.isEmpty()){
+                Request request = requests.remove();
+                String message = request.getMessageFromClient();
+
+                System.out.println(requests.isEmpty());
+
+                DataOutputStream out = request.getOutputFromClient();
+                out.writeUTF("Thank you for connecting" + "\nYES on "+ message + "\nGoodbye!");
+
             }
             Thread.sleep(1000);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }catch (InterruptedException e){
+
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }
