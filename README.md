@@ -25,12 +25,14 @@ See [Methodology.md](documentation/Methodology.md)
 - ~~Persist data of notary: SQLite~~
 
 - ~~Use Maven (or Gradle) for managing the build~~
+    - Write down steps used to generate the project.
 
 - Improve README.md
     - Will be used for Report
 
 - Implement communication between client and server (Producer-Consumer model)
     - Implement methods of assignment
+    - Use a semaphore
 
 - Implement communication between users (peer-to-peer)
 
