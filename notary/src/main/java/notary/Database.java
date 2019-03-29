@@ -67,4 +67,21 @@ public class Database {
 			System.out.println(e.getMessage());
 		}
 	}
+	
+	public void selectAllGoods() {
+		String sql = "SELECT gid, name, owner_id, for_sale FROM goods";
+
+		try (Statement stmt = this.conn.createStatement();
+				ResultSet rs = stmt.executeQuery(sql)) {
+
+			// loop through the result set
+			while (rs.next()) {
+				System.out.println(rs.getInt("gid") + "\t" + 
+						rs.getString("name") + "\t" + rs.getInt("owner_id") +
+						"\t" + rs.getInt("for_sale"));
+			}
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+	}
 }

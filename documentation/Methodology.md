@@ -20,3 +20,17 @@ The communication between the users is done in a **peer-to-peer** fashion, that 
 
 ### Security
 
+The Notary is equipped with a Portuguese Citizen Card (CC). The Notary signs its messages by creating a hash of the messages (e.g.: SHA-2) and then encrypts this hash. The users know that the messages sent by the Notary are authentic because they have the public key of the Notary's CC with which they can validate the signature of the messages, by decrypting the hash and comparing with the hash they generated themselves.
+
+The Notary's public key is inside a certificate. The certificate assures us that the Notary's CC public key is that of the original Notary and not a fake Notary. However, we assume that the keys have been previously shared and the certificate validated by the users.
+
+**Integrity:**
+
+**Non-repudiation:**
+
+**Authenticity:**
+
+**Freshness:**
+
+Noonce
+

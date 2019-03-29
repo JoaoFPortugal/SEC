@@ -17,6 +17,7 @@ public class Main {
 			System.exit(0);
 		}
 		db.selectAllUsers();
+		db.selectAllGoods();
 
 		try {
 			Server server = new Server(port);
