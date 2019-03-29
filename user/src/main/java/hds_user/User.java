@@ -1,5 +1,7 @@
 package hds_user;
 
+import hds_security.HashMessage;
+
 import java.util.HashMap;
 
 public class User {
@@ -8,6 +10,7 @@ public class User {
 
 	public User() {
 		this.setofGoods = new HashMap<>();
+		HashMessage hashed = new HashMessage();
 	}
 
 }

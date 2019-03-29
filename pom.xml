@@ -11,6 +11,7 @@
 		<!-- modules to include in the build reactor -->
 		<module>notary</module>
 		<module>user</module>
+		<module>security</module>
 	</modules>
 
 </project>
