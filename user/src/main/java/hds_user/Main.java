@@ -1,7 +1,5 @@
 package hds_user;
 
-import java.io.IOException;
-
 public class Main {
 	
 	private static String serverName = "localhost";
@@ -10,13 +8,7 @@ public class Main {
 	
 	public static void main(String[] args) {
 		
-		try {
-			System.out.println("Connecting to server on port " + port);
-			conn = new Connection(serverName, port);
-			System.out.println("Just connected to " + conn.getAddr());
+		conn = new Connection(serverName, port);
 			
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 }

@@ -5,7 +5,7 @@ import java.io.DataOutputStream;
 import java.net.Socket;
 import java.io.IOException;
 
-public class Connection implements ILibrary {
+public class Connection {
 	
 	private String serverName;
 	private int port;
@@ -31,9 +31,9 @@ public class Connection implements ILibrary {
 	/**
 	 * Sends a request to the notary to know if the good is for sale and who owns it.
 	 */
-	public String getStateOfGood(String good) throws IOException {
+	public String getStateOfGood(int good) throws IOException {
 		connect();
-		write("getStateOfGood " + good);
+		write("getStateOfGood " + Integer.toString(good));
 		String reply = read();
 		disconnect();
 		return reply;
@@ -43,16 +43,24 @@ public class Connection implements ILibrary {
 	 * Sends a request to the notary expressing that a good is for sale.
 	 * Fails if user doesn't own it.
 	 */
-	public boolean intentionToSell() {
-
+	public boolean intentionToSell(int good) throws IOException {
+		connect();
+		write("intentionToSell " + Integer.toString(good));
+		boolean success = Boolean.valueOf(read());
+		disconnect();
+		return success;
 	}
 
 	/**
 	 * Sends a request to the server to change the owner of a good.
 	 * Fails if user doesn't own it.
 	 */
-	public boolean transferGood() {
-
+	public boolean transferGood(int good, int owner) throws IOException {
+		connect();
+		write("transferGood " + Integer.toString(good) + " " + Integer.toString(owner));
+		boolean success = Boolean.valueOf(read());
+		disconnect();
+		return success;
 	}
 	
 	private String read() throws IOException {

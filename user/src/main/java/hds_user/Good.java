@@ -2,20 +2,13 @@ package hds_user;
 
 public class Good {
 	
+	private int id;
     private String name;
-    private String status;
-    private int price;
+    public boolean for_sale;
     
-    public Good(String name, int price){
+    public Good(int id, String name, boolean for_sale) {
+    	this.id = id;
         this.name = name;
-        this.price = price;
-    }
-
-    public void setStatus(String status){
-        this.status = status;
-    }
-
-    public String getState(){
-        return "Name: " + name + "\n" + "price: " + price + "\n" + "status: " + status;
+        this.for_sale = for_sale;
     }
 }
