@@ -50,12 +50,9 @@ public class Server extends Thread {
 
             // Allow consumer to handle requests
             sem_producer.release();
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
-        } catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
+        }
     }
 
     public void runConsumer() {
@@ -76,13 +73,14 @@ public class Server extends Thread {
                 if (tokens[0] == "getStateOfGood" && tokens.length == 2) {
                 	String id = tokens[1];
                 	// TODO
+                	request.write("Some answer");
                 } else {
                 	// Not a valid message
                 	return;
                 }
 
             }
-        } catch (InterruptedException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }
