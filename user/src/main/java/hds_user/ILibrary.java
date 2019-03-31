@@ -6,7 +6,7 @@ public interface ILibrary {
 	/**
 	 * Sends a request to the notary to know if the good is for sale and who owns it.
 	 */
-	String getStateofGood(Object o) throws IOException;
+	String getStateOfGood(String good) throws IOException;
 
 	/**
 	 * Sends a request to the notary expressing that a good is for sale.

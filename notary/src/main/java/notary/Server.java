@@ -67,11 +67,18 @@ public class Server extends Thread {
                 sem_queue.release();
                 
                 String msg = request.getMessage();
+                // Not a valid message
                 if (msg.isEmpty()) return;
                 String[] tokens = msg.split(" ");
                 
                 if (tokens[0] == "getStateOfGood" && tokens.length == 2) {
-                	String id = tokens[1];
+                	int id;
+                	try {
+                		id = Integer.parseInt(tokens[1]);
+                	} catch (NumberFormatException nfe) {
+                		// Not a valid message
+                		return;
+                	}
                 	// TODO
                 	request.write("Some answer");
                 } else {

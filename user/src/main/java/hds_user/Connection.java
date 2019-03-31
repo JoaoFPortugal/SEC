@@ -7,22 +7,36 @@ import java.io.IOException;
 
 public class Connection implements ILibrary {
 	
+	private String serverName;
+	private int port;
 	private Socket client;
 	private DataOutputStream out;
 	private DataInputStream in;
 	
-	public Connection(String serverName, int port) throws IOException {
+	public Connection(String serverName, int port) {
+		this.serverName = serverName;
+		this.port = port;	
+	}
+	
+	private void connect() throws IOException {
 		client = new Socket(serverName, port);
 		out = new DataOutputStream(client.getOutputStream());
 		in = new DataInputStream(client.getInputStream());
+	}
+	
+	private void disconnect() throws IOException {
+		client.close();
 	}
 
 	/**
 	 * Sends a request to the notary to know if the good is for sale and who owns it.
 	 */
-	public String getStateofGood(Object o) throws IOException {
-		send();
-		return read();
+	public String getStateOfGood(String good) throws IOException {
+		connect();
+		write("getStateOfGood " + good);
+		String reply = read();
+		disconnect();
+		return reply;
 	}
 
 	/**
