@@ -70,7 +70,7 @@ public class Connection {
 			int id, owner;
 			// test if id is an integer
 			try {
-				id = Integer.parseInt(tokens[j]);
+				id = Integer.parseInt(tokens[i]);
 			} catch (NumberFormatException e) {
 				return null;
 			}
