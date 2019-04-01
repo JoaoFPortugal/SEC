@@ -1,6 +1,10 @@
 package hds_user;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+
+import hds_user.exceptions.InexistentGoodException;
 
 public class Main {
 	
@@ -32,7 +36,7 @@ public class Main {
 			Main.println("1. Get State of Good");
 			Main.println("2. Do something");
 			Main.println("3. DO something");
-			Main.println("4. Exit");
+			Main.println("0. Exit");
 			String input = Main.readString();
 			try{
 				option = Integer.parseInt(input);
@@ -43,25 +47,32 @@ public class Main {
 
 			switch(option) {
 				case 1:
-					Main.print("Good id: ");
+					Main.print("Good ID: ");
 					String good = Main.readString();
-					int id;
+					int gid;
 					try {
-						id = Integer.parseInt(good);
+						gid = Integer.parseInt(good);
 					} catch (NumberFormatException e) {
-						Main.println("Not a valid id.");
+						Main.println("Not a valid ID.");
 						break;
 					}
+					Good g = null;
 					try {
-						conn.getStateOfGood(id);
+						g = conn.getStateOfGood(gid);
 					} catch (IOException e){
 						e.printStackTrace();
+						break;
+					} catch (InexistentGoodException e) {
+						println(e.toString());
+						break;
 					}
+					println("Good with ID=" + gid + " belongs to user with ID=" + g.getOwner() +
+							" and is " + (g.getForSale() ? "" : "not ") + "for sale.");
 				case 2:
 					break;
 				case 3:
 					break;
-				case 4:
+				case 0:
 					System.exit(0);
 				default:
 					Main.println(("Wrong number!"));
@@ -79,8 +90,16 @@ public class Main {
 		System.out.println(str);
 	}
 
-	public static String readString(){
-		String input = System.console().readLine();
-		return input;
+	public static String readString() {
+		// Used BufferedReader instead of System console because the later doesn't work with
+		// Eclipse IDE.
+		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+        String input = "";
+        try {
+        	input = bufferedReader.readLine();
+        } catch (IOException ioe) {
+        	println("Problems with reading user input.");
+        }
+        return input;
 	}
 }

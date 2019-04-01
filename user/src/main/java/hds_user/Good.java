@@ -4,7 +4,7 @@ public class Good {
 	
 	private int id;
 	private int owner;
-    public boolean for_sale;
+	private boolean for_sale;
     
     public Good(int id, int owner, boolean for_sale) {
     	this.id = id;
@@ -14,4 +14,7 @@ public class Good {
     
     public int getID() { return id; }
     public int getOwner() { return owner; }
+    public boolean getForSale() { return for_sale; }
+    
+    public boolean setForSale() { return for_sale; }
 }

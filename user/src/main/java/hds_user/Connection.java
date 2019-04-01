@@ -4,6 +4,9 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
+
+import hds_user.exceptions.*;
+
 import java.io.IOException;
 
 public class Connection {
@@ -31,23 +34,41 @@ public class Connection {
 
 	/**
 	 * Sends a request to the notary to know if the good is for sale and who owns
-	 * it.
+	 * it. Returns a Good object on success.
+	 * @throws InexistentGoodException 
 	 */
-	public Good getStateOfGood(int gid) throws IOException {
+	public Good getStateOfGood(int gid) throws IOException, InexistentGoodException {
 	    connect();
 		write("getStateOfGood " + Integer.toString(gid));
+		
 		String reply = read();
-		System.out.println(reply);
+		
+		if (reply.isEmpty()) {
+			disconnect();
+			throw new IOException();
+		}
+		
+		if (reply.startsWith("null")) {
+			disconnect();
+			throw new InexistentGoodException(gid);
+		}
+		
 		String[] tokens = reply.split(" ");
-		if (tokens.length != 2) return null;
+		if (tokens.length != 2) {
+			disconnect();
+			throw new IOException();
+		}
+		
 		int owner;
 		// test if owner is an integer
 		try {
 			owner = Integer.parseInt(tokens[0]);
 		} catch (NumberFormatException e) {
-			return null;
+			disconnect();
+			throw new IOException();
 		}
 		Good g = new Good(gid, owner, Boolean.valueOf(tokens[1]));
+		
 		disconnect();
 		return g;
 	}
