@@ -76,27 +76,27 @@ public class Connection {
 	public ArrayList<Good> getListOfGoods() throws IOException {
 		connect();
 		
+		write("getListOfGoods");
+		
 		String reply = read();
 		String[] tokens = reply.split(" ");
 		
-		for (int i = 0; i < tokens.length / 4; i++) {
-			int id, owner;
-			// test if id is an integer
-			try {
-				id = Integer.parseInt(tokens[i]);
-			} catch (NumberFormatException e) {
-				return null;
-			}
-			// test if owner is an integer
-			try {
-				owner = Integer.parseInt(tokens[2]);
-			} catch (NumberFormatException e) {
-				return null;
-			}
-		}
-		
 		ArrayList<Good> list = new ArrayList<Good>();
 		
+		for (int i = 0; i < tokens.length; i+=3) {
+			int gid, owner;
+			try {
+				// test if id is an integer
+				gid = Integer.parseInt(tokens[i]);
+				// test if owner is an integer
+				owner = Integer.parseInt(tokens[i+1]);
+				Good g = new Good(gid, owner, Boolean.valueOf(tokens[i+2]));
+				list.add(g);
+			} catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+				disconnect();
+				throw new IOException();
+			}
+		}		
 		
 		disconnect();
 		return list;

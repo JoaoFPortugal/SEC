@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import hds_user.exceptions.InexistentGoodException;
+import hds_user.exceptions.*;
 
 public class Main {
 	
@@ -30,16 +30,29 @@ public class Main {
 			}
 		}
 
-		User user = new User(uid);
+		User user = null;
+		try {
+			user = new User(uid, conn.getListOfGoods());
+		} catch (IOException e1) {
+			println("Failed to get list of goods from the notary.");
+			e1.printStackTrace();
+			System.exit(0);
+		}
+		
+		user.printAllGoods();
 
 		while(true){
+			
 			int option=0;
+			
 			Main.println("What would you like to do?");
 			Main.println("1. Get State of Good");
 			Main.println("2. Do something");
 			Main.println("3. DO something");
 			Main.println("0. Exit");
+			
 			String input = Main.readString();
+			
 			try{
 				option = Integer.parseInt(input);
 			}
@@ -66,7 +79,9 @@ public class Main {
 	}
 	
 	public static void printStateOfGood() {
+		
 		int gid;
+		
 		while (true) {
 			try {
 				gid = Integer.parseInt(Main.readString("Good ID: ", false));
@@ -75,7 +90,9 @@ public class Main {
 				Main.println("Not a valid ID.");
 			}
 		}
+		
 		Good g;
+		
 		try {
 			g = conn.getStateOfGood(gid);
 		} catch (IOException e){
@@ -85,6 +102,7 @@ public class Main {
 			println(e.toString());
 			return;
 		}
+		
 		println("Good with ID=" + gid + " belongs to user with ID=" + g.getOwner() +
 				" and is " + (g.getForSale() ? "" : "not ") + "for sale.");
 	}

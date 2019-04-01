@@ -20,11 +20,11 @@ public class User {
 	private PublicKey publicKey;
 	private PrivateKey privateKey;
 
-	public User(int id) {
+	public User(int id, ArrayList<Good> goods) {
 		this.uid = id;
 		loadPubKey();
 		loadPrivKey();
-		setOfGoods = new ArrayList<>();
+		setOfGoods = goods;
 	}
 
 	private void loadPubKey(){
@@ -59,5 +59,11 @@ public class User {
 
 	public PrivateKey getPrivateKey() {
 		return privateKey;
+	}
+	
+	public void printAllGoods() {
+		for (Good g : setOfGoods) {
+			Main.println(g.getID() + "\t" + g.getOwner() + "\t" + g.getForSale());
+		}
 	}
 }

@@ -119,4 +119,24 @@ public class Database {
 		
 		return(owner_id + " " + good_for_sale);
 	}
+	
+	public String getListOfGoods() {
+		
+		String sql = "SELECT gid, owner_id, for_sale FROM goods";
+		String output = "";
+		
+		try (Statement stmt = this.conn.createStatement();
+				ResultSet rs = stmt.executeQuery(sql)) {
+
+			// loop through the result set
+			while (rs.next()) {
+				output += rs.getInt("gid") + " " + rs.getInt("owner_id") +
+						" " + (rs.getInt("for_sale") == 1 ? "true" : "false") + " ";
+			}
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+		
+		return output;
+	}
 }
