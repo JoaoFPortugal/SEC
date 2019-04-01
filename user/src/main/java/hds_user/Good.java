@@ -13,4 +13,8 @@ public class Good {
         this.name = name;
         this.for_sale = for_sale;
     }
+    
+    public int getID() { return id; }
+    public int getOwner() { return owner; }
+    public String getName() { return name; }
 }

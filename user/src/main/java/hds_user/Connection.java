@@ -3,6 +3,7 @@ package hds_user;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.io.IOException;
 
 public class Connection {
@@ -55,6 +56,35 @@ public class Connection {
 		Good g = new Good(id, tokens[1], owner, Boolean.valueOf(tokens[3]));
 		disconnect();
 		return g;
+	}
+	
+	public ArrayList<Good> getListOfGoods() throws IOException {
+		connect();
+		
+		String reply = read();
+		String[] tokens = reply.split(" ");
+		
+		for (int i = 0; i < tokens.length / 4; i++) {
+			int id, owner;
+			// test if id is an integer
+			try {
+				id = Integer.parseInt(tokens[]);
+			} catch (NumberFormatException e) {
+				return null;
+			}
+			// test if owner is an integer
+			try {
+				owner = Integer.parseInt(tokens[2]);
+			} catch (NumberFormatException e) {
+				return null;
+			}
+		}
+		
+		ArrayList<Good> list = new ArrayList<Good>();
+		
+		
+		disconnect();
+		return list;
 	}
 
 	/**
