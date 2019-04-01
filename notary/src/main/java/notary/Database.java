@@ -109,7 +109,7 @@ public class Database {
 		}
 
 		if (uid == -1) {
-			return("There is no Good with that id.");
+			return("null");
 		}
 		String owner_id = Integer.toString(uid);
 
