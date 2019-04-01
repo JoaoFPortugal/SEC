@@ -115,7 +115,7 @@ public class Database {
 
 		String good_for_sale;
 		
-		good_for_sale = (for_sale == 1 ? "on-sale" : "Not-on-sale");
+		good_for_sale = (for_sale == 1 ? "true" : "false");
 		
 		return(owner_id + " " + good_for_sale);
 	}
