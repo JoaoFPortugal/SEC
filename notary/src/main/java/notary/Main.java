@@ -20,7 +20,7 @@ public class Main {
 		db.selectAllGoods();
 
 		try {
-			Server server = new Server(port);
+			Server server = new Server(port, db);
 			Thread producer = new Thread(server,"producer");
 			Thread consumer = new Thread(server,"consumer");
 			producer.start();

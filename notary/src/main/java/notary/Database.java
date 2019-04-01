@@ -84,4 +84,37 @@ public class Database {
 			System.out.println(e.getMessage());
 		}
 	}
+
+
+	public String getStateOfGood(String good){
+		int id=-1;
+		int for_sale=-1;
+		String sql = "SELECT owner_id, for_sale FROM goods WHERE name=" + "'" + good + "'" ;
+
+		try (Statement stmt = this.conn.createStatement();
+				ResultSet rs = stmt.executeQuery(sql)) {
+
+			while (rs.next()) {
+				id = rs.getInt("owner_id");
+				for_sale = rs.getInt("for_sale");
+			}
+
+		}catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+
+		if(id==-1){
+			return("There is no Good with that name");
+		}
+		String owner_id = Integer.toString(id);
+
+		String good_for_sale;
+		if(for_sale== 1){ good_for_sale = "on-sale";}
+		else{ good_for_sale = "Not-on-sale";}
+
+		return(owner_id + " " + good_for_sale);
+
+
+
+	}
 }

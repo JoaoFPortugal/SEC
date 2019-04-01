@@ -19,13 +19,13 @@ public class Connection {
 		this.port = port;
 	}
 
-	public void connect() throws IOException {
+	private void connect() throws IOException {
 		client = new Socket(serverName, port);
 		out = new DataOutputStream(client.getOutputStream());
 		in = new DataInputStream(client.getInputStream());
 	}
 
-	public void disconnect() throws IOException {
+	private void disconnect() throws IOException {
 		client.close();
 	}
 
@@ -33,12 +33,11 @@ public class Connection {
 	 * Sends a request to the notary to know if the good is for sale and who owns
 	 * it.
 	 */
-	public Good getStateOfGood(int good) throws IOException {
+	public Good getStateOfGood(String good) throws IOException {
 	    connect();
-		write("getStateOfGood " + Integer.toString(good));
-		System.out.println("Good");
+		write("getStateOfGood " + good);
 		String reply = read();
-		System.out.println("Bye");
+		System.out.println(reply);
 		String[] tokens = reply.split(" ");
 		if (tokens.length != 4) return null;
 		int id, owner;
@@ -70,7 +69,7 @@ public class Connection {
 			int id, owner;
 			// test if id is an integer
 			try {
-				id = Integer.parseInt(tokens[j]);
+				id = Integer.parseInt(tokens[i]);
 			} catch (NumberFormatException e) {
 				return null;
 			}
