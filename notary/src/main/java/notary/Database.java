@@ -117,7 +117,6 @@ public class Database {
 		try (Statement stmt = this.conn.createStatement();
 				ResultSet rs = stmt.executeQuery(sql)) {
 
-			// loop through the result set
 			while (rs.next()) {
 				output += rs.getInt("gid") + " " + rs.getInt("owner_id") +
 						" " + (rs.getInt("for_sale") == 1 ? "true" : "false") + " ";

@@ -84,8 +84,7 @@ public class Server extends Thread {
                 	request.write( db.getStateOfGood(id));
                 } else if (tokens[0].equals("getListOfGoods")) {
                 	request.write(db.getListOfGoods());
-                }
-                	else {
+                } else {
                 	// Not a valid message
                 	return;
                 }
