@@ -20,12 +20,11 @@ public class Main {
 	
 	private static String serverName = "localhost";
 	private static int port = 6066;
-	private static Connection conn;
-	
+
 	public static void main(String[] args) throws IOException {
 		Main main = new Main();
 
-		conn = new Connection(serverName, port);
+		Connection conn = new Connection(serverName, port);
 		main.println("Hello! Please enter your name");
 
 		String name = main.readString();

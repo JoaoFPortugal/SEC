@@ -35,10 +35,13 @@ public class Connection {
 	public Good getStateOfGood(int good) throws IOException {
 	    connect();
 		write("getStateOfGood " + Integer.toString(good));
+		System.out.println("Good");
 		String reply = read();
+		System.out.println("Bye");
 		String[] tokens = reply.split(" ");
 		if (tokens.length != 4) return null;
 		int id, owner;
+		System.out.println("Hello");
 		// test if id is an integer
 		try {
 			id = Integer.parseInt(tokens[0]);
