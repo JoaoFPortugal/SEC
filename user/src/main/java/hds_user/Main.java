@@ -17,15 +17,17 @@ public class Main {
 
 		conn = new Connection(serverName, port);
 		
-		Main.print("Hello! Please enter your ID: ");
-		String sid = Main.readString();
+		println("Hello!");
+		
 		int uid = 0;
-		try{
-			uid = Integer.parseInt(sid);
-		}
-		catch(Exception e){
-			Main.println("ID must be a number.");
-			System.exit(0);
+		while (true) {
+			try{
+				uid = Integer.parseInt(Main.readString("Please enter your ID: ", false));
+				break;
+			}
+			catch(Exception e){
+				Main.println("ID must be a number.");
+			}
 		}
 
 		User user = new User(uid);
@@ -43,31 +45,12 @@ public class Main {
 			}
 			catch(Exception e){
 				Main.println("Wrong input!");
+				continue;
 			}
 
 			switch(option) {
 				case 1:
-					Main.print("Good ID: ");
-					String good = Main.readString();
-					int gid;
-					try {
-						gid = Integer.parseInt(good);
-					} catch (NumberFormatException e) {
-						Main.println("Not a valid ID.");
-						break;
-					}
-					Good g = null;
-					try {
-						g = conn.getStateOfGood(gid);
-					} catch (IOException e){
-						e.printStackTrace();
-						break;
-					} catch (InexistentGoodException e) {
-						println(e.toString());
-						break;
-					}
-					println("Good with ID=" + gid + " belongs to user with ID=" + g.getOwner() +
-							" and is " + (g.getForSale() ? "" : "not ") + "for sale.");
+					printStateOfGood();
 				case 2:
 					break;
 				case 3:
@@ -82,6 +65,30 @@ public class Main {
 
 	}
 	
+	public static void printStateOfGood() {
+		int gid;
+		while (true) {
+			try {
+				gid = Integer.parseInt(Main.readString("Good ID: ", false));
+				break;
+			} catch (NumberFormatException e) {
+				Main.println("Not a valid ID.");
+			}
+		}
+		Good g;
+		try {
+			g = conn.getStateOfGood(gid);
+		} catch (IOException e){
+			e.printStackTrace();
+			return;
+		} catch (InexistentGoodException e) {
+			println(e.toString());
+			return;
+		}
+		println("Good with ID=" + gid + " belongs to user with ID=" + g.getOwner() +
+				" and is " + (g.getForSale() ? "" : "not ") + "for sale.");
+	}
+	
 	public static void print(String str){
 		System.out.print(str);
 	}
@@ -90,6 +97,15 @@ public class Main {
 		System.out.println(str);
 	}
 
+	public static String readString(String prompt, boolean newline) {
+		if (newline) {
+			Main.println(prompt);
+		} else {
+			Main.print(prompt);
+		}
+		return readString();
+	}
+	
 	public static String readString() {
 		// Used BufferedReader instead of System console because the later doesn't work with
 		// Eclipse IDE.
