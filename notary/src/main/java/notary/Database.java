@@ -88,9 +88,6 @@ public class Database {
 
 	public String getStateOfGood(int id){
 		
-		int uid=-1;
-		int for_sale=-1;
-		
 		String sql = "SELECT owner_id, for_sale FROM goods WHERE gid = ?" ;
 
 		try (PreparedStatement pstmt  = conn.prepareStatement(sql)) {
@@ -100,24 +97,16 @@ public class Database {
 			ResultSet rs  = pstmt.executeQuery();
 			
 			while (rs.next()) {
-				uid = rs.getInt("owner_id");
-				for_sale = rs.getInt("for_sale");
+				int uid = rs.getInt("owner_id");
+				int for_sale = rs.getInt("for_sale");
+				return(uid + " " + (for_sale == 1 ? "true" : "false"));
 			}
 
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		}
-
-		if (uid == -1) {
-			return("null");
-		}
-		String owner_id = Integer.toString(uid);
-
-		String good_for_sale;
 		
-		good_for_sale = (for_sale == 1 ? "true" : "false");
-		
-		return(owner_id + " " + good_for_sale);
+		return("null");
 	}
 	
 	public String getListOfGoods() {
