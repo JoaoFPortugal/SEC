@@ -21,23 +21,18 @@ See [Methodology.md](documentation/Methodology.md)
 ## To-do
 
 - ~~Create Assignment.md~~
-
 - ~~Persist data of notary: SQLite~~
-
 - ~~Use Maven (or Gradle) for managing the build~~
-
 - Improve README.md and documentation/Methodology.md
+    - How to compile app
+    - How to test app
     - Will be used for Report
-
 - Implement communication between client and server (Producer-Consumer model)
     - Implement methods of assignment
-    - Use a semaphore
+    - ~~Use a semaphore~~
     - Implement "library" on user
-
 - Implement communication between users (peer-to-peer)
-
-- Assume a fixed number of (max) users that we know beforehand, we know their keys beforehand, we know their IP and port beforehand, we know their goods beforehand. (both the notary and users know beforehand)
-
+- ~~Assume a fixed number of (max) users that we know beforehand, we know their keys beforehand, we know their IP and port beforehand, we know their goods beforehand. (both the notary and users know beforehand)~~
 - Design system's architecture and communication model (assure integrity, non-repudiation, authenticity and freshness) Tip: use public-private keys for first 3 and noonces for freshness. Do not assure confidentiality!
     - Freshness: Prevent replay attacks
     - Use API used in Lab for reading citizen card
