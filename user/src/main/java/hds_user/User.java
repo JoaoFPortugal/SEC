@@ -9,11 +9,12 @@ import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 
 public class User {
 
-	private HashMap<String, Good> setofGoods; // name and good
+	private static List<Good> setOfGoods;
 	private final String name;
 	private PublicKey publicKey;
 	private PrivateKey privateKey;
@@ -22,7 +23,7 @@ public class User {
 		this.name = name;
 		loadPubKey();
 		loadPrivKey();
-		this.setofGoods = new HashMap<>();
+		setOfGoods = new ArrayList<>();
 	}
 
 	private void loadPubKey(){
