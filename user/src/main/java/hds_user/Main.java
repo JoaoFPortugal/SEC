@@ -1,6 +1,7 @@
 package hds_user;
 
 import java.io.Console;
+import java.io.File;
 import java.io.IOException;
 
 import static java.lang.System.exit;
@@ -29,6 +30,8 @@ public class Main {
 		main.println("Hello! Please enter your name");
 		String name = main.readString();
 		User user = new User(name);
+		File fis = new File("resources/");
+		System.out.println(fis.isDirectory());
 
 		while(true){
 			int option=0;

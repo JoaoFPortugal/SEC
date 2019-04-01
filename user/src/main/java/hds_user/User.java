@@ -23,16 +23,17 @@ public class User {
 
 	public User(String name) {
 		this.name = name;
-		loadPubKey();
-		loadPrivKey();
+		//loadPubKey();
+		//loadPrivKey();
 		this.setofGoods = new HashMap<>();
 	}
 
 	private void loadPubKey(){
 		try{
 
-			File fis = new File("../resources/" + name + "privatekey.txt");
-			byte[] pub = Files.readAllBytes(fis.toPath());
+			FileInputStream fis = new FileInputStream("resources/" + name + "public_key.txt");
+			byte[] pub = fis.readAllBytes();
+			fis.close();
 			X509EncodedKeySpec keySpec = new X509EncodedKeySpec(pub);
 			KeyFactory kf = KeyFactory.getInstance("EC");
 
@@ -45,8 +46,9 @@ public class User {
 
 	private void loadPrivKey(){
 		try{
-			File fis = new File("../resources/" + name + "privatekey.txt");
-			byte[] priv = Files.readAllBytes(fis.toPath());
+			FileInputStream fis = new FileInputStream("resources/" + name + "private_key.txt");
+			byte[] priv = fis.readAllBytes();
+			fis.close();
 			PKCS8EncodedKeySpec ks = new PKCS8EncodedKeySpec(priv);
 			KeyFactory kf = KeyFactory.getInstance("EC");
 			this.privateKey = kf.generatePrivate(ks);
