@@ -13,18 +13,26 @@ public class Main {
 
 		conn = new Connection(serverName, port);
 		
-		Main.println("Hello! Please enter your name");
-		String name = Main.readString();
+		Main.print("Hello! Please enter your ID: ");
+		String sid = Main.readString();
+		int uid = 0;
+		try{
+			uid = Integer.parseInt(sid);
+		}
+		catch(Exception e){
+			Main.println("ID must be a number.");
+			System.exit(0);
+		}
 
-		User user = new User(name);
+		User user = new User(uid);
 
 		while(true){
 			int option=0;
 			Main.println("What would you like to do?");
-			Main.println("1- Get State of Good");
-			Main.println("2- Do something");
-			Main.println("3- DO something");
-			Main.println("4- Exit");
+			Main.println("1. Get State of Good");
+			Main.println("2. Do something");
+			Main.println("3. DO something");
+			Main.println("4. Exit");
 			String input = Main.readString();
 			try{
 				option = Integer.parseInt(input);
@@ -35,7 +43,7 @@ public class Main {
 
 			switch(option) {
 				case 1:
-					Main.println("Good id:");
+					Main.print("Good id: ");
 					String good = Main.readString();
 					int id;
 					try {
@@ -61,6 +69,10 @@ public class Main {
 
 		}
 
+	}
+	
+	public static void print(String str){
+		System.out.print(str);
 	}
 	
 	public static void println(String str){

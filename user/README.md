@@ -3,7 +3,8 @@
 ### Build & Run
 
 ```sh
-cd notary
+cd user
+mvn install:install-file -Dfile=../pteidlibj-2.0.jar -DgroupId=pt.ulisboa.tecnico -DartifactId=pteidlibj -Dversion=2.0 -Dpackaging=jar
 mvn compile # Build
 mvn exec:java # Run
 ```

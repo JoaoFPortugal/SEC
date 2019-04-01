@@ -15,6 +15,7 @@
 
 # Package Files #
 *.jar
+!pteidlibj-2.0.jar
 *.war
 *.ear
 *.zip
