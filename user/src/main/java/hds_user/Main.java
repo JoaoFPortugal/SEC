@@ -21,6 +21,7 @@ public class Main {
 		
 		Main.println("Hello! Please enter your name");
 		String name = Main.readString();
+
 		User user = new User(name);
 
 		while(true){

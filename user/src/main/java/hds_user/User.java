@@ -1,10 +1,7 @@
 package hds_user;
 
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
@@ -31,8 +28,9 @@ public class User {
 	private void loadPubKey(){
 		try{
 
-			File fis = new File("../resources/" + name + "privatekey.txt");
-			byte[] pub = Files.readAllBytes(fis.toPath());
+			FileInputStream fis = new FileInputStream("src/main/resources/" + name + "public_key.txt");
+			byte[] pub = fis.readAllBytes();
+			fis.close();
 			X509EncodedKeySpec keySpec = new X509EncodedKeySpec(pub);
 			KeyFactory kf = KeyFactory.getInstance("EC");
 
@@ -45,8 +43,9 @@ public class User {
 
 	private void loadPrivKey(){
 		try{
-			File fis = new File("../resources/" + name + "privatekey.txt");
-			byte[] priv = Files.readAllBytes(fis.toPath());
+			FileInputStream fis = new FileInputStream("src/main/resources/" + name + "private_key.txt");
+			byte[] priv = fis.readAllBytes();
+			fis.close();
 			PKCS8EncodedKeySpec ks = new PKCS8EncodedKeySpec(priv);
 			KeyFactory kf = KeyFactory.getInstance("EC");
 			this.privateKey = kf.generatePrivate(ks);
