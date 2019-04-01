@@ -26,7 +26,6 @@ public class Main {
 		Main main = new Main();
 
 		conn = new Connection(serverName, port);
-		conn.connect();
 		main.println("Hello! Please enter your name");
 		String name = main.readString();
 		User user = new User(name);
