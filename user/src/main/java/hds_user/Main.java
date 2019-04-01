@@ -27,10 +27,9 @@ public class Main {
 
 		conn = new Connection(serverName, port);
 		main.println("Hello! Please enter your name");
+
 		String name = main.readString();
 		User user = new User(name);
-		File fis = new File("resources/");
-		System.out.println(fis.isDirectory());
 
 		while(true){
 			int option=0;
