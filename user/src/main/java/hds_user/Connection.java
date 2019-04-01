@@ -19,13 +19,13 @@ public class Connection {
 		this.port = port;
 	}
 
-	public void connect() throws IOException {
+	private void connect() throws IOException {
 		client = new Socket(serverName, port);
 		out = new DataOutputStream(client.getOutputStream());
 		in = new DataInputStream(client.getInputStream());
 	}
 
-	public void disconnect() throws IOException {
+	private void disconnect() throws IOException {
 		client.close();
 	}
 
