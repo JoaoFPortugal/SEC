@@ -18,13 +18,13 @@ public class Connection {
 		this.port = port;
 	}
 
-	private void connect() throws IOException {
+	public void connect() throws IOException {
 		client = new Socket(serverName, port);
 		out = new DataOutputStream(client.getOutputStream());
 		in = new DataInputStream(client.getInputStream());
 	}
 
-	private void disconnect() throws IOException {
+	public void disconnect() throws IOException {
 		client.close();
 	}
 
@@ -33,8 +33,6 @@ public class Connection {
 	 * it.
 	 */
 	public Good getStateOfGood(int good) throws IOException {
-		connect();
-		
 		write("getStateOfGood " + Integer.toString(good));
 		String reply = read();
 		String[] tokens = reply.split(" ");
@@ -53,7 +51,6 @@ public class Connection {
 			return null;
 		}
 		Good g = new Good(id, tokens[1], owner, Boolean.valueOf(tokens[3]));
-		disconnect();
 		return g;
 	}
 
@@ -62,10 +59,8 @@ public class Connection {
 	 * user doesn't own it.
 	 */
 	public boolean intentionToSell(int good) throws IOException {
-		connect();
 		write("intentionToSell " + Integer.toString(good));
 		boolean success = Boolean.valueOf(read());
-		disconnect();
 		return success;
 	}
 
@@ -74,10 +69,9 @@ public class Connection {
 	 * doesn't own it.
 	 */
 	public boolean transferGood(int good, int owner) throws IOException {
-		connect();
+
 		write("transferGood " + Integer.toString(good) + " " + Integer.toString(owner));
 		boolean success = Boolean.valueOf(read());
-		disconnect();
 		return success;
 	}
 
