@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -69,19 +70,53 @@ public class Database {
 	}
 	
 	public void selectAllGoods() {
-		String sql = "SELECT gid, name, owner_id, for_sale FROM goods";
+		String sql = "SELECT gid, owner_id, for_sale FROM goods";
 
 		try (Statement stmt = this.conn.createStatement();
 				ResultSet rs = stmt.executeQuery(sql)) {
 
 			// loop through the result set
 			while (rs.next()) {
-				System.out.println(rs.getInt("gid") + "\t" + 
-						rs.getString("name") + "\t" + rs.getInt("owner_id") +
+				System.out.println(rs.getInt("gid") + "\t" + rs.getInt("owner_id") +
 						"\t" + rs.getInt("for_sale"));
 			}
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		}
+	}
+
+
+	public String getStateOfGood(int id){
+		
+		int uid=-1;
+		int for_sale=-1;
+		
+		String sql = "SELECT owner_id, for_sale FROM goods WHERE gid = ?" ;
+
+		try (PreparedStatement pstmt  = conn.prepareStatement(sql)) {
+
+			pstmt.setInt(1, id);
+			
+			ResultSet rs  = pstmt.executeQuery();
+			
+			while (rs.next()) {
+				uid = rs.getInt("owner_id");
+				for_sale = rs.getInt("for_sale");
+			}
+
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+
+		if (uid == -1) {
+			return("There is no Good with that id.");
+		}
+		String owner_id = Integer.toString(uid);
+
+		String good_for_sale;
+		
+		good_for_sale = (for_sale == 1 ? "on-sale" : "Not-on-sale");
+		
+		return(owner_id + " " + good_for_sale);
 	}
 }

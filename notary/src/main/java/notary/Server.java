@@ -7,6 +7,7 @@ import java.util.Queue;
 import java.util.concurrent.Semaphore;
 
 public class Server extends Thread {
+    private Database db;
     private ServerSocket serverSocket;
     private Queue<Request> requests;
     // Only consumes when there is something in the queue, starts with permit = 0
@@ -15,7 +16,8 @@ public class Server extends Thread {
     private int max_queue = 100;
     private Semaphore sem_queue;
 
-    public Server(int port) throws IOException {
+    public Server(int port, Database db) throws IOException {
+        this.db = db;
         serverSocket = new ServerSocket(port);
         requests = new LinkedList<>();
         sem_producer = new Semaphore(0);
@@ -60,7 +62,7 @@ public class Server extends Thread {
         try {
         	// Handling a request decrements the count of requests to handle
             sem_producer.acquire();
-            
+
             if(!requests.isEmpty()){
                 Request request = requests.remove();
                 // More requests can be added to the Queue
@@ -71,7 +73,7 @@ public class Server extends Thread {
                 if (msg.isEmpty()) return;
                 String[] tokens = msg.split(" ");
                 
-                if (tokens[0] == "getStateOfGood" && tokens.length == 2) {
+                if (tokens[0].equals("getStateOfGood") && tokens.length == 2) {
                 	int id;
                 	try {
                 		id = Integer.parseInt(tokens[1]);
@@ -79,8 +81,7 @@ public class Server extends Thread {
                 		// Not a valid message
                 		return;
                 	}
-                	// TODO
-                	request.write("Some answer");
+                	request.write( db.getStateOfGood(id));
                 } else {
                 	// Not a valid message
                 	return;

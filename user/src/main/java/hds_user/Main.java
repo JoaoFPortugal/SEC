@@ -1,13 +1,15 @@
 package hds_user;
 
+import java.io.IOException;
+
 public class Main {
 	
 	// Connection stuff
 	private static String serverName = "localhost";
 	private static int port = 6066;
 	private static Connection conn;
-	
-	public static void main(String[] args) {		
+
+	public static void main(String[] args) {
 
 		conn = new Connection(serverName, port);
 		
@@ -19,7 +21,7 @@ public class Main {
 		while(true){
 			int option=0;
 			Main.println("What would you like to do?");
-			Main.println("1- Do something");
+			Main.println("1- Get State of Good");
 			Main.println("2- Do something");
 			Main.println("3- DO something");
 			Main.println("4- Exit");
@@ -31,9 +33,15 @@ public class Main {
 				Main.println("Wrong input!");
 			}
 
-			switch(option){
+			switch(option) {
 				case 1:
-					break;
+					Main.println("Please name the Good you're looking for");
+					String good = Main.readString();
+					try {
+						conn.getStateOfGood(good);
+					} catch (IOException e){
+						e.printStackTrace();
+					}
 				case 2:
 					break;
 				case 3:

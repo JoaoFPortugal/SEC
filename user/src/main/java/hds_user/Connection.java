@@ -33,12 +33,11 @@ public class Connection {
 	 * Sends a request to the notary to know if the good is for sale and who owns
 	 * it.
 	 */
-	public Good getStateOfGood(int good) throws IOException {
+	public Good getStateOfGood(String good) throws IOException {
 	    connect();
-		write("getStateOfGood " + Integer.toString(good));
-		System.out.println("Good");
+		write("getStateOfGood " + good);
 		String reply = read();
-		System.out.println("Bye");
+		System.out.println(reply);
 		String[] tokens = reply.split(" ");
 		if (tokens.length != 4) return null;
 		int id, owner;
