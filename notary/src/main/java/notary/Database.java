@@ -125,6 +125,6 @@ public class Database {
 			System.out.println(e.getMessage());
 		}
 		
-		return output;
+		return (output.isEmpty() ? "null" : output);
 	}
 }

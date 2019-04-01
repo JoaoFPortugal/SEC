@@ -34,12 +34,14 @@ public class Main {
 		try {
 			user = new User(uid, conn.getListOfGoods());
 		} catch (IOException e1) {
-			println("Failed to get list of goods from the notary.");
 			e1.printStackTrace();
+			System.exit(0);
+		} catch (InexistentGoodsException e) {
+			e.toString();
 			System.exit(0);
 		}
 		
-		user.printAllGoods();
+		//user.printAllGoods();
 
 		while(true){
 			

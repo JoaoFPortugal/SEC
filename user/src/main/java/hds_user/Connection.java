@@ -73,12 +73,23 @@ public class Connection {
 		return g;
 	}
 	
-	public ArrayList<Good> getListOfGoods() throws IOException {
+	public ArrayList<Good> getListOfGoods() throws IOException, InexistentGoodsException {
 		connect();
 		
 		write("getListOfGoods");
 		
 		String reply = read();
+		
+		if (reply.isEmpty()) {
+			disconnect();
+			throw new IOException();
+		}
+		
+		if (reply.startsWith("null")) {
+			disconnect();
+			throw new InexistentGoodsException();
+		}
+		
 		String[] tokens = reply.split(" ");
 		
 		ArrayList<Good> list = new ArrayList<Good>();
