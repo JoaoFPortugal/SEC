@@ -35,10 +35,17 @@ public class Main {
 
 			switch(option) {
 				case 1:
-					Main.println("Please name the Good you're looking for");
+					Main.println("Good id:");
 					String good = Main.readString();
+					int id;
 					try {
-						conn.getStateOfGood(good);
+						id = Integer.parseInt(good);
+					} catch (NumberFormatException e) {
+						Main.println("Not a valid id.");
+						break;
+					}
+					try {
+						conn.getStateOfGood(id);
 					} catch (IOException e){
 						e.printStackTrace();
 					}

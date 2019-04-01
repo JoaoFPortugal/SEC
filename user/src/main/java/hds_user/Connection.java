@@ -33,28 +33,21 @@ public class Connection {
 	 * Sends a request to the notary to know if the good is for sale and who owns
 	 * it.
 	 */
-	public Good getStateOfGood(String good) throws IOException {
+	public Good getStateOfGood(int gid) throws IOException {
 	    connect();
-		write("getStateOfGood " + good);
+		write("getStateOfGood " + Integer.toString(gid));
 		String reply = read();
 		System.out.println(reply);
 		String[] tokens = reply.split(" ");
-		if (tokens.length != 4) return null;
-		int id, owner;
-		System.out.println("Hello");
-		// test if id is an integer
-		try {
-			id = Integer.parseInt(tokens[0]);
-		} catch (NumberFormatException e) {
-			return null;
-		}
+		if (tokens.length != 2) return null;
+		int owner;
 		// test if owner is an integer
 		try {
-			owner = Integer.parseInt(tokens[2]);
+			owner = Integer.parseInt(tokens[0]);
 		} catch (NumberFormatException e) {
 			return null;
 		}
-		Good g = new Good(id, tokens[1], owner, Boolean.valueOf(tokens[3]));
+		Good g = new Good(gid, owner, Boolean.valueOf(tokens[1]));
 		disconnect();
 		return g;
 	}
