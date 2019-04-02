@@ -10,14 +10,16 @@ public class Message {
     private int origin;
     private int destination;
     private long now;
+    private int gid;
 
 
 
-    public Message(int origin, int destination, char operation, long now){
+    public Message(int origin, int destination, char operation, long now, int gid){
         this.origin = origin;
         this.destination = destination;
         this.operation = operation;
         this.now = now;
+        this.gid = gid;
     }
 
 
@@ -32,7 +34,7 @@ public class Message {
         return origin;
     }
 
-
+    public int getContent(){return gid;}
 
     public void print(){
 
@@ -41,6 +43,7 @@ public class Message {
         System.out.println(this.origin);
         System.out.println(this.destination);
         System.out.println(this.now);
+        System.out.println(this.gid);
 
         System.out.println();
 
@@ -52,12 +55,13 @@ public class Message {
     public byte[] toBytes(){
 
 
-        ByteBuffer bb = ByteBuffer.allocate(18);
+        ByteBuffer bb = ByteBuffer.allocate(22);
 
         bb.putChar(operation);
         bb.putInt(origin);
         bb.putInt(destination);
         bb.putLong(now);
+        bb.putInt(gid);
 
         return bb.array();
 
@@ -74,9 +78,10 @@ public class Message {
         int   morigin = bb.getInt();
         int   mdestination  = bb.getInt();
         long  mnow = bb.getLong();
+        int   mgid = bb.getInt();
 
 
-        return new Message(morigin, mdestination, moperation, mnow);
+        return new Message(morigin, mdestination, moperation, mnow, mgid);
 
 
     }

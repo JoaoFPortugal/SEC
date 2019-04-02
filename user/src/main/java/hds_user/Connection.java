@@ -5,9 +5,11 @@ import java.io.DataOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 
+import hds_security.Message;
 import hds_user.exceptions.*;
 
 import java.io.IOException;
+import java.util.Date;
 
 public class Connection {
 
@@ -37,7 +39,9 @@ public class Connection {
 	 * it. Returns a Good object on success.
 	 * @throws InexistentGoodException 
 	 */
-	public Good getStateOfGood(int gid) throws IOException, InexistentGoodException {
+
+
+	/*public Good getStateOfGood(int gid) throws IOException, InexistentGoodException {
 	    connect();
 		write("getStateOfGood " + Integer.toString(gid));
 		
@@ -71,9 +75,9 @@ public class Connection {
 		
 		disconnect();
 		return g;
-	}
+	}*/
 	
-	public ArrayList<Good> getListOfGoods() throws IOException, InexistentGoodsException {
+	/*public ArrayList<Good> getListOfGoods() throws IOException, InexistentGoodsException {
 		connect();
 		
 		write("getListOfGoods");
@@ -111,39 +115,56 @@ public class Connection {
 		
 		disconnect();
 		return list;
-	}
+	}*/
 
 	/**
 	 * Sends a request to the notary expressing that a good is for sale. Fails if
 	 * user doesn't own it.
 	 */
-	public boolean intentionToSell(int good) throws IOException {
+	public boolean intentionToSell(int gid, int uid) throws IOException {
 	    connect();
-		write("intentionToSell " + Integer.toString(good));
-		boolean success = Boolean.valueOf(read());
+		Date date = new Date();
+		long now = date.getTime();
+	    Message message = new Message(uid, -1, 'S' ,now , gid);
+
+		write(message);
+
+		byte[] reply = read();
+		Message replyMessage = message.fromBytes(reply);
+
+		System.out.println(replyMessage.getContent());
+
+
 		disconnect();
-		return success;
+		return true;
 	}
 
 	/**
 	 * Sends a request to the server to change the owner of a good. Fails if user
 	 * doesn't own it.
 	 */
-	public boolean transferGood(int good, int owner) throws IOException {
+	/*public boolean transferGood(int good, int owner) throws IOException {
         connect();
 		write("transferGood " + Integer.toString(good) + " " + Integer.toString(owner));
 		boolean success = Boolean.valueOf(read());
 		disconnect();
 		return success;
+	}*/
+
+	private byte[] read() throws IOException {
+		int msgLen = in.readInt();
+		byte[] msg = new byte[msgLen];
+		in.readFully(msg);
+		return msg;
 	}
 
-	private String read() throws IOException {
-		return in.readUTF();
+	private void write(Message message) throws IOException {
+	    //message.print();
+		byte[] msg = message.toBytes();
+		out.writeInt(msg.length);
+		out.write(msg, 0, msg.length);
 	}
 
-	private void write(String msg) throws IOException {
-		out.writeUTF(msg);
-	}
 
 	public String getAddr() {
 		return client.getRemoteSocketAddress().toString();

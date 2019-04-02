@@ -31,7 +31,7 @@ public class Main {
 		}
 
 		User user = null;
-		try {
+		/*try {
 			user = new User(uid, conn.getListOfGoods());
 		} catch (IOException e1) {
 			e1.printStackTrace();
@@ -39,7 +39,7 @@ public class Main {
 		} catch (InexistentGoodsException e) {
 			e.toString();
 			System.exit(0);
-		}
+		}*/
 		
 		//user.printAllGoods();
 
@@ -49,7 +49,7 @@ public class Main {
 			
 			Main.println("What would you like to do?");
 			Main.println("1. Get State of Good");
-			Main.println("2. Do something");
+			Main.println("2. Sell");
 			Main.println("3. DO something");
 			Main.println("0. Exit");
 			
@@ -65,9 +65,10 @@ public class Main {
 
 			switch(option) {
 				case 1:
-					printStateOfGood();
+				    break;
+					//printStateOfGood();
 				case 2:
-					break;
+					intentionToSell(uid);
 				case 3:
 					break;
 				case 0:
@@ -79,8 +80,34 @@ public class Main {
 		}
 
 	}
+
+	public static void intentionToSell(int uid){
+
+		int gid;
+
+		while (true) {
+			try {
+				gid = Integer.parseInt(Main.readString("Good ID: ", false));
+				break;
+			} catch (NumberFormatException e) {
+				Main.println("Not a valid ID.");
+			}
+		}
+
+		boolean b;
+
+		try {
+
+			b = conn.intentionToSell(gid,uid);
+		} catch (IOException e){
+			e.printStackTrace();
+			return;
+		}
+
+
+	}
 	
-	public static void printStateOfGood() {
+	/*public static void printStateOfGood() {
 		
 		int gid;
 		
@@ -107,7 +134,7 @@ public class Main {
 		
 		println("Good with ID=" + gid + " belongs to user with ID=" + g.getOwner() +
 				" and is " + (g.getForSale() ? "" : "not ") + "for sale.");
-	}
+	}*/
 	
 	public static void print(String str){
 		System.out.print(str);
