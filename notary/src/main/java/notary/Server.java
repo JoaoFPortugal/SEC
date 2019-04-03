@@ -1,10 +1,16 @@
 package notary;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.Semaphore;
+import java.lang.Character;
+import hds_security.Message;
+
 
 public class Server extends Thread {
     private Database db;
@@ -64,11 +70,37 @@ public class Server extends Thread {
             sem_producer.acquire();
 
             if(!requests.isEmpty()){
+                db.selectAllGoods();
                 Request request = requests.remove();
                 // More requests can be added to the Queue
                 sem_queue.release();
-                
+
+                Character op = request.operation;
+
+
+                Date date = new Date();
+                long now = date.getTime();
+
+                if (op.equals('S')){
+                    int reply = db.checkIntentionToSell(request.gid, request.origin);
+                    Message message = new Message(-1,-1, 'R', now, reply);
+                    try {
+                        request.write(message);
+                    } catch(IOException e){
+                        e.printStackTrace();
+                    }
+                }
+
+
+
+
+
+
+                /*
                 String msg = request.getMessage();
+
+
+
                 // Not a valid message
                 if (msg.isEmpty()) return;
                 String[] tokens = msg.split(" ");
@@ -84,15 +116,28 @@ public class Server extends Thread {
                 		return;
                 	}
                 	request.write(db.getStateOfGood(id));
-                
+                } else if (tokens[0].equals("intentionToSell") && tokens.length == 2) {
+                    int id;
+                    try {
+                        id = Integer.parseInt(tokens[1]);
+                    } catch (NumberFormatException nfe) {
+                        // Not a valid message
+                        return;
+                    }
+                    request.write( db.checkIntentionToSell(id));
                 } else {
                 	// Not a valid message
                 	return;
-                }
+                }*/
 
             }
-        } catch (IOException | InterruptedException e) {
+        } catch ( InterruptedException e) {
             e.printStackTrace();
         }
     }
+
+
+
+
+
 }

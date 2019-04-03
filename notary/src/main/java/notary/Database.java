@@ -87,15 +87,15 @@ public class Database {
 
 
 	public String getStateOfGood(int id){
-		
+
 		String sql = "SELECT owner_id, for_sale FROM goods WHERE gid = ?" ;
 
 		try (PreparedStatement pstmt  = conn.prepareStatement(sql)) {
 
 			pstmt.setInt(1, id);
-			
+
 			ResultSet rs  = pstmt.executeQuery();
-			
+
 			while (rs.next()) {
 				int uid = rs.getInt("owner_id");
 				int for_sale = rs.getInt("for_sale");
@@ -105,8 +105,45 @@ public class Database {
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		}
-		
+
 		return("null");
+	}
+
+	public int checkIntentionToSell(int uid, int gid){
+
+		String sql = "UPDATE goods SET for_sale = ? WHERE gid = ? AND owner_id = ?" ;
+
+		try (PreparedStatement pstmt  = conn.prepareStatement(sql)) {
+
+			pstmt.setInt(1, 1);
+			pstmt.setInt(2, gid);
+			pstmt.setInt(3, uid);
+
+			pstmt.executeQuery();
+
+
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+
+		int result=-1;
+		String sql2 = "SELECT for_sale FROM goods WHERE gid = ? AND owner_id = ?" ;
+		try (PreparedStatement pstmt  = conn.prepareStatement(sql2)) {
+
+			pstmt.setInt(1, gid);
+			pstmt.setInt(2, uid);
+
+			ResultSet rs  = pstmt.executeQuery();
+
+			result= rs.getInt(1);
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+			return(0);
+
+		}
+
+		return(result);
+
 	}
 	
 	public String getListOfGoods() {
