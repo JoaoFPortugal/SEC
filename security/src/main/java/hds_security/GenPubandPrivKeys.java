@@ -13,14 +13,14 @@ public class GenPubandPrivKeys {
     private void store_gen_keys(String filename, PublicKey public_key, PrivateKey private_key) {
         FileOutputStream fos;
         try {
-            fos = new FileOutputStream(filename + "public_key.txt");
+            fos = new FileOutputStream(filename + "_public_key.txt");
             fos.write(public_key.getEncoded());
             fos.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
         try {
-            fos = new FileOutputStream(filename + "private_key.txt");
+            fos = new FileOutputStream(filename + "_private_key.txt");
             fos.write(private_key.getEncoded());
             fos.close();
         } catch (FileNotFoundException e) {
