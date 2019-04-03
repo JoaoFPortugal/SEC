@@ -11,7 +11,6 @@ import java.util.concurrent.Semaphore;
 import java.lang.Character;
 import hds_security.Message;
 
-
 public class Server extends Thread {
     private Database db;
     private ServerSocket serverSocket;
@@ -93,9 +92,6 @@ public class Server extends Thread {
 
 
 
-
-
-
                 /*
                 String msg = request.getMessage();
 
@@ -135,9 +131,5 @@ public class Server extends Thread {
             e.printStackTrace();
         }
     }
-
-
-
-
 
 }

@@ -67,8 +67,6 @@ public class Message {
 
     }
 
-
-
     public static Message fromBytes(byte[] mbytes){
 
 
@@ -82,7 +80,6 @@ public class Message {
 
 
         return new Message(morigin, mdestination, moperation, mnow, mgid);
-
 
     }
 
