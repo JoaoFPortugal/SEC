@@ -31,6 +31,12 @@ public class GenPubandPrivKeys {
     }
 
     private KeyPair gen_keys() throws NoSuchAlgorithmException {
+    	/**
+    	 * Gets the type of algorithm to use in the key-pair generation.
+		 * In this case it is Elliptical Curves (EC), but could be RSA, ElGammal...
+		 * EC is the key with smaller size, more efficient with equivalent security.
+		 * SHA1PRNG is the standard to generate secure randoms
+    	 */
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
         SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
 
