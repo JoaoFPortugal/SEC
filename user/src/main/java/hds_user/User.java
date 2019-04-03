@@ -27,6 +27,12 @@ public class User {
 		setOfGoods = goods;
 	}
 
+	public User(int id){
+		this.uid = id;
+		loadPubKey();
+		loadPrivKey();
+	}
+
 	private void loadPubKey(){
 		try{
 			byte[] pub = Files.readAllBytes(Paths.get("./src/main/resources/" + uid + "_public_key.txt"));

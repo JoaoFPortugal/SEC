@@ -3,9 +3,14 @@ package hds_user;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SignatureException;
 import java.util.ArrayList;
 
+import hds_security.HashMessage;
 import hds_security.Message;
+import hds_security.SignMessage;
 import hds_user.exceptions.*;
 
 import java.io.IOException;
@@ -18,6 +23,7 @@ public class NotaryConnection {
 	private Socket client;
 	private DataOutputStream out;
 	private DataInputStream in;
+	private User user;
 
 	public NotaryConnection(String serverName, int port) {
 		this.serverName = serverName;
@@ -32,6 +38,10 @@ public class NotaryConnection {
 
 	private void disconnect() throws IOException {
 		client.close();
+	}
+
+	public void setUser(User user){
+		this.user = user;
 	}
 
 	/**
@@ -133,8 +143,23 @@ public class NotaryConnection {
 	private void write(Message message) throws IOException {
 		// message.print();
 		byte[] msg = message.toBytes();
-		out.writeInt(msg.length);
-		out.write(msg, 0, msg.length);
+		HashMessage hashMessage = new HashMessage();
+		SignMessage signMessage = new SignMessage();
+		byte[] finalmsg = new byte[0];
+		try {
+			byte[] signedmessage = signMessage.sign(hashMessage.hashBytes(msg),user.getPrivateKey());
+			finalmsg = new byte[msg.length + signedmessage.length];
+			System.arraycopy(msg,0,finalmsg,0,msg.length);
+			System.arraycopy(signedmessage,0,finalmsg,msg.length,signedmessage.length);
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		} catch (InvalidKeyException e) {
+			e.printStackTrace();
+		} catch (SignatureException e) {
+			e.printStackTrace();
+		}
+		out.writeInt(finalmsg.length);
+		out.write(finalmsg, 0, finalmsg.length);
 	}
 
 	public String getAddr() {

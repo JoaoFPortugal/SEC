@@ -18,7 +18,7 @@ public class SignMessage {
         return signature;
     }
 
-    public boolean verify(byte[] plaintextMessage, byte[] signedMessage, PublicKey publicKey) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+        public boolean verify(byte[] plaintextMessage, byte[] signedMessage, PublicKey publicKey) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
             Signature signature;
             signature = Signature.getInstance("SHA256withECDSA");
             signature.initVerify(publicKey);

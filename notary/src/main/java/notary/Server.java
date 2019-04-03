@@ -4,12 +4,17 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SignatureException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.Semaphore;
 import java.lang.Character;
 import hds_security.Message;
+import notary.exceptions.InvalidSignatureException;
 
 public class Server extends Thread {
     private Database db;
@@ -46,9 +51,14 @@ public class Server extends Thread {
 
             System.out.println("Waiting for client on port " +
                     serverSocket.getLocalPort() + "...");
-            
-            Request request = new Request(serverSocket.accept());
-            
+
+            Request request = null;
+            try {
+                request = new Request(serverSocket.accept());
+            } catch (NoSuchAlgorithmException | InvalidKeySpecException | SignatureException | InvalidKeyException | InvalidSignatureException e) {
+                e.printStackTrace();
+            }
+
             // Add request to Queue and decrement the semaphore count of allowed number of requests
             sem_queue.acquire();
             requests.add(request);

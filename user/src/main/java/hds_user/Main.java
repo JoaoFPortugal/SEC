@@ -38,6 +38,8 @@ public class Main {
 
 		// user.printAllGoods();
 
+		conn.setUser(new User(uid));
+
 		while (true) {
 
 			int option = 0;
