@@ -119,7 +119,7 @@ public class Database {
 			pstmt.setInt(2, gid);
 			pstmt.setInt(3, uid);
 
-			pstmt.executeQuery();
+			pstmt.execute();
 
 
 		} catch (SQLException e) {
