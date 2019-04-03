@@ -51,10 +51,10 @@ public class GenPubandPrivKeys {
 
 
     public static void main(String[] args) throws NoSuchAlgorithmException {
-        GenPubandPrivKeys gen = new GenPubandPrivKeys("Joao");
-        gen = new GenPubandPrivKeys("Diogo");
-        gen = new GenPubandPrivKeys("Francisco");
-        gen = new GenPubandPrivKeys("Nuno");
-        gen = new GenPubandPrivKeys("Ricardo");
+        GenPubandPrivKeys gen = new GenPubandPrivKeys("1");
+        gen = new GenPubandPrivKeys("2");
+        gen = new GenPubandPrivKeys("3");
+        gen = new GenPubandPrivKeys("4");
+        gen = new GenPubandPrivKeys("5");
     }
 }
