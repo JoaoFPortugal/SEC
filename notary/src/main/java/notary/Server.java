@@ -73,7 +73,9 @@ public class Server extends Thread {
                 if (msg.isEmpty()) return;
                 String[] tokens = msg.split(" ");
                 
-                if (tokens[0].equals("getStateOfGood") && tokens.length == 2) {
+                if (tokens[0].equals("getListOfGoods")) {
+                	request.write(db.getListOfGoods());
+                } else if (tokens[0].equals("getStateOfGood") && tokens.length == 2) {
                 	int id;
                 	try {
                 		id = Integer.parseInt(tokens[1]);
@@ -81,9 +83,8 @@ public class Server extends Thread {
                 		// Not a valid message
                 		return;
                 	}
-                	request.write( db.getStateOfGood(id));
-                } else if (tokens[0].equals("getListOfGoods")) {
-                	request.write(db.getListOfGoods());
+                	request.write(db.getStateOfGood(id));
+                
                 } else {
                 	// Not a valid message
                 	return;

@@ -65,7 +65,7 @@ public class Main {
 
 			switch(option) {
 				case 1:
-					printStateOfGood();
+					menuPrintGood();
 				case 2:
 					break;
 				case 3:
@@ -80,7 +80,7 @@ public class Main {
 
 	}
 	
-	public static void printStateOfGood() {
+	public static void menuPrintGood() {
 		
 		int gid;
 		
