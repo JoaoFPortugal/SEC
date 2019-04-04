@@ -41,11 +41,12 @@ public class GenPubandPrivKeys {
     	 * Gets the type of algorithm to use in the key-pair generation.
 		 * In this case it is Elliptical Curves (EC), but could be RSA, ElGammal...
 		 * EC is the key with smaller size, more efficient with equivalent security.
-		 * SHA1PRNG is the standard to generate secure randoms
     	 */
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
+        // SHA1PRNG is the standard to generate secure randoms
         SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
 
+        // EC uses 224 key size
         keyGen.initialize(224,random);
         KeyPair keys = keyGen.generateKeyPair();
         return keys;
