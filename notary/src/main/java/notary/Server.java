@@ -88,6 +88,17 @@ public class Server extends Thread {
                 }
             }
 
+            else if ( request.operation=='G'){
+                String query_result = db.getStateOfGood(request.gid);
+                String[] splitted_query = query_result.split(" ");
+                Message message = new Message(Integer.valueOf(splitted_query[0]), -1, 'R', now, Integer.valueOf(splitted_query[1]));
+                try {
+                    request.write(message);
+                } catch(IOException e){
+                    e.printStackTrace();
+                }
+            }
+
 
 
             /*

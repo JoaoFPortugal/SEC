@@ -66,7 +66,7 @@ public class Main {
 
 			switch (option) {
 			case 1:
-				// menuPrintGood();
+				menuPrintGood(uid);
 				break;
 			case 2:
 				intentionToSell(uid);
@@ -108,24 +108,33 @@ public class Main {
 
 	}
 
-	/*
-	 * public static void menuPrintGood() {
-	 * 
-	 * int gid;
-	 * 
-	 * while (true) { try { gid = Integer.parseInt(Main.readString("Good ID: ",
-	 * false)); break; } catch (NumberFormatException e) {
-	 * Main.println("Not a valid ID."); } }
-	 * 
-	 * Good g;
-	 * 
-	 * try { g = conn.getStateOfGood(gid); } catch (IOException e){
-	 * e.printStackTrace(); return; } catch (InexistentGoodException e) {
-	 * println(e.toString()); return; }
-	 * 
-	 * println("Good with ID=" + gid + " belongs to user with ID=" + g.getOwner() +
-	 * " and is " + (g.getForSale() ? "" : "not ") + "for sale."); }
-	 */
+	public static void menuPrintGood(int uid) {
+
+		int gid;
+
+		while (true) {
+			try {
+				gid = Integer.parseInt(Main.readString("Good ID: ", false));
+				break;
+			} catch (NumberFormatException e) {
+				Main.println("Not a valid ID.");
+			}
+		}
+
+		Good g;
+
+
+		try {
+			g = conn.getStateOfGood(gid, uid);
+		}catch (IOException e){
+			e.printStackTrace();
+			return;
+		}
+
+		println("Good with ID=" + gid + " belongs to user with ID=" + g.getOwner() +
+				" and is " + (g.getForSale() ? "" : "not ") + "for sale.");
+	}
+
 
 	public static void print(String str) {
 		System.out.print(str);

@@ -51,28 +51,26 @@ public class NotaryConnection {
 	 * @throws InexistentGoodException
 	 */
 
-	/*
-	 * public Good getStateOfGood(int gid) throws IOException,
-	 * InexistentGoodException { connect(); write("getStateOfGood " +
-	 * Integer.toString(gid));
-	 * 
-	 * String reply = read();
-	 * 
-	 * if (reply.isEmpty()) { disconnect(); throw new IOException(); }
-	 * 
-	 * if (reply.startsWith("null")) { disconnect(); throw new
-	 * InexistentGoodException(gid); }
-	 * 
-	 * String[] tokens = reply.split(" "); if (tokens.length != 2) { disconnect();
-	 * throw new IOException(); }
-	 * 
-	 * int owner; // test if owner is an integer try { owner =
-	 * Integer.parseInt(tokens[0]); } catch (NumberFormatException e) {
-	 * disconnect(); throw new IOException(); } Good g = new Good(gid, owner,
-	 * Boolean.valueOf(tokens[1]));
-	 * 
-	 * disconnect(); return g; }
-	 */
+	public Good getStateOfGood(int gid, int uid) throws IOException {
+		connect();
+		Date date = new Date();
+		long now = date.getTime();
+		Message message = new Message(uid, -1, 'G', now, gid);
+
+		write(message);
+
+		byte[] reply = read();
+
+		Message replyMessage = message.fromBytes(reply);
+
+
+		Good g = new Good(gid, replyMessage.getOrigin(), replyMessage.getContent() == 1 ? true : false);
+
+
+		disconnect();
+		return g;
+
+	}
 
 	/*
 	 * public ArrayList<Good> getListOfGoods() throws IOException,

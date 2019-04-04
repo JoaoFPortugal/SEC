@@ -99,7 +99,7 @@ public class Database {
 			while (rs.next()) {
 				int uid = rs.getInt("owner_id");
 				int for_sale = rs.getInt("for_sale");
-				return(uid + " " + (for_sale == 1 ? "true" : "false"));
+				return(Integer.toString(uid)  + " " + for_sale);
 			}
 
 		} catch (SQLException e) {
