@@ -12,7 +12,9 @@ We persist our data using **SQLite**, which is a RDMS that requires no server, t
 
 #### Notary - User
 
-The communication between the notary and the user is made using **TCP Sockets**. The way that the notary deals with the multiple user connections and requests is with a **producer-consumer** pattern, that is, it has a thread that listens for incoming user connections and the requests associated, placing them in a queue, and then another thread that deals with the requests in the queue. The user uses a class that works as a "library" to interact with the server.
+The communication between the notary and the user is made using **TCP Sockets**. The way that the notary deals with the multiple user connections and requests is with a **producer-consumer** pattern, that is, it has one thread (the producer) that listens for incoming user connections and the requests associated, placing them in a queue, and then another number of threads (the consumers) that deal with the requests in the queue. In order to process multiple requests at the same time without compromising the individual process delay, we have as many consumer threads as CPU cores. We use a [BlockingQueue](http://tutorials.jenkov.com/java-util-concurrent/blockingqueue.html) from Java that is perfect for our needs as we do not require semaphores nor mutexes.
+
+The user uses a class that works as a "library" to interact with the server.
 
 #### User - User
 
@@ -34,3 +36,6 @@ The Notary's public key is inside a certificate. The certificate assures us that
 
 Noonce
 
+### Timing attacks (DDoS, slowloris...)
+
+We do not deal with these attacks as they require more effort to mitigate and are outside the scope of this particular project.
