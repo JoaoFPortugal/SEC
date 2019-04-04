@@ -10,7 +10,8 @@ import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Date;
 import java.util.LinkedList;
-import java.util.Queue;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Semaphore;
 import java.lang.Character;
 import hds_security.Message;
@@ -19,17 +20,24 @@ import notary.exceptions.InvalidSignatureException;
 public class Server extends Thread {
     private Database db;
     private ServerSocket serverSocket;
-    private Queue<Request> requests;
+    private BlockingQueue<Request> requests;
     // Only consumes when there is something in the queue, starts with permit = 0
     private Semaphore sem_producer;
     // Does not allow more than 'max_queue' requests on the queue (for resources concern)
-    private int max_queue = 100;
+    private int max_queue = 1024;
     private Semaphore sem_queue;
 
     public Server(int port, Database db) throws IOException {
         this.db = db;
         serverSocket = new ServerSocket(port);
-        requests = new LinkedList<>();
+        
+        /**
+         * 1st parameter: capacity - the capacity of this queue
+         * 2nd parameter: fair - if true then queue accesses for threads blocked on
+         * insertion or removal, are processed in FIFO order; if false the access
+         * order is unspecified. 
+         */
+        requests = new ArrayBlockingQueue<Request>(max_queue, true);
         sem_producer = new Semaphore(0);
         sem_queue = new Semaphore(max_queue);
     }
