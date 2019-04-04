@@ -4,9 +4,15 @@ import java.io.*;
 import java.security.*;
 
 public class GenPubandPrivKeys {
+	
+	private String filename;
 
     public GenPubandPrivKeys(String filename) throws NoSuchAlgorithmException {
-        KeyPair gen_keys = gen_keys();
+    	this.filename = filename;
+    }
+    
+    public void genKeyFiles() throws NoSuchAlgorithmException {
+    	KeyPair gen_keys = gen_keys();
         store_gen_keys(filename,get_public_key(gen_keys),get_private_key(gen_keys));
     }
 
@@ -57,10 +63,10 @@ public class GenPubandPrivKeys {
 
 
     public static void main(String[] args) throws NoSuchAlgorithmException {
-        GenPubandPrivKeys gen = new GenPubandPrivKeys("1");
-        gen = new GenPubandPrivKeys("2");
-        gen = new GenPubandPrivKeys("3");
-        gen = new GenPubandPrivKeys("4");
-        gen = new GenPubandPrivKeys("5");
+        new GenPubandPrivKeys("1").genKeyFiles();
+        new GenPubandPrivKeys("2").genKeyFiles();
+        new GenPubandPrivKeys("3").genKeyFiles();
+        new GenPubandPrivKeys("4").genKeyFiles();
+        new GenPubandPrivKeys("5").genKeyFiles();
     }
 }
