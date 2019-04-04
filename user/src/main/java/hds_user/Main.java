@@ -10,12 +10,17 @@ public class Main {
 
 	// Connection stuff
 	private static String serverName = "localhost";
-	private static int port = 6066;
+	private static int notaryPort = 6066;
+	private static int userListenPort = 4444;
 	private static NotaryConnection conn;
 
 	public static void main(String[] args) {
 
-		conn = new NotaryConnection(serverName, port);
+		// Listen to user requests
+		ClientListener service = new ClientListener(userListenPort, "ServiceThread");
+		service.start();
+		
+		conn = new NotaryConnection(serverName, notaryPort);
 
 		println("Hello!");
 

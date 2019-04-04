@@ -24,7 +24,7 @@ See [Methodology.md](documentation/Methodology.md)
 - ~~Persist data of notary: SQLite~~
 - ~~Use Maven (or Gradle) for managing the build~~
 - Improve README.md and documentation/Methodology.md
-    - How to compile app
+    - ~~How to compile app~~
     - How to test app
     - Will be used for Report
 - Implement communication between client and server (Producer-Consumer model)
@@ -39,6 +39,8 @@ See [Methodology.md](documentation/Methodology.md)
         ?- Use API for accessing card: <https://docs.oracle.com/javase/7/docs/jre/api/security/smartcardio/spec/>
     - For PKI, use João's code or openssl (save in Java format)
     - Use JavaCrypto (only 1 method used in lab is deprecated and doesn't work on Java > 8)
+- Prof: Use key stores (Java has this) instead of plain text to store the keys, because in key stores we can sign them.
+- Prof: Using the CC to cipher everything requires entering the PIN many times, try to mitigate this. Eg. Generate new key pair that is signed with the CC). But the `transferGood` method must be necessarily ciphered with the CC.
 
 **How does PKI work:**
 
