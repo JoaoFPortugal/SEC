@@ -11,7 +11,7 @@ Moreover it also generates the initial key pairs for all the users.
 ```sh
 mvn compile
 cd target/classes
-java hds_security.GenPubandPrivKeys
+java hds_security.GenPubAndPrivKeys
 cp *.txt ../../../user/src/main/resources
 cp *_public_key.txt ../../../notary/src/main/resources
 ```
