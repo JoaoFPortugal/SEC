@@ -6,13 +6,13 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-public class ClientConnection implements Runnable {
+public class UserConnection implements Runnable {
 
 	private Thread t;
 	private String threadName;
 	private Socket clientSocket;
 
-	ClientConnection(Socket s, String name) {
+	UserConnection(Socket s, String name) {
 		threadName = name;
 		clientSocket = s;
 	}

@@ -11,14 +11,14 @@ public class Main {
 	// Connection stuff
 	private static String serverName = "localhost";
 	private static int notaryPort = 6066;
-	private static int userListenPort = 4444;
+	private static int userListenerPort = 4444;
 	private static NotaryConnection conn;
 
 	public static void main(String[] args) {
 
 		// Listen to user requests
-		ClientListener service = new ClientListener(userListenPort, "ServiceThread");
-		service.start();
+		UserListener userListener = new UserListener(userListenerPort, "userListenerThread");
+		userListener.start();
 		
 		conn = new NotaryConnection(serverName, notaryPort);
 

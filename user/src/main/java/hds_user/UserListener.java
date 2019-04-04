@@ -5,17 +5,17 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Vector;
 
-public class ClientListener implements Runnable {
+public class UserListener implements Runnable {
 
 	private int portNumber;
 	private Thread t;
 	private String threadName;
-	protected Vector<ClientConnection> clientConnections;
+	protected Vector<UserConnection> clientConnections;
 
-	ClientListener(int port, String name) {
+	UserListener(int port, String name) {
 		this.portNumber = port;
 		this.threadName = name;
-		this.clientConnections = new Vector<ClientConnection>();
+		this.clientConnections = new Vector<UserConnection>();
 	}
 
 	@Override
@@ -26,7 +26,7 @@ public class ClientListener implements Runnable {
 		) {
 			while (true) {
 				Socket clientSocket = serverSocket.accept();
-				ClientConnection cn = new ClientConnection(clientSocket,
+				UserConnection cn = new UserConnection(clientSocket,
 						"Client: " + clientSocket.getInetAddress());
 				cn.start();
 				this.clientConnections.add(cn);
