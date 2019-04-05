@@ -1,5 +1,8 @@
 ---
 --- Users
+--- Realistically we wouldn't store the IP and port where a user
+--- is listening, and would get it during run-time. But for simplicity
+--- we do it this way.
 ---
 CREATE TABLE IF NOT EXISTS `users` (
 	`uid` INTEGER PRIMARY KEY,
