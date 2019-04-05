@@ -17,10 +17,6 @@ public class Main {
 
 	public static void main(String[] args) {
 
-		// Listen to user requests
-		UserListener userListener = new UserListener(userListenerPort, "userListenerThread");
-		userListener.start();
-
 		println("Hello!");
 
 		int uid = 0;
@@ -32,6 +28,10 @@ public class Main {
 				Main.println("ID must be a number.");
 			}
 		}
+		
+		// Listen to user requests
+		UserListener userListener = new UserListener(userListenerPort, "userListenerThread");
+		userListener.start();
 		
 		user = new User(uid);
 		conn = new NotaryConnection(serverName, notaryPort, user);
