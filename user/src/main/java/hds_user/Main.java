@@ -19,7 +19,7 @@ public class Main {
 		// Listen to user requests
 		UserListener userListener = new UserListener(userListenerPort, "userListenerThread");
 		userListener.start();
-		
+
 		conn = new NotaryConnection(serverName, notaryPort);
 
 		println("Hello!");
@@ -51,8 +51,8 @@ public class Main {
 
 			Main.println("What would you like to do?");
 			Main.println("1. Get State of Good");
-			Main.println("2. Sell");
-			Main.println("3. DO something");
+			Main.println("2. Intention to sell");
+			Main.println("3. Intention to buy");
 			Main.println("0. Exit");
 
 			String input = Main.readString();
@@ -99,7 +99,6 @@ public class Main {
 		boolean b;
 
 		try {
-
 			b = conn.intentionToSell(gid, uid);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -123,19 +122,21 @@ public class Main {
 
 		Good g;
 
-
 		try {
 			g = conn.getStateOfGood(gid, uid);
-		}catch (IOException e){
+		} catch (IOException e) {
 			e.printStackTrace();
 			return;
 		}
 
-		println("Good with ID=" + gid + " belongs to user with ID=" + g.getOwner() +
-				" and is " + (g.getForSale() ? "" : "not ") + "for sale.");
+		println("Good with ID=" + gid + " belongs to user with ID=" + g.getOwner() + " and is "
+				+ (g.getForSale() ? "" : "not ") + "for sale.");
 	}
 
-
+	public static boolean callTransfer(int goodId, int ownerId) throws IOException {
+		return conn.transferGood(goodId, ownerId);
+	}
+	
 	public static void print(String str) {
 		System.out.print(str);
 	}
