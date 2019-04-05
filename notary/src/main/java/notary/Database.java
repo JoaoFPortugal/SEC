@@ -146,6 +146,51 @@ public class Database {
 		return(result);
 
 	}
+	public int transferGood(int gid, int owner, int buyer){
+		int uid =-1;
+		int for_sale=-1;
+		String sql = "SELECT owner_id, for_sale FROM goods WHERE gid = ?";
+		try (PreparedStatement pstmt  = conn.prepareStatement(sql)) {
+
+			pstmt.setInt(1, gid);
+
+			System.out.println("a Executar");
+			ResultSet rs = pstmt.executeQuery();
+
+			while (rs.next()) {
+				uid = rs.getInt("owner_id");
+				for_sale = rs.getInt("for_sale");
+
+			}
+			if ( uid!=owner || for_sale!=1){
+				return 0;
+			}
+
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+			return 0;
+		}
+
+		String sql2 = "UPDATE goods SET for_sale = ? AND owner_id = ? WHERE gid = ? AND owner_id = ? AND for_sale=?" ;
+
+		try (PreparedStatement pstmt  = conn.prepareStatement(sql2)) {
+
+			pstmt.setInt(1, 0);
+			pstmt.setInt(2, buyer);
+			pstmt.setInt(3, gid);
+			pstmt.setInt(4, owner);
+			pstmt.setInt(5, 1);
+
+			System.out.println("a Executar");
+			boolean b = pstmt.execute();
+			System.out.println(b);
+
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+			return 0;
+		}
+		return 1;
+	}
 	
 	public String getListOfUsers() {
 		

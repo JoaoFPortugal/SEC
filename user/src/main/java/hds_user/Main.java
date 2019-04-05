@@ -28,17 +28,17 @@ public class Main {
 				Main.println("ID must be a number.");
 			}
 		}
-		
+
 		// Listen to user requests
 		UserListener userListener = new UserListener(userListenerPort, "userListenerThread");
 		userListener.start();
-		
+
 		user = new User(uid);
 		conn = new NotaryConnection(serverName, notaryPort, user);
 
 		try {
 			user.setUserList(conn.getListOfUsers());
-			user.setGoodList(conn.getListOfGoods());
+			//user.setGoodList(conn.getListOfGoods());
 		} catch (IOException e1) {
 			e1.printStackTrace();
 			System.exit(0);
@@ -58,6 +58,7 @@ public class Main {
 			Main.println("1. Get State of Good");
 			Main.println("2. Intention to sell");
 			Main.println("3. Intention to buy");
+			Main.println("4. Transfer Good");
 			Main.println("0. Exit");
 
 			String input = Main.readString();
@@ -70,18 +71,21 @@ public class Main {
 			}
 
 			switch (option) {
-			case 1:
-				menuPrintGood(uid);
-				break;
-			case 2:
-				intentionToSell(uid);
-				break;
-			case 3:
-				break;
-			case 0:
-				System.exit(0);
-			default:
-				Main.println(("Wrong number!"));
+				case 1:
+					menuPrintGood(uid);
+					break;
+				case 2:
+					intentionToSell(uid);
+					break;
+				case 3:
+					break;
+				case 4:
+					transferGood(uid);
+					break;
+				case 0:
+					System.exit(0);
+				default:
+					Main.println(("Wrong number!"));
 			}
 
 		}
@@ -101,7 +105,7 @@ public class Main {
 			}
 		}
 
-		boolean b;
+		int b;
 
 		try {
 			b = conn.intentionToSell(gid, uid);
@@ -109,6 +113,7 @@ public class Main {
 			e.printStackTrace();
 			return;
 		}
+		System.out.println(b);
 
 	}
 
@@ -138,13 +143,32 @@ public class Main {
 				+ (g.getForSale() ? "" : "not ") + "for sale.");
 	}
 
-	public static boolean callTransfer(int goodId, int ownerId) throws IOException {
-		return conn.transferGood(goodId, ownerId);
+	public static void transferGood(int ownerID) {
+		int gid, buyerID;
+		while (true) {
+			try {
+				gid = Integer.parseInt(Main.readString("Good ID: ", false));
+				buyerID = Integer.parseInt(Main.readString("Buyer ID: ", false));
+				break;
+			} catch (NumberFormatException e) {
+				Main.println("Not a valid ID.");
+			}
+		}
+		int reply;
+
+		try {
+			reply = conn.transferGood(gid, ownerID, buyerID);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return;
+		}
+		System.out.println(reply);
+
 	}
 
 	/*
 	 * public static boolean buyGood(int userId, int goodId) {
-	 * 
+	 *
 	 * }
 	 */
 

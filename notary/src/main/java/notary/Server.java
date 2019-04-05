@@ -13,25 +13,25 @@ import hds_security.Message;
 import notary.exceptions.InvalidSignatureException;
 
 public class Server extends Thread {
-	
+
     private Database db;
     private ServerSocket serverSocket;
-    
+
     // http://tutorials.jenkov.com/java-util-concurrent/blockingqueue.html
     private BlockingQueue<Request> requests;
-    
+
     // Does not allow more than 'max_queue' requests on the queue (for resources concern)
     private int max_queue = 1024;
 
     public Server(int port, Database db) throws IOException {
         this.db = db;
         serverSocket = new ServerSocket(port);
-        
+
         /**
          * 1st parameter: capacity - the capacity of this queue
          * 2nd parameter: fair - if true then queue accesses for threads blocked on
          * insertion or removal, are processed in FIFO order; if false the access
-         * order is unspecified. 
+         * order is unspecified.
          */
         requests = new ArrayBlockingQueue<Request>(max_queue, true);
     }
@@ -40,10 +40,10 @@ public class Server extends Thread {
     public void run() {
         while(true){
             if(Thread.currentThread().getName().equals("producer")){
-            	runProducer();
+                runProducer();
             }
             else{
-            	runConsumer();
+                runConsumer();
             }
         }
     }
@@ -72,7 +72,7 @@ public class Server extends Thread {
     public void runConsumer() {
 
         try {
-        	// 'take' blocks, 'remove' throws exception
+            // 'take' blocks, 'remove' throws exception
             Request request = requests.take();
 
             Date date = new Date();
@@ -99,6 +99,15 @@ public class Server extends Thread {
                 }
             }
 
+            else if ( request.operation=='T'){
+                int reply = db.transferGood(request.gid, request.origin, request.destin);
+                Message message = new Message(-1, -1, 'R', now, reply);
+                try {
+                    request.write(message);
+                } catch(IOException e){
+                    e.printStackTrace();
+                }
+            }
 
 
             /*

@@ -44,7 +44,7 @@ public class NotaryConnection {
 	/**
 	 * Sends a request to the notary to know if the good is for sale and who owns
 	 * it. Returns a Good object on success.
-	 * 
+	 *
 	 * @throws InexistentGoodException
 	 */
 
@@ -107,14 +107,15 @@ public class NotaryConnection {
 		disconnect();
 		return list;
 	}
-	
+
 	public ArrayList<UserInfo> getListOfUsers() throws IOException, InexistentGoodsException {
 		connect();
 		// TODO
 		//write("getListOfUsers");
-		
+
+
 		ArrayList<UserInfo> list = new ArrayList<UserInfo>();
-		
+
 		disconnect();
 		return list;
 	}
@@ -123,7 +124,7 @@ public class NotaryConnection {
 	 * Sends a request to the notary expressing that a good is for sale. Fails if
 	 * user doesn't own it.
 	 */
-	public boolean intentionToSell(int gid, int uid) throws IOException {
+	public int intentionToSell(int gid, int uid) throws IOException {
 		connect();
 		Date date = new Date();
 		long now = date.getTime();
@@ -134,10 +135,8 @@ public class NotaryConnection {
 		byte[] reply = read();
 		Message replyMessage = Message.fromBytes(reply);
 
-		System.out.println(replyMessage.getContent());
-
 		disconnect();
-		return true;
+		return(replyMessage.getContent());
 	}
 
 	/**
@@ -145,14 +144,19 @@ public class NotaryConnection {
 	 * doesn't own it.
 	 */
 
-	public boolean transferGood(int good, int owner) throws IOException {
+	public int transferGood(int good, int owner, int buyer) throws IOException {
 		connect();
-		// TODO
-		// write("transferGood " + Integer.toString(good) + " " +
-		// Integer.toString(owner));
-		boolean success = false;// Boolean.valueOf(read());
+		Date date = new Date();
+		long now = date.getTime();
+		Message message = new Message(owner, buyer, 'T', now, good);
+
+		write(message);
+
+		byte[] reply = read();
+		Message replyMessage = Message.fromBytes(reply);
+
 		disconnect();
-		return success;
+		return replyMessage.getContent();
 	}
 
 	private byte[] read() throws IOException {
