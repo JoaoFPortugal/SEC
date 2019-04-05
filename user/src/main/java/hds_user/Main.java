@@ -137,9 +137,9 @@ public class Main {
 		return conn.transferGood(goodId, ownerId);
 	}
 	
-	public static boolean buyGood(int userId, int goodId) {
+	/*public static boolean buyGood(int userId, int goodId) {
 		
-	}
+	}*/
 	
 	public static void print(String str) {
 		System.out.print(str);
