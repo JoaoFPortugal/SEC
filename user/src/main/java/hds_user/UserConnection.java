@@ -11,8 +11,10 @@ public class UserConnection implements Runnable {
 	private Thread t;
 	private String threadName;
 	private Socket clientSocket;
+	private UserListener userListener;
 
-	UserConnection(Socket s, String name) {
+	UserConnection(UserListener ul, Socket s, String name) {
+		userListener = ul;
 		threadName = name;
 		clientSocket = s;
 	}
@@ -56,8 +58,9 @@ public class UserConnection implements Runnable {
 			e.printStackTrace();
 			return;
 		}
-
+		
 		System.out.println("Thread " + threadName + " exiting.");
+		userListener.clientConnections.remove(this);
 	}
 
 	public void start() {
