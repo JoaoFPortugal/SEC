@@ -11,8 +11,10 @@ public class UserConnection implements Runnable {
 	private Thread t;
 	private String threadName;
 	private Socket clientSocket;
+	private UserListener userListener;
 
-	UserConnection(Socket s, String name) {
+	UserConnection(UserListener ul, Socket s, String name) {
+		userListener = ul;
 		threadName = name;
 		clientSocket = s;
 	}
@@ -26,10 +28,28 @@ public class UserConnection implements Runnable {
 				) {
 			
 			String inputLine;
-			out.println("test");
 
 			while ((inputLine = in.readLine()) != null) {
-				if (inputLine.equals("Bye.")) {
+				if (inputLine.startsWith("buyGood")) {
+					
+					String[] tokens = inputLine.split(" ");
+					
+					if (tokens.length != 3) throw new IOException();
+					
+					int gid, owner;
+					try {
+						// test if good id is an integer
+						gid = Integer.parseInt(tokens[1]);
+						// test if owner is an integer
+						owner = Integer.parseInt(tokens[2]);
+					} catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+						throw new IOException();
+					}
+					
+					boolean success = Main.callTransfer(gid, owner);
+					
+					out.println(success ? "true" : "false");
+					
 					break;
 				}
 			}
@@ -38,8 +58,9 @@ public class UserConnection implements Runnable {
 			e.printStackTrace();
 			return;
 		}
-
+		
 		System.out.println("Thread " + threadName + " exiting.");
+		userListener.clientConnections.remove(this);
 	}
 
 	public void start() {

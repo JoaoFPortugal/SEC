@@ -26,7 +26,7 @@ public class UserListener implements Runnable {
 		) {
 			while (true) {
 				Socket clientSocket = serverSocket.accept();
-				UserConnection cn = new UserConnection(clientSocket,
+				UserConnection cn = new UserConnection(this, clientSocket,
 						"Client: " + clientSocket.getInetAddress());
 				cn.start();
 				this.clientConnections.add(cn);

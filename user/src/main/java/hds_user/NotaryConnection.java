@@ -40,7 +40,7 @@ public class NotaryConnection {
 		client.close();
 	}
 
-	public void setUser(User user){
+	public void setUser(User user) {
 		this.user = user;
 	}
 
@@ -61,43 +61,55 @@ public class NotaryConnection {
 
 		byte[] reply = read();
 
-		Message replyMessage = message.fromBytes(reply);
-
+		Message replyMessage = Message.fromBytes(reply);
 
 		Good g = new Good(gid, replyMessage.getOrigin(), replyMessage.getContent() == 1 ? true : false);
-
 
 		disconnect();
 		return g;
 
 	}
 
-	/*
-	 * public ArrayList<Good> getListOfGoods() throws IOException,
-	 * InexistentGoodsException { connect();
-	 * 
-	 * write("getListOfGoods");
-	 * 
-	 * String reply = read();
-	 * 
-	 * if (reply.isEmpty()) { disconnect(); throw new IOException(); }
-	 * 
-	 * if (reply.startsWith("null")) { disconnect(); throw new
-	 * InexistentGoodsException(); }
-	 * 
-	 * String[] tokens = reply.split(" ");
-	 * 
-	 * ArrayList<Good> list = new ArrayList<Good>();
-	 * 
-	 * for (int i = 0; i < tokens.length; i+=3) { int gid, owner; try { // test if
-	 * id is an integer gid = Integer.parseInt(tokens[i]); // test if owner is an
-	 * integer owner = Integer.parseInt(tokens[i+1]); Good g = new Good(gid, owner,
-	 * Boolean.valueOf(tokens[i+2])); list.add(g); } catch (NumberFormatException |
-	 * ArrayIndexOutOfBoundsException e) { disconnect(); throw new IOException(); }
-	 * }
-	 * 
-	 * disconnect(); return list; }
-	 */
+	public ArrayList<Good> getListOfGoods() throws IOException, InexistentGoodsException {
+		connect();
+
+		// TODO
+		//write("getListOfGoods");
+
+		String reply = "bla";//read();
+
+		if (reply.isEmpty()) {
+			disconnect();
+			throw new IOException();
+		}
+
+		if (reply.startsWith("null")) {
+			disconnect();
+			throw new InexistentGoodsException();
+		}
+
+		String[] tokens = reply.split(" ");
+
+		ArrayList<Good> list = new ArrayList<Good>();
+
+		for (int i = 0; i < tokens.length; i += 3) {
+			int gid, owner;
+			try {
+				// test if good id is an integer
+				gid = Integer.parseInt(tokens[i]);
+				// test if owner is an integer
+				owner = Integer.parseInt(tokens[i + 1]);
+				Good g = new Good(gid, owner, Boolean.valueOf(tokens[i + 2]));
+				list.add(g);
+			} catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+				disconnect();
+				throw new IOException();
+			}
+		}
+
+		disconnect();
+		return list;
+	}
 
 	/**
 	 * Sends a request to the notary expressing that a good is for sale. Fails if
@@ -112,7 +124,7 @@ public class NotaryConnection {
 		write(message);
 
 		byte[] reply = read();
-		Message replyMessage = message.fromBytes(reply);
+		Message replyMessage = Message.fromBytes(reply);
 
 		System.out.println(replyMessage.getContent());
 
@@ -124,12 +136,16 @@ public class NotaryConnection {
 	 * Sends a request to the server to change the owner of a good. Fails if user
 	 * doesn't own it.
 	 */
-	/*
-	 * public boolean transferGood(int good, int owner) throws IOException {
-	 * connect(); write("transferGood " + Integer.toString(good) + " " +
-	 * Integer.toString(owner)); boolean success = Boolean.valueOf(read());
-	 * disconnect(); return success; }
-	 */
+
+	public boolean transferGood(int good, int owner) throws IOException {
+		connect();
+		// TODO
+		// write("transferGood " + Integer.toString(good) + " " +
+		// Integer.toString(owner));
+		boolean success = false;// Boolean.valueOf(read());
+		disconnect();
+		return success;
+	}
 
 	private byte[] read() throws IOException {
 		int msgLen = in.readInt();
@@ -145,10 +161,10 @@ public class NotaryConnection {
 		SignMessage signMessage = new SignMessage();
 		byte[] finalmsg = new byte[0];
 		try {
-			byte[] signedmessage = signMessage.sign(hashMessage.hashBytes(msg),user.getPrivateKey());
+			byte[] signedmessage = signMessage.sign(hashMessage.hashBytes(msg), user.getPrivateKey());
 			finalmsg = new byte[msg.length + signedmessage.length];
-			System.arraycopy(msg,0,finalmsg,0,msg.length);
-			System.arraycopy(signedmessage,0,finalmsg,msg.length,signedmessage.length);
+			System.arraycopy(msg, 0, finalmsg, 0, msg.length);
+			System.arraycopy(signedmessage, 0, finalmsg, msg.length, signedmessage.length);
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		} catch (InvalidKeyException e) {
