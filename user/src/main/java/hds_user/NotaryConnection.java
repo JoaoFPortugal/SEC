@@ -111,6 +111,7 @@ public class NotaryConnection {
 	public ArrayList<UserInfo> getListOfUsers() throws IOException, InexistentGoodsException {
 		connect();
 		// TODO
+		//write("getListOfUsers");
 		
 		ArrayList<UserInfo> list = new ArrayList<UserInfo>();
 		
