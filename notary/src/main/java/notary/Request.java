@@ -67,6 +67,7 @@ public class Request {
 		HashMessage hashedoriginal = new HashMessage();
 		byte[] hashedcontent = hashedoriginal.hashBytes(originalmessage);
 		SignMessage sign = new SignMessage();
+
 		if(!sign.verify(hashedcontent,unwrapmsg,getPublicKey(origin))){
 			throw new InvalidSignatureException();
 		}
