@@ -110,7 +110,9 @@ public class Server extends Thread {
             if (msg.isEmpty()) return;
             String[] tokens = msg.split(" ");
             
-            if (tokens[0].equals("getListOfGoods")) {
+            if (tokens[0].equals("getListOfUsers")) {
+            	request.write(db.getListOfUsers());
+            } else if (tokens[0].equals("getListOfGoods")) {
             	request.write(db.getListOfGoods());
             } else if (tokens[0].equals("getStateOfGood") && tokens.length == 2) {
             	int id;

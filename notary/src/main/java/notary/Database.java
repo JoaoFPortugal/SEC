@@ -53,7 +53,7 @@ public class Database {
 	 * Select with parameters: http://www.sqlitetutorial.net/sqlite-java/select/
 	 */
 	public void selectAllUsers() {
-		String sql = "SELECT uid FROM users";
+		String sql = "SELECT uid, ip, port FROM users";
 
 		// try-with-resources
 		// https://docs.oracle.com/javase/tutorial/essential/exceptions/tryResourceClose.html
@@ -62,7 +62,8 @@ public class Database {
 
 			// loop through the result set
 			while (rs.next()) {
-				System.out.println(rs.getInt("uid"));
+				System.out.println(rs.getInt("uid") + "\t" + rs.getString("ip") + "\t" +
+						rs.getInt("port"));
 			}
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
@@ -144,6 +145,25 @@ public class Database {
 
 		return(result);
 
+	}
+	
+	public String getListOfUsers() {
+		
+		String sql = "SELECT uid, ip, port FROM users";
+		String output = "";
+		
+		try (Statement stmt = this.conn.createStatement();
+				ResultSet rs = stmt.executeQuery(sql)) {
+
+			while (rs.next()) {
+				output += rs.getInt("uid") + " " + rs.getString("ip") +
+						" " + rs.getInt("port");
+			}
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+		
+		return (output.isEmpty() ? "null" : output);
 	}
 	
 	public String getListOfGoods() {

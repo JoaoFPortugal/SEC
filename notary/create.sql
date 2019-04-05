@@ -2,7 +2,9 @@
 --- Users
 ---
 CREATE TABLE IF NOT EXISTS `users` (
-	`uid` INTEGER PRIMARY KEY
+	`uid` INTEGER PRIMARY KEY,
+	`ip` TEXT,
+	`port` INTEGER
 );
 
 ---
