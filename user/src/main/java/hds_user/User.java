@@ -15,22 +15,18 @@ import java.util.List;
 
 public class User {
 
-	private static List<Good> setOfGoods;
+	private List<Good> setOfGoods;
+	private List<UserInfo> setOfUsers;
 	private final int uid;
 	private PublicKey publicKey;
 	private PrivateKey privateKey;
-
-	public User(int id, ArrayList<Good> goods) {
-		this.uid = id;
-		loadPubKey();
-		loadPrivKey();
-		setOfGoods = goods;
-	}
 
 	public User(int id){
 		this.uid = id;
 		loadPubKey();
 		loadPrivKey();
+		setOfGoods = new ArrayList<>();
+		setOfUsers = new ArrayList<>();
 	}
 
 	private void loadPubKey(){
@@ -67,9 +63,23 @@ public class User {
 		return privateKey;
 	}
 	
+	public void setUserList(ArrayList<UserInfo> users) {
+		setOfUsers = users;
+	}
+	
+	public void setGoodList(ArrayList<Good> goods) {
+		setOfGoods = goods;
+	}
+	
 	public void printAllGoods() {
 		for (Good g : setOfGoods) {
 			Main.println(g.getID() + "\t" + g.getOwner() + "\t" + g.getForSale());
+		}
+	}
+	
+	public void printAllUsers() {
+		for (UserInfo u : setOfUsers) {
+			Main.println(u.getUid() + "\t" + u.getIp() + "\t" + u.getPort());
 		}
 	}
 }

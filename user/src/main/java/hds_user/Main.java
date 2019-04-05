@@ -13,14 +13,13 @@ public class Main {
 	private static int notaryPort = 6066;
 	private static int userListenerPort = 4444;
 	private static NotaryConnection conn;
+	private static User user;
 
 	public static void main(String[] args) {
 
 		// Listen to user requests
 		UserListener userListener = new UserListener(userListenerPort, "userListenerThread");
 		userListener.start();
-
-		conn = new NotaryConnection(serverName, notaryPort);
 
 		println("Hello!");
 
@@ -33,17 +32,23 @@ public class Main {
 				Main.println("ID must be a number.");
 			}
 		}
+		
+		user = new User(uid);
+		conn = new NotaryConnection(serverName, notaryPort, user);
 
-		User user = null;
-		/*
-		 * try { user = new User(uid, conn.getListOfGoods()); } catch (IOException e1) {
-		 * e1.printStackTrace(); System.exit(0); } catch (InexistentGoodsException e) {
-		 * e.toString(); System.exit(0); }
-		 */
+		try {
+			user.setUserList(conn.getListOfUsers());
+			user.setGoodList(conn.getListOfGoods());
+		} catch (IOException e1) {
+			e1.printStackTrace();
+			System.exit(0);
+		} catch (InexistentGoodsException e) {
+			e.toString();
+			System.exit(0);
+		}
 
-		// user.printAllGoods();
-
-		conn.setUser(new User(uid));
+		user.printAllUsers();
+		user.printAllGoods();
 
 		while (true) {
 
@@ -136,11 +141,13 @@ public class Main {
 	public static boolean callTransfer(int goodId, int ownerId) throws IOException {
 		return conn.transferGood(goodId, ownerId);
 	}
-	
-	/*public static boolean buyGood(int userId, int goodId) {
-		
-	}*/
-	
+
+	/*
+	 * public static boolean buyGood(int userId, int goodId) {
+	 * 
+	 * }
+	 */
+
 	public static void print(String str) {
 		System.out.print(str);
 	}

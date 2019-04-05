@@ -25,9 +25,10 @@ public class NotaryConnection {
 	private DataInputStream in;
 	private User user;
 
-	public NotaryConnection(String serverName, int port) {
+	public NotaryConnection(String serverName, int port, User user) {
 		this.serverName = serverName;
 		this.port = port;
+		this.user = user;
 	}
 
 	private void connect() throws IOException {
@@ -38,10 +39,6 @@ public class NotaryConnection {
 
 	private void disconnect() throws IOException {
 		client.close();
-	}
-
-	public void setUser(User user) {
-		this.user = user;
 	}
 
 	/**
@@ -107,6 +104,16 @@ public class NotaryConnection {
 			}
 		}
 
+		disconnect();
+		return list;
+	}
+	
+	public ArrayList<UserInfo> getListOfUsers() throws IOException, InexistentGoodsException {
+		connect();
+		// TODO
+		
+		ArrayList<UserInfo> list = new ArrayList<UserInfo>();
+		
 		disconnect();
 		return list;
 	}
