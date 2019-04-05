@@ -171,7 +171,7 @@ public class Database {
 			return 0;
 		}
 
-		String sql2 = "UPDATE goods SET for_sale = ? AND owner_id = ? WHERE gid = ? AND owner_id = ? AND for_sale=?" ;
+		String sql2 = "UPDATE goods SET for_sale = ?, owner_id = ? WHERE gid = ? AND owner_id = ? AND for_sale=?" ;
 
 		try (PreparedStatement pstmt  = conn.prepareStatement(sql2)) {
 
@@ -181,9 +181,7 @@ public class Database {
 			pstmt.setInt(4, owner);
 			pstmt.setInt(5, 1);
 
-			System.out.println("a Executar");
-			boolean b = pstmt.execute();
-			System.out.println(b);
+			pstmt.execute();
 
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
