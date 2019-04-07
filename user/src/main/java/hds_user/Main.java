@@ -1,6 +1,7 @@
 package hds_user;
 
 import java.io.BufferedReader;
+import java.io.Console;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
@@ -33,7 +34,8 @@ public class Main {
 		UserListener userListener = new UserListener(userListenerPort, "userListenerThread");
 		userListener.start();
 
-		user = new User(uid);
+		String password = readPassword();
+		user = new User(uid,password);
 		conn = new NotaryConnection(serverName, notaryPort, user);
 
 		try {
@@ -201,5 +203,10 @@ public class Main {
 			println("Problems with reading user input.");
 		}
 		return input;
+	}
+	public static String readPassword(){
+		Console console =  System.console();
+		char [] input = console.readPassword("Please enter your secret password:  ");
+		return String.valueOf(input);
 	}
 }

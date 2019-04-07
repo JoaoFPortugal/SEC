@@ -20,7 +20,7 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
 
-    <mainclass>hds_security.Message</mainclass>
+    <mainclass>hds_security.GenPubAndPrivKeys</mainclass>
 
 </properties>
 
@@ -86,7 +86,7 @@
                 </execution>
             </executions>
             <configuration>
-                <mainClass>hds_user.Main</mainClass>
+                <mainClass>hds_security.GenPubAndPrivKeys</mainClass>
             </configuration>
         </plugin>
     </plugins>

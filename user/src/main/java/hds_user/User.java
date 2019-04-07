@@ -1,5 +1,11 @@
 package hds_user;
 
+import hds_security.HashMessage;
+import hds_security.StrongPasswordGenerator;
+import hds_security.SymmetricKeyEncryption;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -11,19 +17,23 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class User {
 
+	private String password;
 	private List<Good> setOfGoods;
 	private List<UserInfo> setOfUsers;
 	private final int uid;
 	private PublicKey publicKey;
 	private PrivateKey privateKey;
+	String strongpassword;
 
-	public User(int id){
+	public User(int id, String password){
 		this.uid = id;
 		loadPubKey();
+		this.password = password;
 		loadPrivKey();
 		setOfGoods = new ArrayList<>();
 		setOfUsers = new ArrayList<>();
@@ -34,7 +44,6 @@ public class User {
 			byte[] pub = Files.readAllBytes(Paths.get("./src/main/resources/" + uid + "_public_key.txt"));
 			X509EncodedKeySpec keySpec = new X509EncodedKeySpec(pub);
 			KeyFactory kf = KeyFactory.getInstance("EC");
-
 			this.publicKey = kf.generatePublic(keySpec);
 		} catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException e) {
 			e.printStackTrace();
@@ -42,18 +51,38 @@ public class User {
 		}
 	}
 
-
-	private void loadPrivKey(){
-		try{
-			byte[] priv = Files.readAllBytes(Paths.get("./src/main/resources/" + uid + "_private_key.txt"));
-			PKCS8EncodedKeySpec ks = new PKCS8EncodedKeySpec(priv);
-			KeyFactory kf = KeyFactory.getInstance("EC");
-			this.privateKey = kf.generatePrivate(ks);
-		} catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException e) {
-			e.printStackTrace();
-			System.exit(0);
+	private void loadPrivKey() {
+		boolean left = invertPBKDF2(password, uid);
+		if (left) {
+			byte[] privateKey = loadKey(uid);
+			try {
+				PKCS8EncodedKeySpec ks = new PKCS8EncodedKeySpec(privateKey);
+				KeyFactory kf = KeyFactory.getInstance("EC");
+				this.privateKey = kf.generatePrivate(ks);
+			}catch(Exception e){
+				e.printStackTrace();
+			}
 		}
 	}
+
+	private byte[] loadKey(int uid) {
+		SymmetricKeyEncryption symmetricKeyEncryption= new SymmetricKeyEncryption(fromHex(strongpassword));
+		byte[] decryptedPrivateKey = new byte[0];
+		try {
+			FileInputStream fis = new FileInputStream("./src/main/resources/" + uid + "_private_key.txt");
+			byte[] privateKeyEncoded = fis.readAllBytes();
+			fis.close();
+			decryptedPrivateKey = symmetricKeyEncryption.decrypt(privateKeyEncoded);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return decryptedPrivateKey;
+	}
+
 
 	public PublicKey getPublicKey() {
 		return publicKey;
@@ -81,5 +110,76 @@ public class User {
 		for (UserInfo u : setOfUsers) {
 			Main.println(u.getUid() + "\t" + u.getIp() + "\t" + u.getPort());
 		}
+	}
+
+	private boolean invertPBKDF2(String password,int uid) {
+		//load salt
+		byte[] salt = loadSalt(uid);
+
+		String key = generatePassword(password,salt);
+
+		String parts[] = key.split(":");
+
+		//generate hash of key
+
+		byte[] finalKey = fromHex(parts[2]);
+
+		HashMessage hashMessage = new HashMessage();
+		byte[] hashedMessage = hashMessage.hashBytes(finalKey);
+
+		//load hash from file
+
+		byte[] hashedPassword = loadHash(uid);
+
+		if(Arrays.equals(hashedMessage,hashedPassword)){
+			strongpassword = parts[2];
+			return true;
+		}
+		return false;
+	}
+
+	private String generatePassword(String password,byte[] salt) {
+		StrongPasswordGenerator pass = new StrongPasswordGenerator(password);
+		try {
+			return pass.generateStrongPasswordHash(salt);
+		} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	private byte[] loadHash(int uid) {
+
+		try {
+			FileInputStream fis = new FileInputStream("./src/main/resources/hashedPasswordfile" + uid + ".txt");
+			return fis.readAllBytes();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	private byte[] loadSalt(int uid) {
+		try{
+			FileInputStream fis = new FileInputStream("./src/main/resources/saltfile" + uid + ".txt");
+			return fis.readAllBytes();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	private byte[] fromHex(String hex)
+	{
+		byte[] bytes = new byte[hex.length() / 2];
+		for(int i = 0; i<bytes.length ;i++)
+		{
+			bytes[i] = (byte)Integer.parseInt(hex.substring(2 * i, 2 * i + 2), 16);
+		}
+		return bytes;
 	}
 }
