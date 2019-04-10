@@ -7,6 +7,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.util.Date;
+import java.util.Scanner;
 
 import hds_security.HashMessage;
 import hds_security.Message;
@@ -41,9 +42,11 @@ public class Main {
 		// Listen to user requests
 		byte[] port_bytes = null;
 		int port=0;
+
 		try {
 			FileInputStream fis = new FileInputStream("./src/main/resources/" + uid + "_port.txt");
-			port = fis.read();
+			Scanner scanner = new Scanner(fis);
+			port =  scanner.nextInt();
 			fis.close();
 		}catch( IOException e){
 			Main.println("port file not found");
