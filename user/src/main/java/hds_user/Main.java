@@ -63,8 +63,8 @@ public class Main {
 		user = new User(uid,password);
 		conn = new NotaryConnection(serverName, notaryPort, user);
 
-		try {
-			user.setUserList(conn.getListOfUsers());
+		/*try {
+			//user.setUserList(conn.getListOfUsers());
 			//user.setGoodList(conn.getListOfGoods());
 		} catch (IOException e1) {
 			e1.printStackTrace();
@@ -76,7 +76,7 @@ public class Main {
 
 		user.printAllUsers();
 		user.printAllGoods();
-
+*/
 		while (true) {
 
 			int option = 0;
