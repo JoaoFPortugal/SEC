@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Vector;
+import notary.Request;
 
 public class UserListener implements Runnable {
 
@@ -26,12 +27,16 @@ public class UserListener implements Runnable {
 		) {
 			while (true) {
 				Socket clientSocket = serverSocket.accept();
-				UserConnection cn = new UserConnection(this, clientSocket,
+
+				Request request = new Request(serverSocket.accept());
+				System.out.println(request.gid);
+				/*UserConnection cn = new UserConnection(this, clientSocket,
 						"Client: " + clientSocket.getInetAddress());
 				cn.start();
 				this.clientConnections.add(cn);
+			*/
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(0);
 		}

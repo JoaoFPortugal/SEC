@@ -105,6 +105,7 @@ public class Main {
 					intentionToSell(uid);
 					break;
 				case 3:
+				    buyGood(uid);
 					break;
 				case 4:
 					transferGood(uid);
@@ -210,11 +211,9 @@ public class Main {
 		try {
 
 			FileInputStream fis = new FileInputStream("./src/main/resources/" + ownerID + "_port.txt");
-			byte[] port_bytes= fis.readAllBytes();
+			Scanner scanner = new Scanner(fis);
+			int port =  scanner.nextInt();
 			fis.close();
-			ByteBuffer bb = ByteBuffer.wrap(port_bytes);
-			int port = bb.getInt();
-
 
 			Socket owner = new Socket("localhost", port);
 			DataOutputStream out = new DataOutputStream(owner.getOutputStream());
