@@ -27,6 +27,7 @@ public class Request {
 	private DataInputStream in;
 
 	public Request(Socket sock) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException, SignatureException, InvalidSignatureException {
+		System.out.println("Received packet");
 		this.addr = sock;
 		out = new DataOutputStream(addr.getOutputStream());
 		in = new DataInputStream(addr.getInputStream());

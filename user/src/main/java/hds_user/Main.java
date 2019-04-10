@@ -85,7 +85,6 @@ public class Main {
 			Main.println("1. Get State of Good");
 			Main.println("2. Intention to sell");
 			Main.println("3. Intention to buy");
-			Main.println("4. Transfer Good");
 			Main.println("0. Exit");
 
 			String input = Main.readString();
@@ -106,9 +105,6 @@ public class Main {
 					break;
 				case 3:
 				    buyGood(uid);
-					break;
-				case 4:
-					//transferGood(uid);
 					break;
 				case 0:
 					System.exit(0);

@@ -119,7 +119,6 @@ public class Database {
 			pstmt.setInt(1, 1);
 			pstmt.setInt(2, gid);
 			pstmt.setInt(3, uid);
-
 			pstmt.execute();
 
 
@@ -133,17 +132,16 @@ public class Database {
 
 			pstmt.setInt(1, gid);
 			pstmt.setInt(2, uid);
-
 			ResultSet rs  = pstmt.executeQuery();
-
 			result= rs.getInt(1);
+
 		} catch (SQLException e) {
+			System.out.println("JJJ");
 			System.out.println(e.getMessage());
-			return(0);
+			return 0;
 
 		}
-
-		return(result);
+		return result;
 
 	}
 	public int transferGood(int gid, int owner, int buyer){
@@ -184,6 +182,7 @@ public class Database {
 			pstmt.execute();
 
 		} catch (SQLException e) {
+			System.out.println("HHHHH");
 			System.out.println(e.getMessage());
 			return 0;
 		}

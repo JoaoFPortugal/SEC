@@ -79,7 +79,7 @@ public class Server extends Thread {
             long now = date.getTime();
 
             if (request.operation == 'S'){
-                int reply = db.checkIntentionToSell(request.gid, request.origin);
+                int reply = db.checkIntentionToSell(request.origin, request.gid);
                 Message message = new Message(-1,-1, 'R', now, reply);
                 try {
                     request.write(message);
@@ -108,7 +108,6 @@ public class Server extends Thread {
                     e.printStackTrace();
                 }
             }
-
 
             /*
             String msg = request.getMessage();
@@ -150,5 +149,4 @@ public class Server extends Thread {
             e.printStackTrace();
         }
     }
-
 }
