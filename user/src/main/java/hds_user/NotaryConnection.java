@@ -1,21 +1,19 @@
 package hds_user;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.FileInputStream;
+import java.io.*;
 import java.net.Socket;
 import java.nio.ByteBuffer;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SignatureException;
+import java.security.*;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
 
 import hds_security.HashMessage;
 import hds_security.Message;
 import hds_security.SignMessage;
 import hds_user.exceptions.*;
+import notary.exceptions.InvalidSignatureException;
 
-import java.io.IOException;
 import java.util.Date;
 
 public class NotaryConnection {
@@ -50,7 +48,7 @@ public class NotaryConnection {
 	 * @throws InexistentGoodException
 	 */
 
-	public Good getStateOfGood(int gid, int uid) throws IOException {
+	public Good getStateOfGood(int gid, int uid) throws IOException, InvalidSignatureException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
 		connect();
 		Date date = new Date();
 		long now = date.getTime();
@@ -58,77 +56,59 @@ public class NotaryConnection {
 
 		write(message);
 
-		byte[] reply = read();
+		byte[] reply = readFromServer();
 
 		Message replyMessage = Message.fromBytes(reply);
 
-		Good g = new Good(gid, replyMessage.getOrigin(), replyMessage.getContent() == 1 ? true : false);
+		Good g = new Good(gid, replyMessage.getOrigin(), replyMessage.getContent() == 1);
 
 		disconnect();
 		return g;
 
 	}
 
+	public byte[] readFromServer() throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException, InvalidSignatureException {
+		PublicKey pubKey = loadServerPublicKey();
+		assert pubKey != null;
+		int msgLen = in.readInt();
+		byte[] mbytes = new byte[msgLen];
+		in.readFully(mbytes);
+		byte[] unwrapmsg = new byte[mbytes.length-22];
+		byte[] originalmessage = new byte[22];
 
+		System.arraycopy(mbytes,0,originalmessage,0,22);
+		System.arraycopy(mbytes,22,unwrapmsg,0,unwrapmsg.length);
 
-	public ArrayList<Good> getListOfGoods() throws IOException, InexistentGoodsException {
-		connect();
+		HashMessage hashedoriginal = new HashMessage();
+		byte[] hashedcontent = hashedoriginal.hashBytes(originalmessage);
+		SignMessage sign = new SignMessage();
 
-		// TODO
-		//write("getListOfGoods");
-
-		String reply = "bla";//read();
-
-		if (reply.isEmpty()) {
-			disconnect();
-			throw new IOException();
+		if(!sign.verify(hashedcontent,unwrapmsg,pubKey)){
+			throw new InvalidSignatureException();
 		}
-
-		if (reply.startsWith("null")) {
-			disconnect();
-			throw new InexistentGoodsException();
-		}
-
-		String[] tokens = reply.split(" ");
-
-		ArrayList<Good> list = new ArrayList<Good>();
-
-		for (int i = 0; i < tokens.length; i += 3) {
-			int gid, owner;
-			try {
-				// test if good id is an integer
-				gid = Integer.parseInt(tokens[i]);
-				// test if owner is an integer
-				owner = Integer.parseInt(tokens[i + 1]);
-				Good g = new Good(gid, owner, Boolean.valueOf(tokens[i + 2]));
-				list.add(g);
-			} catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
-				disconnect();
-				throw new IOException();
-			}
-		}
-
-		disconnect();
-		return list;
+		return originalmessage;
 	}
 
-	public ArrayList<UserInfo> getListOfUsers() throws IOException, InexistentGoodsException {
-		connect();
-		// TODO
-		//write("getListOfUsers");
-
-
-		ArrayList<UserInfo> list = new ArrayList<UserInfo>();
-
-		disconnect();
-		return list;
+	private PublicKey loadServerPublicKey() {
+		PublicKey pub;
+		try {
+			FileInputStream fis = new FileInputStream("./src/main/resources/serverPublicKey.txt");
+			byte[] pubKey = fis.readAllBytes();
+			X509EncodedKeySpec keySpec = new X509EncodedKeySpec(pubKey);
+			KeyFactory kf = KeyFactory.getInstance("EC");
+			pub = kf.generatePublic(keySpec);
+			return pub;
+		} catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	/**
 	 * Sends a request to the notary expressing that a good is for sale. Fails if
 	 * user doesn't own it.
 	 */
-	public int intentionToSell(int gid, int uid) throws IOException {
+	public int intentionToSell(int gid, int uid) throws IOException, InvalidSignatureException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
 		connect();
 		Date date = new Date();
 		long now = date.getTime();
@@ -136,7 +116,7 @@ public class NotaryConnection {
 
 		write(message);
 
-		byte[] reply = read();
+		byte[] reply = readFromServer();
 		Message replyMessage = Message.fromBytes(reply);
 
 		disconnect();
@@ -148,7 +128,7 @@ public class NotaryConnection {
 	 * doesn't own it.
 	 */
 
-	public Message transferGood(int good, int owner, int buyer) throws IOException {
+	public Message transferGood(int good, int owner, int buyer) throws IOException, InvalidSignatureException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
 		connect();
 		Date date = new Date();
 		long now = date.getTime();
@@ -156,18 +136,13 @@ public class NotaryConnection {
 
 		write(message);
 
-		byte[] reply = read();
+		byte[] reply = readFromServer();
 		Message replyMessage = Message.fromBytes(reply);
 
 		disconnect();
 		return replyMessage;
 	}
 
-	//public int buyGood(int good, int owner, int buyer) throws IOException {
-
-
-
-	//}
 
 	private byte[] read() throws IOException {
 		int msgLen = in.readInt();
@@ -187,11 +162,7 @@ public class NotaryConnection {
 			finalmsg = new byte[msg.length + signedmessage.length];
 			System.arraycopy(msg, 0, finalmsg, 0, msg.length);
 			System.arraycopy(signedmessage, 0, finalmsg, msg.length, signedmessage.length);
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		} catch (InvalidKeyException e) {
-			e.printStackTrace();
-		} catch (SignatureException e) {
+		} catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {
 			e.printStackTrace();
 		}
 		return finalmsg;
@@ -202,9 +173,4 @@ public class NotaryConnection {
 		out.writeInt(finalmsg.length);
 		out.write(finalmsg, 0, finalmsg.length);
 	}
-
-	public String getAddr() {
-		return client.getRemoteSocketAddress().toString();
-	}
-
 }

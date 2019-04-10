@@ -3,6 +3,7 @@ package notary;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
@@ -11,10 +12,13 @@ import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 
+import hds_security.CitizenCard;
 import hds_security.HashMessage;
 import hds_security.Message;
 import hds_security.SignMessage;
 import notary.exceptions.InvalidSignatureException;
+import pteidlib.PteidException;
+import sun.security.pkcs11.wrapper.PKCS11Exception;
 
 public class Request {
 	private Socket addr;
@@ -49,8 +53,19 @@ public class Request {
 	}
 
 
-	public void fromBytes(byte[] mbytes) throws InvalidKeySpecException, NoSuchAlgorithmException, IOException, SignatureException, InvalidKeyException, InvalidSignatureException {
+	public void writeServer(Message message) throws IOException, PteidException, InvocationTargetException, IllegalAccessException, PKCS11Exception, NoSuchMethodException, ClassNotFoundException {
+		CitizenCard citizenCard = new CitizenCard();
+		byte[] secondmsg = citizenCard.signMessage(message.toBytes());
+		byte[] firstmsg = message.toBytes();
+		byte[] finalmsg = new byte[firstmsg.length+secondmsg.length];
+		System.arraycopy(firstmsg,0,finalmsg,0,firstmsg.length);
+		System.arraycopy(secondmsg,0,finalmsg,firstmsg.length,secondmsg.length);
 
+		out.writeInt(finalmsg.length);
+		out.write(finalmsg,0,finalmsg.length);
+	}
+
+	public void fromBytes(byte[] mbytes) throws InvalidKeySpecException, NoSuchAlgorithmException, IOException, SignatureException, InvalidKeyException, InvalidSignatureException {
 
 		ByteBuffer bb = ByteBuffer.wrap(mbytes);
 		operation = bb.getChar();

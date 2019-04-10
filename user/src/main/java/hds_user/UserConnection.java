@@ -5,8 +5,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SignatureException;
+
 import notary.Request;
 import hds_security.Message;
+import notary.exceptions.InvalidSignatureException;
 
 public class UserConnection implements Runnable {
 
@@ -28,13 +33,16 @@ public class UserConnection implements Runnable {
 		NotaryConnection conn = Main.getNotaryConnection();
 
 		Message replyMessage;
-
+		replyMessage = null;
 		try {
 			replyMessage = conn.transferGood(request.gid, request.destin, request.origin);
 		} catch (IOException e) {
 			e.printStackTrace();
 			return;
+		} catch (NoSuchAlgorithmException | SignatureException | InvalidSignatureException | InvalidKeyException e) {
+			e.printStackTrace();
 		}
+		assert replyMessage != null;
 		System.out.println(replyMessage.getContent());
 		try {
 			request.write(replyMessage);
@@ -43,44 +51,6 @@ public class UserConnection implements Runnable {
 		}
 
 
-/*		try (PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-			 BufferedReader in = new BufferedReader(
-					 new InputStreamReader(clientSocket.getInputStream()));
-		) {
-
-			String inputLine;
-
-			while ((inputLine = in.readLine()) != null) {
-				if (inputLine.startsWith("buyGood")) {
-
-					String[] tokens = inputLine.split(" ");
-
-					if (tokens.length != 3) throw new IOException();
-
-					int gid, owner;
-					try {
-						// test if good id is an integer
-						gid = Integer.parseInt(tokens[1]);
-						// test if owner is an integer
-						owner = Integer.parseInt(tokens[2]);
-					} catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
-						throw new IOException();
-					}
-
-					//boolean success = Main.callTransfer(gid, owner);
-					boolean success= true;
-
-					out.println(success ? "true" : "false");
-
-					break;
-				}
-			}
-
-		} catch (IOException e) {
-			e.printStackTrace();
-			return;
-		}
-*/
 		System.out.println("Thread " + threadName + " exiting.");
 		userListener.clientConnections.remove(this);
 	}

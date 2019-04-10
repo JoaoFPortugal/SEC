@@ -1,6 +1,7 @@
 package notary;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.ServerSocket;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -11,6 +12,8 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import hds_security.Message;
 import notary.exceptions.InvalidSignatureException;
+import pteidlib.PteidException;
+import sun.security.pkcs11.wrapper.PKCS11Exception;
 
 public class Server extends Thread {
 
@@ -43,7 +46,21 @@ public class Server extends Thread {
                 runProducer();
             }
             else{
-                runConsumer();
+                try {
+                    runConsumer();
+                } catch (PteidException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                } catch (PKCS11Exception e) {
+                    e.printStackTrace();
+                } catch (NoSuchMethodException e) {
+                    e.printStackTrace();
+                } catch (InvocationTargetException e) {
+                    e.printStackTrace();
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -69,7 +86,7 @@ public class Server extends Thread {
         }
     }
 
-    public void runConsumer() {
+    public void runConsumer() throws PteidException, IllegalAccessException, PKCS11Exception, NoSuchMethodException, InvocationTargetException, ClassNotFoundException {
 
         try {
             // 'take' blocks, 'remove' throws exception
@@ -82,7 +99,7 @@ public class Server extends Thread {
                 int reply = db.checkIntentionToSell(request.origin, request.gid);
                 Message message = new Message(-1,-1, 'R', now, reply);
                 try {
-                    request.write(message);
+                    request.writeServer(message);
                 } catch(IOException e){
                     e.printStackTrace();
                 }
@@ -93,7 +110,7 @@ public class Server extends Thread {
                 String[] splitted_query = query_result.split(" ");
                 Message message = new Message(Integer.valueOf(splitted_query[0]), -1, 'R', now, Integer.valueOf(splitted_query[1]));
                 try {
-                    request.write(message);
+                    request.writeServer(message);
                 } catch(IOException e){
                     e.printStackTrace();
                 }
@@ -103,47 +120,13 @@ public class Server extends Thread {
                 int reply = db.transferGood(request.gid, request.origin, request.destin);
                 Message message = new Message(-1, -1, 'R', now, reply);
                 try {
-                    request.write(message);
+                    request.writeServer(message);
                 } catch(IOException e){
                     e.printStackTrace();
                 }
             }
 
-            /*
-            String msg = request.getMessage();
 
-
-
-            // Not a valid message
-            if (msg.isEmpty()) return;
-            String[] tokens = msg.split(" ");
-            
-            if (tokens[0].equals("getListOfUsers")) {
-            	request.write(db.getListOfUsers());
-            } else if (tokens[0].equals("getListOfGoods")) {
-            	request.write(db.getListOfGoods());
-            } else if (tokens[0].equals("getStateOfGood") && tokens.length == 2) {
-            	int id;
-            	try {
-            		id = Integer.parseInt(tokens[1]);
-            	} catch (NumberFormatException nfe) {
-            		// Not a valid message
-            		return;
-            	}
-            	request.write(db.getStateOfGood(id));
-            } else if (tokens[0].equals("intentionToSell") && tokens.length == 2) {
-                int id;
-                try {
-                    id = Integer.parseInt(tokens[1]);
-                } catch (NumberFormatException nfe) {
-                    // Not a valid message
-                    return;
-                }
-                request.write( db.checkIntentionToSell(id));
-            } else {
-            	// Not a valid message
-            	return;
-            }*/
 
         } catch ( InterruptedException e) {
             e.printStackTrace();

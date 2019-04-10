@@ -13,6 +13,7 @@ import hds_security.HashMessage;
 import hds_security.Message;
 import hds_security.SignMessage;
 import hds_user.exceptions.*;
+import notary.exceptions.InvalidSignatureException;
 
 import javax.xml.crypto.Data;
 
@@ -129,13 +130,15 @@ public class Main {
 			}
 		}
 
-		int b;
+		int b = 0;
 
 		try {
 			b = conn.intentionToSell(gid, uid);
 		} catch (IOException e) {
 			e.printStackTrace();
 			return;
+		} catch (NoSuchAlgorithmException | InvalidSignatureException | InvalidKeyException | SignatureException e) {
+			e.printStackTrace();
 		}
 		System.out.println(b);
 
@@ -154,44 +157,25 @@ public class Main {
 			}
 		}
 
-		Good g;
+		Good g = null;
 
 		try {
 			g = conn.getStateOfGood(gid, uid);
 		} catch (IOException e) {
 			e.printStackTrace();
 			return;
+		} catch (NoSuchAlgorithmException | SignatureException | InvalidKeyException | InvalidSignatureException e) {
+			e.printStackTrace();
 		}
+
+		assert g!=null;
 
 		println("Good with ID=" + gid + " belongs to user with ID=" + g.getOwner() + " and is "
 				+ (g.getForSale() ? "" : "not ") + "for sale.");
 	}
 
-/*	public static void transferGood(int ownerID) {
-		int gid, buyerID;
-		while (true) {
-			try {
-				gid = Integer.parseInt(Main.readString("Good ID: ", false));
-				buyerID = Integer.parseInt(Main.readString("Buyer ID: ", false));
-				break;
-			} catch (NumberFormatException e) {
-				Main.println("Not a valid ID.");
-			}
-		}
-		int reply;
 
-		try {
-			reply = conn.transferGood(gid, ownerID, buyerID);
-		} catch (IOException e) {
-			e.printStackTrace();
-			return;
-		}
-		System.out.println(reply);
-
-	}
-*/
-
-	public static void buyGood(int userID) {
+	private static void buyGood(int userID) {
 		int gid, ownerID;
 		while (true) {
 			try {
@@ -241,15 +225,15 @@ public class Main {
 	}
 
 
-	public static void print(String str) {
+	private static void print(String str) {
 		System.out.print(str);
 	}
 
-	public static void println(String str) {
+	static void println(String str) {
 		System.out.println(str);
 	}
 
-	public static String readString(String prompt, boolean newline) {
+	private static String readString(String prompt, boolean newline) {
 		if (newline) {
 			Main.println(prompt);
 		} else {
@@ -258,7 +242,7 @@ public class Main {
 		return readString();
 	}
 
-	public static String readString() {
+	private static String readString() {
 		// Used BufferedReader instead of System console because the later doesn't work
 		// with
 		// Eclipse IDE.
@@ -271,23 +255,14 @@ public class Main {
 		}
 		return input;
 	}
-	public static String readPassword(){
+	private static String readPassword(){
 		Console console =  System.console();
 		char [] input = console.readPassword("Please enter your secret password:  ");
 		return String.valueOf(input);
 	}
 
 
-	public static int convertByteToInt(byte[] b)
-	{
-		int value= 0;
-		for(int i=0; i<b.length; i++)
-			value = (value << 8) | b[i];
-		return value;
-	}
-
-
-	public static NotaryConnection getNotaryConnection(){
+	static NotaryConnection getNotaryConnection(){
 	    return conn;
     }
 }
