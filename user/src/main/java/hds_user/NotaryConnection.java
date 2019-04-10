@@ -177,6 +177,7 @@ public class NotaryConnection {
 	}
 
 	public byte[] cypher(Message message){
+
 		byte[] msg = message.toBytes();
 		HashMessage hashMessage = new HashMessage();
 		SignMessage signMessage = new SignMessage();

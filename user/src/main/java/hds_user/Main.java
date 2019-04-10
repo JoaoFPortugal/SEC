@@ -221,7 +221,7 @@ public class Main {
 
 			Date date = new Date();
 			long now = date.getTime();
-			Message message = new Message(ownerID,userID,'B', now, gid);
+			Message message = new Message(userID,ownerID,'B', now, gid);
 
 			byte[] finalmsg = conn.cypher(message);
 			out.writeInt(finalmsg.length);
@@ -233,7 +233,6 @@ public class Main {
 			in.readFully(msg);
 
 			replyMessage = Message.fromBytes(msg);
-
 			owner.close();
 
 

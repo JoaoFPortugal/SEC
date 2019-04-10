@@ -23,12 +23,11 @@ public class UserListener implements Runnable {
 	public void run() {
 
 		try (
-				ServerSocket serverSocket = new ServerSocket(portNumber);
+				ServerSocket clientSocket = new ServerSocket(portNumber);
 		) {
 			while (true) {
-				Socket clientSocket = serverSocket.accept();
 
-				Request request = new Request(serverSocket.accept());
+				Request request = new Request(clientSocket.accept());
 				System.out.println(request.gid);
 				/*UserConnection cn = new UserConnection(this, clientSocket,
 						"Client: " + clientSocket.getInetAddress());
