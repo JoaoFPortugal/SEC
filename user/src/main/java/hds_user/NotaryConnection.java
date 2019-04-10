@@ -95,7 +95,7 @@ public class NotaryConnection {
 			FileInputStream fis = new FileInputStream("./src/main/resources/serverPublicKey.txt");
 			byte[] pubKey = fis.readAllBytes();
 			X509EncodedKeySpec keySpec = new X509EncodedKeySpec(pubKey);
-			KeyFactory kf = KeyFactory.getInstance("EC");
+			KeyFactory kf = KeyFactory.getInstance("RSA");
 			pub = kf.generatePublic(keySpec);
 			return pub;
 		} catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException e) {
