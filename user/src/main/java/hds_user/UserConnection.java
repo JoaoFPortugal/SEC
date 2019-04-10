@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import notary.Request;
+import hds_security.Message;
 
 public class UserConnection implements Runnable {
 
@@ -12,17 +14,36 @@ public class UserConnection implements Runnable {
 	private String threadName;
 	private Socket clientSocket;
 	private UserListener userListener;
+	private Request request;
 
-	UserConnection(UserListener ul, Socket s, String name) {
+	UserConnection(UserListener ul, Socket s, String name, Request req) {
 		userListener = ul;
 		threadName = name;
 		clientSocket = s;
+		request=req;
 	}
 
 	@Override
 	public void run() {
+		NotaryConnection conn = Main.getNotaryConnection();
 
-		try (PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+		Message replyMessage;
+
+		try {
+			replyMessage = conn.transferGood(request.gid, request.destin, request.origin);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return;
+		}
+		System.out.println(replyMessage.getContent());
+		try {
+			request.write(replyMessage);
+		} catch(IOException e){
+			e.printStackTrace();
+		}
+
+
+/*		try (PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
 			 BufferedReader in = new BufferedReader(
 					 new InputStreamReader(clientSocket.getInputStream()));
 		) {
@@ -59,7 +80,7 @@ public class UserConnection implements Runnable {
 			e.printStackTrace();
 			return;
 		}
-
+*/
 		System.out.println("Thread " + threadName + " exiting.");
 		userListener.clientConnections.remove(this);
 	}

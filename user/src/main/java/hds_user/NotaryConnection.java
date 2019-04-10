@@ -148,7 +148,7 @@ public class NotaryConnection {
 	 * doesn't own it.
 	 */
 
-	public int transferGood(int good, int owner, int buyer) throws IOException {
+	public Message transferGood(int good, int owner, int buyer) throws IOException {
 		connect();
 		Date date = new Date();
 		long now = date.getTime();
@@ -160,7 +160,7 @@ public class NotaryConnection {
 		Message replyMessage = Message.fromBytes(reply);
 
 		disconnect();
-		return replyMessage.getContent();
+		return replyMessage;
 	}
 
 	//public int buyGood(int good, int owner, int buyer) throws IOException {
@@ -206,4 +206,5 @@ public class NotaryConnection {
 	public String getAddr() {
 		return client.getRemoteSocketAddress().toString();
 	}
+
 }

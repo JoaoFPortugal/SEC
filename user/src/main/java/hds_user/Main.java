@@ -108,7 +108,7 @@ public class Main {
 				    buyGood(uid);
 					break;
 				case 4:
-					transferGood(uid);
+					//transferGood(uid);
 					break;
 				case 0:
 					System.exit(0);
@@ -171,7 +171,7 @@ public class Main {
 				+ (g.getForSale() ? "" : "not ") + "for sale.");
 	}
 
-	public static void transferGood(int ownerID) {
+/*	public static void transferGood(int ownerID) {
 		int gid, buyerID;
 		while (true) {
 			try {
@@ -193,7 +193,7 @@ public class Main {
 		System.out.println(reply);
 
 	}
-
+*/
 
 	public static void buyGood(int userID) {
 		int gid, ownerID;
@@ -289,4 +289,9 @@ public class Main {
 			value = (value << 8) | b[i];
 		return value;
 	}
+
+
+	public static NotaryConnection getNotaryConnection(){
+	    return conn;
+    }
 }

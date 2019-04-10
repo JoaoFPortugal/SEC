@@ -99,7 +99,6 @@ public class User {
 	public void setGoodList(ArrayList<Good> goods) {
 		setOfGoods = goods;
 	}
-	
 	public void printAllGoods() {
 		for (Good g : setOfGoods) {
 			Main.println(g.getID() + "\t" + g.getOwner() + "\t" + g.getForSale());
