@@ -2,7 +2,9 @@ package hds_user;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FileInputStream;
 import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
@@ -66,6 +68,8 @@ public class NotaryConnection {
 		return g;
 
 	}
+
+
 
 	public ArrayList<Good> getListOfGoods() throws IOException, InexistentGoodsException {
 		connect();
@@ -159,6 +163,12 @@ public class NotaryConnection {
 		return replyMessage.getContent();
 	}
 
+	//public int buyGood(int good, int owner, int buyer) throws IOException {
+
+
+
+	//}
+
 	private byte[] read() throws IOException {
 		int msgLen = in.readInt();
 		byte[] msg = new byte[msgLen];
@@ -166,8 +176,7 @@ public class NotaryConnection {
 		return msg;
 	}
 
-	private void write(Message message) throws IOException {
-		// message.print();
+	public byte[] cypher(Message message){
 		byte[] msg = message.toBytes();
 		HashMessage hashMessage = new HashMessage();
 		SignMessage signMessage = new SignMessage();
@@ -184,6 +193,11 @@ public class NotaryConnection {
 		} catch (SignatureException e) {
 			e.printStackTrace();
 		}
+		return finalmsg;
+	}
+
+	private void write(Message message) throws IOException {
+		byte[] finalmsg = cypher(message);
 		out.writeInt(finalmsg.length);
 		out.write(finalmsg, 0, finalmsg.length);
 	}

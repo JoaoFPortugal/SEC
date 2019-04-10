@@ -1,18 +1,26 @@
 package hds_user;
 
-import java.io.BufferedReader;
-import java.io.Console;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.net.Socket;
+import java.nio.ByteBuffer;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SignatureException;
+import java.util.Date;
 
+import hds_security.HashMessage;
+import hds_security.Message;
+import hds_security.SignMessage;
 import hds_user.exceptions.*;
+
+import javax.xml.crypto.Data;
 
 public class Main {
 
 	// Connection stuff
 	private static String serverName = "localhost";
 	private static int notaryPort = 6066;
-	private static int userListenerPort = 4444;
+	private static int userListenerPort;
 	private static NotaryConnection conn;
 	private static User user;
 
@@ -31,6 +39,20 @@ public class Main {
 		}
 
 		// Listen to user requests
+		byte[] port_bytes = null;
+		int port=0;
+		try {
+			FileInputStream fis = new FileInputStream("./src/main/resources/" + uid + "_port.txt");
+			port = fis.read();
+			fis.close();
+		}catch( IOException e){
+			Main.println("port file not found");
+		}
+
+		//ByteBuffer bb = ByteBuffer.wrap(port_bytes);
+		//int port = bb.getInt();
+		userListenerPort= port;
+		System.out.println(userListenerPort);
 		UserListener userListener = new UserListener(userListenerPort, "userListenerThread");
 		userListener.start();
 
@@ -168,11 +190,59 @@ public class Main {
 
 	}
 
-	/*
-	 * public static boolean buyGood(int userId, int goodId) {
-	 *
-	 * }
-	 */
+
+	public static void buyGood(int userID) {
+		int gid, ownerID;
+		while (true) {
+			try {
+				gid = Integer.parseInt(Main.readString("Good ID: ", false));
+				ownerID = Integer.parseInt(Main.readString("Owner ID: ", false));
+				break;
+			} catch (NumberFormatException e) {
+				Main.println("Not a valid ID.");
+			}
+		}
+		Message replyMessage;
+
+		try {
+
+			FileInputStream fis = new FileInputStream("./src/main/resources/" + ownerID + "_port.txt");
+			byte[] port_bytes= fis.readAllBytes();
+			fis.close();
+			ByteBuffer bb = ByteBuffer.wrap(port_bytes);
+			int port = bb.getInt();
+
+
+			Socket owner = new Socket("localhost", port);
+			DataOutputStream out = new DataOutputStream(owner.getOutputStream());
+			DataInputStream in = new DataInputStream(owner.getInputStream());
+
+			Date date = new Date();
+			long now = date.getTime();
+			Message message = new Message(ownerID,userID,'B', now, gid);
+
+			byte[] finalmsg = conn.cypher(message);
+			out.writeInt(finalmsg.length);
+			out.write(finalmsg, 0, finalmsg.length);
+
+
+			int msgLen = in.readInt();
+			byte[] msg = new byte[msgLen];
+			in.readFully(msg);
+
+			replyMessage = Message.fromBytes(msg);
+
+			owner.close();
+
+
+		} catch (IOException e) {
+			e.printStackTrace();
+			return;
+		}
+		System.out.println(replyMessage.getContent());
+
+	}
+
 
 	public static void print(String str) {
 		System.out.print(str);
@@ -208,5 +278,14 @@ public class Main {
 		Console console =  System.console();
 		char [] input = console.readPassword("Please enter your secret password:  ");
 		return String.valueOf(input);
+	}
+
+
+	public static int convertByteToInt(byte[] b)
+	{
+		int value= 0;
+		for(int i=0; i<b.length; i++)
+			value = (value << 8) | b[i];
+		return value;
 	}
 }
