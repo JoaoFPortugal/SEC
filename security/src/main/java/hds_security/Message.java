@@ -10,19 +10,30 @@ public class Message {
 	private int destination;
 	private long now;
 	private int gid;
+	private long nonce;
 
-	public Message(int origin, int destination, char operation, long now, int gid) {
+
+	public Message(int origin, int destination, char operation, long now, int gid, long nonce) {
 		this.origin = origin;
 		this.destination = destination;
 		this.operation = operation;
 		this.now = now;
 		this.gid = gid;
+		this.nonce = nonce;
 	}
 
 	public long createTimeStamp() {
 		Date date = new Date();
 		now = date.getTime();
 		return now;
+	}
+
+	public long getNonce(){
+		return this.nonce;
+	}
+
+	public long getNow(){
+		return this.now;
 	}
 
 	public int getOrigin() {
@@ -46,12 +57,13 @@ public class Message {
 
 	public byte[] toBytes() {
 
-		ByteBuffer bb = ByteBuffer.allocate(22);
+		ByteBuffer bb = ByteBuffer.allocate(30);
 
 		bb.putChar(operation);
 		bb.putInt(origin);
 		bb.putInt(destination);
 		bb.putLong(now);
+		bb.putLong(nonce);
 		bb.putInt(gid);
 
 		return bb.array();
@@ -66,9 +78,10 @@ public class Message {
 		int morigin = bb.getInt();
 		int mdestination = bb.getInt();
 		long mnow = bb.getLong();
+		long mnonce = bb.getLong();
 		int mgid = bb.getInt();
 
-		return new Message(morigin, mdestination, moperation, mnow, mgid);
+		return new Message(morigin, mdestination, moperation, mnow, mgid,mnonce);
 
 	}
 

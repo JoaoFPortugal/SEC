@@ -7,6 +7,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.util.Date;
+import java.util.Random;
 import java.util.Scanner;
 
 import hds_security.HashMessage;
@@ -25,6 +26,7 @@ public class Main {
 	private static int userListenerPort;
 	private static NotaryConnection conn;
 	private static User user;
+	static Random rand = new Random();
 
 	public static void main(String[] args) {
 
@@ -64,20 +66,7 @@ public class Main {
 		user = new User(uid,password);
 		conn = new NotaryConnection(serverName, notaryPort, user);
 
-		/*try {
-			//user.setUserList(conn.getListOfUsers());
-			//user.setGoodList(conn.getListOfGoods());
-		} catch (IOException e1) {
-			e1.printStackTrace();
-			System.exit(0);
-		} catch (InexistentGoodsException e) {
-			e.toString();
-			System.exit(0);
-		}
 
-		user.printAllUsers();
-		user.printAllGoods();
-*/
 		while (true) {
 
 			int option = 0;
@@ -201,9 +190,10 @@ public class Main {
 
 			Date date = new Date();
 			long now = date.getTime();
-			Message message = new Message(userID,ownerID,'B', now, gid);
+			long nonce = rand.nextLong();
+			Message message = new Message(userID,ownerID,'B', now, gid,nonce);
 
-			byte[] finalmsg = conn.cypher(message);
+			byte[] finalmsg = conn.sign(message);
 			out.writeInt(finalmsg.length);
 			out.write(finalmsg, 0, finalmsg.length);
 
@@ -211,7 +201,6 @@ public class Main {
 			int msgLen = in.readInt();
 			byte[] msg = new byte[msgLen];
 			in.readFully(msg);
-
 			replyMessage = Message.fromBytes(msg);
 			owner.close();
 
@@ -262,7 +251,7 @@ public class Main {
 	}
 
 
-	static NotaryConnection getNotaryConnection(){
+	public static NotaryConnection getNotaryConnection(){
 	    return conn;
     }
 }

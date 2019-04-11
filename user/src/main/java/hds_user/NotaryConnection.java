@@ -15,6 +15,8 @@ import hds_user.exceptions.*;
 import notary.exceptions.InvalidSignatureException;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Random;
 
 public class NotaryConnection {
 
@@ -24,6 +26,8 @@ public class NotaryConnection {
 	private DataOutputStream out;
 	private DataInputStream in;
 	private User user;
+	private Random rand = new Random();
+	private HashMap<Long,Long> noncemap = new HashMap<>();
 
 	public NotaryConnection(String serverName, int port, User user) {
 		this.serverName = serverName;
@@ -45,20 +49,22 @@ public class NotaryConnection {
 	 * Sends a request to the notary to know if the good is for sale and who owns
 	 * it. Returns a Good object on success.
 	 *
-	 * @throws InexistentGoodException
+	 *
 	 */
 
 	public Good getStateOfGood(int gid, int uid) throws IOException, InvalidSignatureException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
 		connect();
 		Date date = new Date();
 		long now = date.getTime();
-		Message message = new Message(uid, -1, 'G', now, gid);
+		long nonce = rand.nextLong();
+		Message message = new Message(uid, -1, 'G', now, gid,nonce);
 
 		write(message);
 
 		byte[] reply = readFromServer();
 
 		Message replyMessage = Message.fromBytes(reply);
+
 
 		Good g = new Good(gid, replyMessage.getOrigin(), replyMessage.getContent() == 1);
 
@@ -67,25 +73,58 @@ public class NotaryConnection {
 
 	}
 
+	private void verifyFreshness(Message replyMessage) throws ReplayAttackException {
+		Date date = new Date();
+		long now = date.getTime();
+		long mnow = replyMessage.getNow();
+		long mnonce = replyMessage.getNonce();
+
+		if(mnow + 10000 >= now){
+			throw new ReplayAttackException();
+		}
+
+		else{
+			Long nonce = noncemap.get(mnow);
+			if(!(nonce == null)){
+				if(nonce == mnonce){
+					throw new ReplayAttackException();
+				}
+			}
+
+			else{
+				noncemap.put(mnow,mnonce);
+			}
+		}
+	}
+
+
 	public byte[] readFromServer() throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException, InvalidSignatureException {
 		PublicKey pubKey = loadServerPublicKey();
 		assert pubKey != null;
 		int msgLen = in.readInt();
 		byte[] mbytes = new byte[msgLen];
 		in.readFully(mbytes);
-		byte[] unwrapmsg = new byte[mbytes.length-22];
-		byte[] originalmessage = new byte[22];
+		byte[] unwrapmsg = new byte[mbytes.length-30];
+		byte[] originalmessage = new byte[30];
 
-		System.arraycopy(mbytes,0,originalmessage,0,22);
-		System.arraycopy(mbytes,22,unwrapmsg,0,unwrapmsg.length);
+		System.arraycopy(mbytes,0,originalmessage,0,30);
+		System.arraycopy(mbytes,30,unwrapmsg,0,unwrapmsg.length);
 
 		HashMessage hashedoriginal = new HashMessage();
 		byte[] hashedcontent = hashedoriginal.hashBytes(originalmessage);
 		SignMessage sign = new SignMessage();
-
-		if(!sign.verify(hashedcontent,unwrapmsg,pubKey)){
+		if(!sign.verifyServerMsg(hashedcontent,unwrapmsg,pubKey)){
 			throw new InvalidSignatureException();
 		}
+
+		Message replyMessage = Message.fromBytes(originalmessage);
+
+		try {
+			verifyFreshness(replyMessage);
+		} catch (ReplayAttackException e) {
+			e.printStackTrace();
+		}
+
 		return originalmessage;
 	}
 
@@ -112,7 +151,8 @@ public class NotaryConnection {
 		connect();
 		Date date = new Date();
 		long now = date.getTime();
-		Message message = new Message(uid, -1, 'S', now, gid);
+		long nonce = rand.nextLong();
+		Message message = new Message(uid, -1, 'S', now, gid,nonce);
 
 		write(message);
 
@@ -132,7 +172,8 @@ public class NotaryConnection {
 		connect();
 		Date date = new Date();
 		long now = date.getTime();
-		Message message = new Message(owner, buyer, 'T', now, good);
+		long nonce = rand.nextLong();
+		Message message = new Message(owner, buyer, 'T', now, good,nonce);
 
 		write(message);
 
@@ -144,14 +185,7 @@ public class NotaryConnection {
 	}
 
 
-	private byte[] read() throws IOException {
-		int msgLen = in.readInt();
-		byte[] msg = new byte[msgLen];
-		in.readFully(msg);
-		return msg;
-	}
-
-	public byte[] cypher(Message message){
+	public byte[] sign(Message message){
 
 		byte[] msg = message.toBytes();
 		HashMessage hashMessage = new HashMessage();
@@ -169,7 +203,7 @@ public class NotaryConnection {
 	}
 
 	private void write(Message message) throws IOException {
-		byte[] finalmsg = cypher(message);
+		byte[] finalmsg = sign(message);
 		out.writeInt(finalmsg.length);
 		out.write(finalmsg, 0, finalmsg.length);
 	}

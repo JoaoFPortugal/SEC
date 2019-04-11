@@ -26,6 +26,7 @@ public class Request {
 	public int destin;
 	public char operation;
 	public long now;
+	public long nonce;
 	public int gid;
 	private DataOutputStream out;
 	private DataInputStream in;
@@ -55,12 +56,12 @@ public class Request {
 
 	public void writeServer(Message message) throws IOException, PteidException, InvocationTargetException, IllegalAccessException, PKCS11Exception, NoSuchMethodException, ClassNotFoundException {
 		CitizenCard citizenCard = new CitizenCard();
-		byte[] secondmsg = citizenCard.signMessage(message.toBytes());
 		byte[] firstmsg = message.toBytes();
+		HashMessage hashMsg = new HashMessage();
+		byte[] secondmsg = citizenCard.signMessage(hashMsg.hashBytes(firstmsg));
 		byte[] finalmsg = new byte[firstmsg.length+secondmsg.length];
 		System.arraycopy(firstmsg,0,finalmsg,0,firstmsg.length);
 		System.arraycopy(secondmsg,0,finalmsg,firstmsg.length,secondmsg.length);
-
 		out.writeInt(finalmsg.length);
 		out.write(finalmsg,0,finalmsg.length);
 	}
@@ -72,13 +73,14 @@ public class Request {
 		origin = bb.getInt();
 		destin = bb.getInt();
 		now = bb.getLong();
+		nonce = bb.getLong();
 		gid = bb.getInt();
 
-		byte[] unwrapmsg = new byte[mbytes.length-22];
-		byte[] originalmessage = new byte[22];
+		byte[] unwrapmsg = new byte[mbytes.length-30];
+		byte[] originalmessage = new byte[30];
 
-		System.arraycopy(mbytes,0,originalmessage,0,22);
-		System.arraycopy(mbytes,22,unwrapmsg,0,unwrapmsg.length);
+		System.arraycopy(mbytes,0,originalmessage,0,30);
+		System.arraycopy(mbytes,30,unwrapmsg,0,unwrapmsg.length);
 
 		HashMessage hashedoriginal = new HashMessage();
 		byte[] hashedcontent = hashedoriginal.hashBytes(originalmessage);
@@ -94,7 +96,6 @@ public class Request {
 		byte[] pub = Files.readAllBytes(Paths.get("./src/main/resources/" + origin + "_public_key.txt"));
 		X509EncodedKeySpec keySpec = new X509EncodedKeySpec(pub);
 		KeyFactory kf = KeyFactory.getInstance("EC");
-
 		return kf.generatePublic(keySpec);
 	}
 

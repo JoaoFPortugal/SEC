@@ -25,4 +25,12 @@ public class SignMessage {
             signature.update(plaintextMessage);
         return signature.verify(signedMessage);
     }
+
+        public boolean verifyServerMsg(byte[] plaintextMessage, byte[] signedMessage, PublicKey publicKey) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+            Signature signature;
+            signature = Signature.getInstance("SHA1withRSA");
+            signature.initVerify(publicKey);
+            signature.update(plaintextMessage);
+            return signature.verify(signedMessage);
+        }
 }

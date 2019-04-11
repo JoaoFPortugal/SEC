@@ -8,6 +8,7 @@ import java.net.Socket;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
+import java.util.Random;
 
 import notary.Request;
 import hds_security.Message;
@@ -20,6 +21,7 @@ public class UserConnection implements Runnable {
 	private Socket clientSocket;
 	private UserListener userListener;
 	private Request request;
+	private Random rand = new Random();
 
 	UserConnection(UserListener ul, Socket s, String name, Request req) {
 		userListener = ul;
