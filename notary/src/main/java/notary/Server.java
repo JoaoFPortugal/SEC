@@ -8,10 +8,13 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Random;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import hds_security.Message;
 import notary.exceptions.InvalidSignatureException;
+import notary.exceptions.ReplayAttackException;
 import pteidlib.PteidException;
 import sun.security.pkcs11.wrapper.PKCS11Exception;
 
@@ -25,6 +28,8 @@ public class Server extends Thread {
 
     // Does not allow more than 'max_queue' requests on the queue (for resources concern)
     private int max_queue = 1024;
+    private HashMap<Long,Long> noncemap = new HashMap<>();
+    Random rand = new Random();
 
     public Server(int port, Database db) throws IOException {
         this.db = db;
@@ -48,17 +53,7 @@ public class Server extends Thread {
             else{
                 try {
                     runConsumer();
-                } catch (PteidException e) {
-                    e.printStackTrace();
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                } catch (PKCS11Exception e) {
-                    e.printStackTrace();
-                } catch (NoSuchMethodException e) {
-                    e.printStackTrace();
-                } catch (InvocationTargetException e) {
-                    e.printStackTrace();
-                } catch (ClassNotFoundException e) {
+                } catch (PteidException | IllegalAccessException | PKCS11Exception | NoSuchMethodException | InvocationTargetException | ClassNotFoundException e) {
                     e.printStackTrace();
                 }
             }
@@ -78,6 +73,7 @@ public class Server extends Thread {
             }
 
             // 'put' blocks, 'add' throws exception
+            assert request != null;
             requests.put(request);
 
             System.out.println("Request created from: " + request.getAddr());
@@ -94,10 +90,30 @@ public class Server extends Thread {
 
             Date date = new Date();
             long now = date.getTime();
+            System.out.println(request.now);
+            System.out.println(request.now+10000);
+            System.out.println(now);
+            if(request.now + 10000 <= now){
+                System.out.println("Invalid packet, delay too long");
+                throw new IllegalAccessException();
+            }
+            else{
+                Long nonce = noncemap.get(request.now);
+                if (!(nonce==null)){
+                    if(nonce == request.nonce){
+                        throw new ReplayAttackException();
+                    }
+                }
+                else{
+                    noncemap.put(request.now,request.nonce);
+                }
+            }
+
 
             if (request.operation == 'S'){
                 int reply = db.checkIntentionToSell(request.origin, request.gid);
-                Message message = new Message(-1,-1, 'R', now, reply);
+                long nonce = rand.nextLong();
+                Message message = new Message(-1,-1, 'R', now, reply, nonce);
                 try {
                     request.writeServer(message);
                 } catch(IOException e){
@@ -108,7 +124,8 @@ public class Server extends Thread {
             else if ( request.operation=='G'){
                 String query_result = db.getStateOfGood(request.gid);
                 String[] splitted_query = query_result.split(" ");
-                Message message = new Message(Integer.valueOf(splitted_query[0]), -1, 'R', now, Integer.valueOf(splitted_query[1]));
+                long nonce = rand.nextLong();
+                Message message = new Message(Integer.valueOf(splitted_query[0]), -1, 'R', now, Integer.valueOf(splitted_query[1]),nonce);
                 try {
                     request.writeServer(message);
                 } catch(IOException e){
@@ -118,7 +135,8 @@ public class Server extends Thread {
 
             else if ( request.operation=='T'){
                 int reply = db.transferGood(request.gid, request.origin, request.destin);
-                Message message = new Message(-1, -1, 'R', now, reply);
+                long nonce = rand.nextLong();
+                Message message = new Message(-1, -1, 'R', now, reply,nonce);
                 try {
                     request.writeServer(message);
                 } catch(IOException e){
@@ -126,9 +144,7 @@ public class Server extends Thread {
                 }
             }
 
-
-
-        } catch ( InterruptedException e) {
+        } catch ( InterruptedException | ReplayAttackException e) {
             e.printStackTrace();
         }
     }
