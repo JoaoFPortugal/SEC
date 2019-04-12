@@ -44,12 +44,19 @@
 			<artifactId>security</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<groupId>pt.ulisboa.tecnico</groupId>
+			<artifactId>pteidlibj</artifactId>
+			<version>2.0</version>
+		</dependency>
 
 	</dependencies>
 
 
 	<build>
 		<plugins>
+
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-resources-plugin</artifactId>
@@ -93,16 +100,13 @@
 					</execution>
 				</executions>
 				<configuration>
+					<systemProperties>
+						<systemProperty>
+							<key>-Djava.library.path</key>
+							<value>${basedir}/lib</value>
+						</systemProperty>
+					</systemProperties>
 					<mainClass>notary.Main</mainClass>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<configuration>
-					<forkMode>once</forkMode>
-					<workingDirectory>target</workingDirectory>
-					<argLine>-Djava.library.path=${basedir}/lib</argLine>
 				</configuration>
 			</plugin>
 		</plugins>

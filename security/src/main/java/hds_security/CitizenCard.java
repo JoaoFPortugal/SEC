@@ -11,6 +11,9 @@ import pteidlib.pteid;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.charset.Charset;
 import java.lang.reflect.Method;
 import javax.crypto.*;
@@ -30,17 +33,15 @@ public class CitizenCard{
 
     public byte[] signMessage(byte[] message) throws PteidException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, PKCS11Exception {
 
-        System.setProperty("java.library.path", "./lib/");
         System.loadLibrary("pteidlibj");
         pteid.Init("");
         pteid.SetSODChecking(false);
-
         PKCS11 pkcs11;
         String osName = System.getProperty("os.name");
         String javaVersion = System.getProperty("java.version");
         java.util.Base64.Encoder encoder = java.util.Base64.getEncoder();
 
-        String libName = "libbeidpkcs11.so";
+        String libName = "libpteidpkcs11.so";
         if (osName.contains("Windows"))
             libName = "pteidpkcs11.dll";
         else if (osName.contains("Mac"))
