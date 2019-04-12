@@ -19,11 +19,13 @@ public class UserListener implements Runnable {
 	protected Vector<UserConnection> clientConnections;
 	private Random rand = new Random();
 	private HashMap<Long,Long> noncemap = new HashMap<>();
+	private Main main;
 
-	UserListener(int port, String name) {
+	public UserListener(int port, String name, Main main) {
 		this.portNumber = port;
 		this.threadName = name;
 		this.clientConnections = new Vector<>();
+		this.main = main;
 	}
 
 	@Override
@@ -38,7 +40,7 @@ public class UserListener implements Runnable {
 				verifyFreshness(request.now,request.nonce);
 				System.out.println(request.gid);
 				UserConnection cn = new UserConnection(this, clientSocket,
-						"Client: " + clientSocket.getInetAddress(), request);
+						"Client: " + clientSocket.getInetAddress(), request,main);
 				cn.start();
 				this.clientConnections.add(cn);
 			}

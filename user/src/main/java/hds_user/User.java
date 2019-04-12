@@ -91,25 +91,6 @@ public class User {
 	public PrivateKey getPrivateKey() {
 		return privateKey;
 	}
-	
-	public void setUserList(ArrayList<UserInfo> users) {
-		setOfUsers = users;
-	}
-	
-	public void setGoodList(ArrayList<Good> goods) {
-		setOfGoods = goods;
-	}
-	public void printAllGoods() {
-		for (Good g : setOfGoods) {
-			Main.println(g.getID() + "\t" + g.getOwner() + "\t" + g.getForSale());
-		}
-	}
-	
-	public void printAllUsers() {
-		for (UserInfo u : setOfUsers) {
-			Main.println(u.getUid() + "\t" + u.getIp() + "\t" + u.getPort());
-		}
-	}
 
 	private boolean invertPBKDF2(String password,int uid) {
 		//load salt

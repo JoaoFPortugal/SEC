@@ -21,27 +21,26 @@ import javax.xml.crypto.Data;
 public class Main {
 
 	// Connection stuff
-	private static String serverName = "localhost";
-	private static int notaryPort = 6066;
-	private static int userListenerPort;
-	private static NotaryConnection conn;
-	private static User user;
-	static Random rand = new Random();
+	private String serverName = "localhost";
+	private int notaryPort = 6066;
+	private int userListenerPort;
+	private NotaryConnection conn;
+	private  User user;
+	Random rand = new Random();
 
 	public static void main(String[] args) {
 
-		println("Hello!");
-
+		Main main = new Main();
+		main.println("Hello!");
 		int uid = 0;
 		while (true) {
 			try {
-				uid = Integer.parseInt(Main.readString("Please enter your ID: ", false));
+				uid = Integer.parseInt(main.readString("Please enter your ID: ", main));
 				break;
 			} catch (Exception e) {
-				Main.println("ID must be a number.");
+				main.println("ID must be a number.");
 			}
 		}
-
 		// Listen to user requests
 		byte[] port_bytes = null;
 		int port=0;
@@ -52,70 +51,70 @@ public class Main {
 			port =  scanner.nextInt();
 			fis.close();
 		}catch( IOException e){
-			Main.println("port file not found");
+			main.println("port file not found");
 		}
 
 		//ByteBuffer bb = ByteBuffer.wrap(port_bytes);
 		//int port = bb.getInt();
-		userListenerPort= port;
-		System.out.println(userListenerPort);
-		UserListener userListener = new UserListener(userListenerPort, "userListenerThread");
+		main.userListenerPort= port;
+		System.out.println(main.userListenerPort);
+		UserListener userListener = new UserListener(main.userListenerPort, "userListenerThread",main);
 		userListener.start();
 
-		String password = readPassword();
-		user = new User(uid,password);
-		conn = new NotaryConnection(serverName, notaryPort, user);
+		String password = main.readPassword();
+		main.user = new User(uid,password);
+		main.conn = new NotaryConnection(main.serverName, main.notaryPort, main.user);
 
 
 		while (true) {
 
 			int option = 0;
 
-			Main.println("What would you like to do?");
-			Main.println("1. Get State of Good");
-			Main.println("2. Intention to sell");
-			Main.println("3. Intention to buy");
-			Main.println("0. Exit");
+			main.println("What would you like to do?");
+			main.println("1. Get State of Good");
+			main.println("2. Intention to sell");
+			main.println("3. Intention to buy");
+			main.println("0. Exit");
 
-			String input = Main.readString();
+			String input = main.readString("",main);
 
 			try {
 				option = Integer.parseInt(input);
 			} catch (Exception e) {
-				Main.println("Wrong input!");
+				main.println("Wrong input!");
 				continue;
 			}
 
 			switch (option) {
 				case 1:
-					menuPrintGood(uid);
+					main.menuPrintGood(uid,main);
 					break;
 				case 2:
-					intentionToSell(uid);
+					main.intentionToSell(uid,main);
 					break;
 				case 3:
-				    buyGood(uid);
+				    main.buyGood(uid,main);
 					break;
 				case 0:
 					System.exit(0);
 				default:
-					Main.println(("Wrong number!"));
+					main.println(("Wrong number!"));
 			}
 
 		}
 
 	}
 
-	public static void intentionToSell(int uid) {
+	public void intentionToSell(int uid,Main main) {
 
 		int gid;
 
 		while (true) {
 			try {
-				gid = Integer.parseInt(Main.readString("Good ID: ", false));
+				gid = Integer.parseInt(main.readString("Good ID: ", main));
 				break;
 			} catch (NumberFormatException e) {
-				Main.println("Not a valid ID.");
+				main.println("Not a valid ID.");
 			}
 		}
 
@@ -133,16 +132,16 @@ public class Main {
 
 	}
 
-	public static void menuPrintGood(int uid) {
+	public void menuPrintGood(int uid,Main main) {
 
 		int gid;
 
 		while (true) {
 			try {
-				gid = Integer.parseInt(Main.readString("Good ID: ", false));
+				gid = Integer.parseInt(main.readString("Good ID: ", main));
 				break;
 			} catch (NumberFormatException e) {
-				Main.println("Not a valid ID.");
+				main.println("Not a valid ID.");
 			}
 		}
 
@@ -164,15 +163,15 @@ public class Main {
 	}
 
 
-	private static void buyGood(int userID) {
+	private void buyGood(int userID,Main main) {
 		int gid, ownerID;
 		while (true) {
 			try {
-				gid = Integer.parseInt(Main.readString("Good ID: ", false));
-				ownerID = Integer.parseInt(Main.readString("Owner ID: ", false));
+				gid = Integer.parseInt(main.readString("Good ID: ",main));
+				ownerID = Integer.parseInt(main.readString("Owner ID: ",main));
 				break;
 			} catch (NumberFormatException e) {
-				Main.println("Not a valid ID.");
+				main.println("Not a valid ID.");
 			}
 		}
 		Message replyMessage;
@@ -213,28 +212,15 @@ public class Main {
 
 	}
 
-
-	private static void print(String str) {
-		System.out.print(str);
-	}
-
-	static void println(String str) {
+	private void println(String str) {
 		System.out.println(str);
 	}
 
-	private static String readString(String prompt, boolean newline) {
-		if (newline) {
-			Main.println(prompt);
-		} else {
-			Main.print(prompt);
-		}
-		return readString();
-	}
-
-	private static String readString() {
+	private String readString(String prompt, Main main) {
 		// Used BufferedReader instead of System console because the later doesn't work
 		// with
 		// Eclipse IDE.
+		main.println(prompt);
 		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
 		String input = "";
 		try {
@@ -244,14 +230,14 @@ public class Main {
 		}
 		return input;
 	}
-	private static String readPassword(){
+	private String readPassword(){
 		Console console =  System.console();
 		char [] input = console.readPassword("Please enter your secret password:  ");
 		return String.valueOf(input);
 	}
 
 
-	public static NotaryConnection getNotaryConnection(){
+	public NotaryConnection getNotaryConnection(){
 	    return conn;
     }
 }

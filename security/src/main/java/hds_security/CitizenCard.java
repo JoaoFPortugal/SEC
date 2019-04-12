@@ -25,11 +25,12 @@ import java.security.spec.X509EncodedKeySpec;
 
 
 @SuppressWarnings("Duplicates")
+
 public class CitizenCard{
 
     public byte[] signMessage(byte[] message) throws PteidException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, PKCS11Exception {
 
-
+        System.setProperty("java.library.path", "./lib/");
         System.loadLibrary("pteidlibj");
         pteid.Init("");
         pteid.SetSODChecking(false);
@@ -58,7 +59,7 @@ public class CitizenCard{
         }
 
         long p11_session = pkcs11.C_OpenSession(0, PKCS11Constants.CKF_SERIAL_SESSION, null, null);
-
+        PTEID_Pin[] pins = pteid.GetPINs();
         pkcs11.C_Login(p11_session, 1, null);
         CK_ATTRIBUTE[] attributes = new CK_ATTRIBUTE[1];
         attributes[0] = new CK_ATTRIBUTE();
@@ -109,7 +110,7 @@ public class CitizenCard{
     }
 
     //Returns the CITIZEN AUTHENTICATION CERTIFICATE
-    public static byte[] getCitizenAuthCertInBytes(){
+    private static byte[] getCitizenAuthCertInBytes(){
         return getCertificateInBytes(0); //certificado 0 no Cartao do Cidadao eh o de autenticacao
     }
 
@@ -127,7 +128,6 @@ public class CitizenCard{
 
             certificate_bytes = certs[n].certif; //gets the byte[] with the n-th certif
 
-            //pteid.Exit(pteid.PTEID_EXIT_LEAVE_CARD); // OBRIGATORIO Termina a eID Lib
         } catch (PteidException e) {
             e.printStackTrace();
         }
@@ -135,7 +135,7 @@ public class CitizenCard{
     }
 
 
-    public static X509Certificate getCertFromByteArray(byte[] certificateEncoded) throws CertificateException{
+    private static X509Certificate getCertFromByteArray(byte[] certificateEncoded) throws CertificateException{
         CertificateFactory f = CertificateFactory.getInstance("X.509");
         InputStream in = new ByteArrayInputStream(certificateEncoded);
         X509Certificate cert = (X509Certificate)f.generateCertificate(in);

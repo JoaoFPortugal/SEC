@@ -23,7 +23,6 @@ public class Server extends Thread {
     private Database db;
     private ServerSocket serverSocket;
 
-    // http://tutorials.jenkov.com/java-util-concurrent/blockingqueue.html
     private BlockingQueue<Request> requests;
 
     // Does not allow more than 'max_queue' requests on the queue (for resources concern)

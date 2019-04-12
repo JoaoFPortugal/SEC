@@ -1,7 +1,6 @@
 package notary;
 
 import java.io.File;
-import java.io.IOException;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -15,12 +14,12 @@ public class Database {
 	private Connection conn;
 	private String url;
 
-	Database(String url) throws IOException {
+	Database(String url) {
 		this.url = url;
 		this.conn = null;
-		
-		/**
-		 * Check if database file exists because the connect method creates it if it doesn't 
+
+		/*
+		 * Check if database file exists because the connect method creates it if it doesn't
 		 */
 		File f = new File(this.url);
 		if(!(f.exists() && !f.isDirectory())) {
@@ -52,39 +51,7 @@ public class Database {
 	 * 
 	 * Select with parameters: http://www.sqlitetutorial.net/sqlite-java/select/
 	 */
-	public void selectAllUsers() {
-		String sql = "SELECT uid, ip, port FROM users";
 
-		// try-with-resources
-		// https://docs.oracle.com/javase/tutorial/essential/exceptions/tryResourceClose.html
-		try (Statement stmt = this.conn.createStatement();
-				ResultSet rs = stmt.executeQuery(sql)) {
-
-			// loop through the result set
-			while (rs.next()) {
-				System.out.println(rs.getInt("uid") + "\t" + rs.getString("ip") + "\t" +
-						rs.getInt("port"));
-			}
-		} catch (SQLException e) {
-			System.out.println(e.getMessage());
-		}
-	}
-	
-	public void selectAllGoods() {
-		String sql = "SELECT gid, owner_id, for_sale FROM goods";
-
-		try (Statement stmt = this.conn.createStatement();
-				ResultSet rs = stmt.executeQuery(sql)) {
-
-			// loop through the result set
-			while (rs.next()) {
-				System.out.println(rs.getInt("gid") + "\t" + rs.getInt("owner_id") +
-						"\t" + rs.getInt("for_sale"));
-			}
-		} catch (SQLException e) {
-			System.out.println(e.getMessage());
-		}
-	}
 
 
 	public String getStateOfGood(int id){
@@ -126,7 +93,7 @@ public class Database {
 			System.out.println(e.getMessage());
 		}
 
-		int result=-1;
+		int result;
 		String sql2 = "SELECT for_sale FROM goods WHERE gid = ? AND owner_id = ?" ;
 		try (PreparedStatement pstmt  = conn.prepareStatement(sql2)) {
 

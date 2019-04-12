@@ -1,38 +1,32 @@
 package notary;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 public class Main {
 
 	// Connection stuff
-	public static int port = 6066;
-	private static Server server = null;
+	private int port = 6066;
+	private Server server;
 
 	// Thread stuff
-	private static Thread producer; // One producer is enough and FIFO.
-	private static Thread consumer;
+	private Thread producer; // One producer is enough and FIFO.
+	private Thread consumer;
 
 	// Database stuff
-	public static String db_name = "notary.db";
-	public static Database db = null;
+	private String db_name = "notary.db";
+	private Database db;
 
 	public static void main(String[] args) {
+		Main main = new Main();
 
-
-		try {
-			db = new Database(db_name);
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(0);
-		}
+		main.db = new Database(main.db_name);
 
 		try {
-			server = new Server(port, db);
-			producer = new Thread(server, "producer");
-			producer.start();
-			consumer = new Thread(server, "consumer");
-			consumer.start();
+			main.server = new Server(main.port, main.db);
+			main.producer = new Thread(main.server, "producer");
+			main.producer.start();
+			main.consumer = new Thread(main.server, "consumer");
+			main.consumer.start();
 
 		} catch (IOException e) {
 			e.printStackTrace();

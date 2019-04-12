@@ -22,17 +22,19 @@ public class UserConnection implements Runnable {
 	private UserListener userListener;
 	private Request request;
 	private Random rand = new Random();
+	private Main main;
 
-	UserConnection(UserListener ul, Socket s, String name, Request req) {
+	public UserConnection(UserListener ul, Socket s, String name, Request req, Main main) {
 		userListener = ul;
 		threadName = name;
 		clientSocket = s;
 		request=req;
+		this.main = main;
 	}
 
 	@Override
 	public void run() {
-		NotaryConnection conn = Main.getNotaryConnection();
+		NotaryConnection conn = main.getNotaryConnection();
 
 		Message replyMessage;
 		replyMessage = null;
