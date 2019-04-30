@@ -28,6 +28,7 @@ Tested on Arch Linux
 - Gradle 5.2.1 (other versions may work)
 - The `pteidlibj` library was downloaded from [here](https://www.autenticacao.gov.pt/cc-aplicacao), the Ubuntu version. It is already included in the project so no need to download.
 - On Arch Linux the following is required in order to detect the card reader.
+
 ```sh
 sudo systemctl start pcscd.service
 pcsc_scan
@@ -41,10 +42,10 @@ pcsc_scan
 4. On `user` folder do `gradle run`.
 5. Test with user id 1, 2, 3, 4 and/or 5. Passwords are 11, 22, 33, 44 and 55 respectively.
 
-*Note: If when trying to do an operation there is a `java.lang.UnsatisfiedLinkError` check if the `LD_LIBRARY_PATH` includes the path to the `lib/linux` folder. Same for the property `java.library.path`. Gradle should take care of these though.*
+*Note: If when trying to do an operation there is a `java.lang.UnsatisfiedLinkError` check if the `LD_LIBRARY_PATH` environment variable includes the path to the `lib/linux` folder. Same for the property `java.library.path`. Gradle should take care of these though.*
 
 ## To-do
 
 - Improve `documentation/Methodology.md`
-    - Prof: Use key stores (Java has this) instead of plain text to store the keys, because in key stores we can sign them.
+  - Prof: Use key stores (Java has this) instead of plain text to store the keys, because in key stores we can sign them.
 - Prof: Using the CC to cipher everything requires entering the PIN many times, try to mitigate this. Eg. Generate new key pair that is signed with the CC). But the `transferGood` method must be necessarily ciphered with the CC.

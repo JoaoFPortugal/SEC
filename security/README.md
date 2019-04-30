@@ -22,7 +22,7 @@ gradle build
 
 ```sh
 gradle run
-cp *.txt ../../../user/src/main/resources
-cp *_public_key.txt ../../../notary/src/main/resources
+cp *.txt ../user/src/main/resources
+cp *_public_key.txt ../notary/src/main/resources
 ```
 

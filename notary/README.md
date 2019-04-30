@@ -30,7 +30,7 @@ Insert a Portuguese Citizen Card (PT-CC) in the slot before running the program.
 gradle run
 ```
 
-*Note: If when trying to do an operation there is a `java.lang.UnsatisfiedLinkError` check if the `LD_LIBRARY_PATH` includes the path to the `lib/linux` folder. Same for the property `java.library.path`. Gradle should take care of these though.*
+*Note: If when trying to do an operation there is a `java.lang.UnsatisfiedLinkError` check if the `LD_LIBRARY_PATH` environment variable includes the path to the `lib/linux` folder. Same for the property `java.library.path`. Gradle should take care of these though.*
 
 ## SQLite
 
