@@ -1,0 +1,3 @@
+rootProject.name = 'hds'
+
+include 'notary', 'user', 'security'

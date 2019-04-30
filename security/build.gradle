@@ -1,0 +1,24 @@
+apply plugin: 'java-library'
+
+// Compatibility necessary because getting the following
+// error when compiling with Java 11
+// 'error: package sun.security.pkcs11.wrapper is not visible'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+// in order to generate eclipse project
+apply plugin: 'eclipse'
+
+// in order to run the application
+apply plugin: 'application'
+mainClassName = 'hds_security.GenPubAndPrivKeys'
+
+repositories {
+    // in order to use pteidlibj
+    flatDir {
+        dirs '../lib'
+    }
+}
+dependencies {
+    compile name: 'pteidlibj' // pteidlibj-2.0
+}

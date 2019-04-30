@@ -1,0 +1,34 @@
+// project interpreted as a java project
+apply plugin: 'java'
+
+// Compatibility necessary because getting the following
+// error when compiling with Java 11
+// 'error: package sun.security.pkcs11.wrapper is not visible'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+// in order to generate eclipse project
+apply plugin: 'eclipse'
+
+// in order to run the application
+apply plugin: 'application'
+mainClassName = 'hds_user.Main'
+
+repositories {
+    // in order to use SQLite
+    mavenCentral()
+    // in order to use pteidlibj
+    flatDir {
+        dirs '../lib'
+    }
+}
+
+dependencies {
+    compile 'org.xerial:sqlite-jdbc:3.27.2.1'
+    compile name: 'pteidlibj' // pteidlibj-2.0
+    // Dependency on a local library module
+    implementation project(":security")
+
+    // XXX This is bad :(
+    implementation project(":notary")
+}
