@@ -2,16 +2,26 @@
 
 This module has the security classes needed to be used by both the `notary` and the `user`.
 
-Run `mvn install` in this module before trying to run both the `user` and the `notary`.
+## Gradle
 
-Moreover it also generates the initial key pairs for all the users.
+pteidlibj.jar: [How to include local .jar as dependency.](https://stackoverflow.com/questions/20700053/how-to-add-local-jar-file-dependency-to-build-gradle-file)
 
-## Generating key pairs
+[Build as Java library.](https://guides.gradle.org/building-java-libraries/)
+
+Generated Eclipse project using `gradle eclipse` command, while having `apply plugin: 'eclipse'` inside the `build.gradle` file. Tutorial: <http://www.thejavageek.com/2015/05/22/create-eclipse-project-with-gradle/>
+
+Got `.gitignore` file from <https://www.gitignore.io/api/eclipse> and <https://www.gitignore.io/api/java%2Cgradle%2Cintellij>.
+
+### Build
 
 ```sh
-mvn compile
-cd target/classes
-java hds_security.GenPubAndPrivKeys
+gradle build
+```
+
+### Run (Generate keys)
+
+```sh
+gradle run
 cp *.txt ../../../user/src/main/resources
 cp *_public_key.txt ../../../notary/src/main/resources
 ```

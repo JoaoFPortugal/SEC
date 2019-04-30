@@ -1,5 +1,7 @@
 package hds_user;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.io.*;
 import java.net.Socket;
 import java.nio.ByteBuffer;
@@ -131,8 +133,7 @@ public class NotaryConnection {
 	private PublicKey loadServerPublicKey() {
 		PublicKey pub;
 		try {
-			FileInputStream fis = new FileInputStream("./src/main/resources/serverPublicKey.txt");
-			byte[] pubKey = fis.readAllBytes();
+			byte[] pubKey = Files.readAllBytes(Paths.get("./src/main/resources/serverPublicKey.txt"));
 			X509EncodedKeySpec keySpec = new X509EncodedKeySpec(pubKey);
 			KeyFactory kf = KeyFactory.getInstance("RSA");
 			pub = kf.generatePublic(keySpec);

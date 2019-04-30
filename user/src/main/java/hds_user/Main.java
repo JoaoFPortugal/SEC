@@ -17,6 +17,7 @@ import hds_user.exceptions.*;
 import notary.exceptions.InvalidSignatureException;
 
 import javax.xml.crypto.Data;
+import javax.swing.JOptionPane;
 
 public class Main {
 
@@ -61,7 +62,7 @@ public class Main {
 		UserListener userListener = new UserListener(main.userListenerPort, "userListenerThread",main);
 		userListener.start();
 
-		String password = main.readPassword();
+		String password = main.readPassword("Please enter your secret password: ", main);
 		main.user = new User(uid,password);
 		main.conn = new NotaryConnection(main.serverName, main.notaryPort, main.user);
 
@@ -216,24 +217,44 @@ public class Main {
 		System.out.println(str);
 	}
 
+	/**
+	 * This method contemplates if the program is being run
+	 * in Eclipse or not, as Eclipse does not support System.console.
+	 * Same for Gradle.
+	 */
 	private String readString(String prompt, Main main) {
-		// Used BufferedReader instead of System console because the later doesn't work
-		// with
-		// Eclipse IDE.
-		main.println(prompt);
-		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+		
 		String input = "";
-		try {
-			input = bufferedReader.readLine();
-		} catch (IOException ioe) {
-			println("Problems with reading user input.");
+		Console c = System.console();
+		
+		if(c == null) {
+			input = JOptionPane.showInputDialog(prompt);
+		} else {
+			main.println(prompt);
+			input = c.readLine();
+			
 		}
+		
 		return input;
 	}
-	private String readPassword(){
-		Console console =  System.console();
-		char [] input = console.readPassword("Please enter your secret password:  ");
-		return String.valueOf(input);
+
+	/**
+	 * This method contemplates if the program is being run
+	 * in Eclipse or not, as Eclipse does not support System.console.
+	 * Same for Gradle.
+	 */
+	private String readPassword(String prompt, Main main) {
+		
+		String input = "";
+		Console c = System.console();
+		
+		if(c == null) {
+			input = JOptionPane.showInputDialog(prompt);
+		} else {
+			char[] in = System.console().readPassword(prompt);
+			input =  String.valueOf(in);
+		}
+		return input;
 	}
 
 

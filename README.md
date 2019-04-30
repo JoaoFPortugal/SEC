@@ -18,30 +18,30 @@ See [Assignment.md](documentation/Assignment.md)
 
 See [Methodology.md](documentation/Methodology.md)
 
+## Testing
+
+Tested in Ubuntu 18.04
+To run:
+run with java 10.0.2 and maven 3.5.2
+have a copy of pteidlibj moved to /usr/local/lib
+have pteidlibj renamed to pteidlibj-2.0 and install it to .m2 folder.
+go to dir of module security and do mvn install
+go to dir of module notary and do mvn install
+do mvn compile exec:java in this dir and the notary should be up and running.
+start up to 5 consoles and in each go to user and mvn compile exec:java
+when asked for ID put either 1,2,3,4,5 where the password for each is "11", "22", "33", "44" or "55"
+should be everything running.
+There is an ongoing issue that we couldn't fix that is shared resources. Therefore when the notary stores his public key under the name serverPubKey it will do so it in his resource folders under notary and the user will try to load it and fail. To fix it, copy this serverPubKey to user resources and it should be fixed.
+
+If when trying to do an operation there is a java.lang.unsatisfiedlinkerror try doing export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
+
+
+
 ## To-do
 
-- ~~Create Assignment.md~~
-- ~~Persist data of notary: SQLite~~
-- ~~Use Maven (or Gradle) for managing the build~~
 - Improve README.md and documentation/Methodology.md
     - ~~How to compile app~~
     - How to test app
-    - Will be used for Report
+    - Prof: Use key stores (Java has this) instead of plain text to store the keys, because in key stores we can sign them.
 - Implement communication between client and server (Producer-Consumer model)
-    - Implement methods of assignment
-    - ~~Use a semaphore~~
-    - Implement "library" on user
-- Implement communication between users (peer-to-peer)
-- ~~Assume a fixed number of (max) users that we know beforehand, we know their keys beforehand, we know their IP and port beforehand, we know their goods beforehand. (both the notary and users know beforehand)~~
-- Design system's architecture and communication model (assure integrity, non-repudiation, authenticity and freshness) Tip: use public-private keys for first 3 and noonces for freshness. Do not assure confidentiality!
-    - Freshness: Prevent replay attacks
-    - Use API used in Lab for reading citizen card
-        ?- Use API for accessing card: <https://docs.oracle.com/javase/7/docs/jre/api/security/smartcardio/spec/>
-    - For PKI, use João's code or openssl (save in Java format)
-    - Use JavaCrypto (only 1 method used in lab is deprecated and doesn't work on Java > 8)
-- Prof: Use key stores (Java has this) instead of plain text to store the keys, because in key stores we can sign them.
 - Prof: Using the CC to cipher everything requires entering the PIN many times, try to mitigate this. Eg. Generate new key pair that is signed with the CC). But the `transferGood` method must be necessarily ciphered with the CC.
-
-**How does PKI work:**
-
-- User guarantees his authenticity by hashing the message (using for example SHA-2, hash function is passed as argument to the API) and encrypting that hash with his private key. Then the user sends the message, the encrypted hash and the hash function used (eg SHA2) to the server. The server then decrypts the hash using the user's public key, does the hash of the message and compares both hashes to see if they match.

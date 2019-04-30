@@ -17,10 +17,11 @@ mainClassName = 'notary.Main'
 // libraries used by pteidlibj in run-time
 run {
     environment "LD_LIBRARY_PATH", new java.io.File(System.getProperty("user.dir") + "/../lib/linux").getCanonicalPath()
-    systemProperty "java.library.path",
-        System.getProperty("java.library.path") + ", " +
-        new java.io.File(System.getProperty("user.dir") + "/../lib/linux").getCanonicalPath() + ", " +
-        new java.io.File(System.getProperty("user.dir") + "/../lib/linux/pteid_jni").getCanonicalPath()
+    System.setProperty("java.library.path", System.getProperty("java.library.path") + ":" +
+        new java.io.File(System.getProperty("user.dir") + "/../lib/linux").getCanonicalPath() + ":" +
+        new java.io.File(System.getProperty("user.dir") + "/../lib/linux/pteid_jni").getCanonicalPath())
+    println System.getenv( 'LD_LIBRARY_PATH' )
+    println System.properties['java.library.path']
 }
 
 repositories {

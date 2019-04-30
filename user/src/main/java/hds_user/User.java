@@ -4,7 +4,6 @@ import hds_security.HashMessage;
 import hds_security.StrongPasswordGenerator;
 import hds_security.SymmetricKeyEncryption;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -69,9 +68,7 @@ public class User {
 		SymmetricKeyEncryption symmetricKeyEncryption= new SymmetricKeyEncryption(fromHex(strongpassword));
 		byte[] decryptedPrivateKey = new byte[0];
 		try {
-			FileInputStream fis = new FileInputStream("./src/main/resources/" + uid + "_private_key.txt");
-			byte[] privateKeyEncoded = fis.readAllBytes();
-			fis.close();
+			byte[] privateKeyEncoded = Files.readAllBytes(Paths.get("./src/main/resources/" + uid + "_private_key.txt"));
 			decryptedPrivateKey = symmetricKeyEncryption.decrypt(privateKeyEncoded);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -131,8 +128,8 @@ public class User {
 	private byte[] loadHash(int uid) {
 
 		try {
-			FileInputStream fis = new FileInputStream("./src/main/resources/hashedPasswordfile" + uid + ".txt");
-			return fis.readAllBytes();
+			byte[] pub = Files.readAllBytes(Paths.get("./src/main/resources/hashedPasswordfile" + uid + ".txt"));
+			return pub;
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -143,8 +140,8 @@ public class User {
 
 	private byte[] loadSalt(int uid) {
 		try{
-			FileInputStream fis = new FileInputStream("./src/main/resources/saltfile" + uid + ".txt");
-			return fis.readAllBytes();
+			byte[] pub = Files.readAllBytes(Paths.get("./src/main/resources/saltfile" + uid + ".txt"));
+			return pub;
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
