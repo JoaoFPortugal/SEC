@@ -1,3 +1,9 @@
+*.jar
+!lib/pteidlibj.jar
+!lib/pteidlibj-2.0.jar
+!lib/linux/pteid_jni/pteidlibj.jar
+.fuse_hidden*
+
 # Compiled class file
 *.class
 
@@ -6,25 +12,6 @@
 
 *.idea
 *.iml
-
-# BlueJ files
-*.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
-*.jar
-!pteidlibj.jar
-!pteidlibj-2.0.jar
-*.war
-*.ear
-*.zip
-*.tar.gz
-*.rar
-
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
 
 # Eclipse
 .classpath
@@ -37,13 +24,6 @@ bin/
 
 # Maven
 target/
-
-
-
-
-
-
-
 
 
 
@@ -147,7 +127,6 @@ fabric.properties
 .mtj.tmp/
 
 # Package Files #
-*.jar
 *.war
 *.nar
 *.ear

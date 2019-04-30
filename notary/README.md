@@ -6,7 +6,7 @@ Generic tutorial: <https://spring.io/guides/gs/gradle/>
 
 Tutorial [SQLite JDBC driver with Gradle](https://stackoverflow.com/questions/50377264/using-sqlite-jdbc-driver-in-a-gradle-java-project).
 
-pteidlibj-2.0.jar: [How to include local .jar as dependency.](https://stackoverflow.com/questions/20700053/how-to-add-local-jar-file-dependency-to-build-gradle-file)
+pteidlibj.jar: [How to include local .jar as dependency.](https://stackoverflow.com/questions/20700053/how-to-add-local-jar-file-dependency-to-build-gradle-file)
 
 [Include local library](https://developer.android.com/studio/build/dependencies) (security)
 
@@ -24,31 +24,13 @@ gradle build
 
 ### Run
 
+Insert a Portuguese Citizen Card (PT-CC) in the slot before running the program.
+
 ```sh
 gradle run
 ```
 
-
-
-## Maven
-
-### Build & Run
-
-```sh
-cd security
-mvn install
-cd notary
-mvn install:install-file -Dfile=../pteidlibj-2.0.jar -DgroupId=pt.ulisboa.tecnico -DartifactId=pteidlibj -Dversion=2.0 -Dpackaging=jar
-mvn compile # Build
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:absolute/path/to/lib/linux/
-mvn exec:java # Run
-```
-
-### Generate Eclipse project
-
-```sh
-mvn eclipse:eclipse
-```
+*Note: If when trying to do an operation there is a `java.lang.UnsatisfiedLinkError` check if the `LD_LIBRARY_PATH` includes the path to the `lib/linux` folder. Same for the property `java.library.path`. Gradle should take care of these though.*
 
 ## SQLite
 

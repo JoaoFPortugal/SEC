@@ -20,28 +20,31 @@ See [Methodology.md](documentation/Methodology.md)
 
 ## Testing
 
-Tested in Ubuntu 18.04
-To run:
-run with java 10.0.2 and maven 3.5.2
-have a copy of pteidlibj moved to /usr/local/lib
-have pteidlibj renamed to pteidlibj-2.0 and install it to .m2 folder.
-go to dir of module security and do mvn install
-go to dir of module notary and do mvn install
-do mvn compile exec:java in this dir and the notary should be up and running.
-start up to 5 consoles and in each go to user and mvn compile exec:java
-when asked for ID put either 1,2,3,4,5 where the password for each is "11", "22", "33", "44" or "55"
-should be everything running.
-There is an ongoing issue that we couldn't fix that is shared resources. Therefore when the notary stores his public key under the name serverPubKey it will do so it in his resource folders under notary and the user will try to load it and fail. To fix it, copy this serverPubKey to user resources and it should be fixed.
+Tested on Arch Linux
 
-If when trying to do an operation there is a java.lang.unsatisfiedlinkerror try doing export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
+**Requirements:**
 
+- JDK 8
+- Gradle 5.2.1 (other versions may work)
+- The `pteidlibj` library was downloaded from [here](https://www.autenticacao.gov.pt/cc-aplicacao), the Ubuntu version. It is already included in the project so no need to download.
+- On Arch Linux the following is required in order to detect the card reader.
+```sh
+sudo systemctl start pcscd.service
+pcsc_scan
+```
 
+**Running:**
+
+1. On project root do `gradle build`. 
+2. Insert a Portuguese Citizen Card (PT-CC) in the slot before running the program.
+3. On `notary` folder do `gradle run`.
+4. On `user` folder do `gradle run`.
+5. Test with user id 1, 2, 3, 4 and/or 5. Passwords are 11, 22, 33, 44 and 55 respectively.
+
+*Note: If when trying to do an operation there is a `java.lang.UnsatisfiedLinkError` check if the `LD_LIBRARY_PATH` includes the path to the `lib/linux` folder. Same for the property `java.library.path`. Gradle should take care of these though.*
 
 ## To-do
 
-- Improve README.md and documentation/Methodology.md
-    - ~~How to compile app~~
-    - How to test app
+- Improve `documentation/Methodology.md`
     - Prof: Use key stores (Java has this) instead of plain text to store the keys, because in key stores we can sign them.
-- Implement communication between client and server (Producer-Consumer model)
 - Prof: Using the CC to cipher everything requires entering the PIN many times, try to mitigate this. Eg. Generate new key pair that is signed with the CC). But the `transferGood` method must be necessarily ciphered with the CC.
