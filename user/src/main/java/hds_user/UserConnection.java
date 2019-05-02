@@ -7,9 +7,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.util.Random;
 
-import notary.Request;
 import hds_security.Message;
-import notary.exceptions.InvalidSignatureException;
+import hds_security.Request;
+import hds_security.exceptions.InvalidSignatureException;
 
 public class UserConnection implements Runnable {
 

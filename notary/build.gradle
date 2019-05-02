@@ -16,12 +16,14 @@ mainClassName = 'notary.Main'
 
 // libraries used by pteidlibj in run-time
 run {
-    environment "LD_LIBRARY_PATH", new java.io.File(System.getProperty("user.dir") + "/../lib/linux").getCanonicalPath()
+    // Setting environment variables this way doesn't work.
+    //environment "LD_LIBRARY_PATH", new java.io.File(System.getProperty("user.dir") + "/../lib/linux/lib").getCanonicalPath()
+    //environment "PATH", System.getenv( 'PATH' ) + ":" + new java.io.File(System.getProperty("user.dir") + "/../lib/linux/bin").getCanonicalPath()
     System.setProperty("java.library.path", System.getProperty("java.library.path") + ":" +
-        new java.io.File(System.getProperty("user.dir") + "/../lib/linux").getCanonicalPath() + ":" +
-        new java.io.File(System.getProperty("user.dir") + "/../lib/linux/pteid_jni").getCanonicalPath())
-    println System.getenv( 'LD_LIBRARY_PATH' )
-    println System.properties['java.library.path']
+        new java.io.File(System.getProperty("user.dir") + "/../lib/linux/lib").getCanonicalPath())
+    println "LD_LIBRARY_PATH = " + System.getenv( 'LD_LIBRARY_PATH' )
+    println "PATH = " + System.getenv( 'PATH' )
+    println "java.library.path = " + System.properties['java.library.path']
 }
 
 repositories {

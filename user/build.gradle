@@ -28,7 +28,4 @@ dependencies {
     compile name: 'pteidlibj' // pteidlibj-2.0
     // Dependency on a local library module
     implementation project(":security")
-
-    // XXX This is bad :(
-    implementation project(":notary")
 }

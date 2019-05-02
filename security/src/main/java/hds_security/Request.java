@@ -1,4 +1,4 @@
-package notary;
+package hds_security;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -12,15 +12,12 @@ import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 
-import hds_security.CitizenCard;
-import hds_security.HashMessage;
-import hds_security.Message;
-import hds_security.SignMessage;
-import notary.exceptions.InvalidSignatureException;
+import hds_security.exceptions.InvalidSignatureException;
 import pteidlib.PteidException;
 import sun.security.pkcs11.wrapper.PKCS11Exception;
 
 public class Request {
+	
 	private Socket addr;
 	public int origin;
 	public int destin;

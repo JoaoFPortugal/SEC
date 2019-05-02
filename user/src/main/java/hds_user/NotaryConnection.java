@@ -11,12 +11,11 @@ import java.security.spec.X509EncodedKeySpec;
 import hds_security.HashMessage;
 import hds_security.Message;
 import hds_security.SignMessage;
+import hds_security.exceptions.InvalidSignatureException;
 import hds_user.exceptions.*;
-import notary.exceptions.InvalidSignatureException;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Random;
 
 public class NotaryConnection {
 
@@ -26,8 +25,7 @@ public class NotaryConnection {
 	private DataOutputStream out;
 	private DataInputStream in;
 	private User user;
-	private Random rand = new Random();
-	private HashMap<Long,Long> noncemap = new HashMap<>();
+	private HashMap<Long, Long> noncemap = new HashMap<>();
 
 	public NotaryConnection(String serverName, int port, User user) {
 		this.serverName = serverName;
@@ -50,19 +48,17 @@ public class NotaryConnection {
 	 * it. Returns a Good object on success.
 	 */
 
-	public Good getStateOfGood(int gid, int uid) throws IOException, InvalidSignatureException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+	public Good getStateOfGood(int gid, int uid) throws IOException, InvalidSignatureException,
+			NoSuchAlgorithmException, InvalidKeyException, SignatureException {
 		connect();
-		Date date = new Date();
-		long now = date.getTime();
-		long nonce = rand.nextLong();
-		Message message = new Message(uid, -1, 'G', now, gid,nonce);
+
+		Message message = new Message(uid, -1, 'G', gid);
 
 		write(message);
 
 		byte[] reply = readFromServer();
 
 		Message replyMessage = Message.fromBytes(reply);
-
 
 		Good g = new Good(gid, replyMessage.getOrigin(), replyMessage.getContent() == 1);
 
@@ -77,41 +73,41 @@ public class NotaryConnection {
 		long mnow = replyMessage.getNow();
 		long mnonce = replyMessage.getNonce();
 
-		if(mnow + 10000 >= now){
+		if (mnow + 10000 >= now) {
 			throw new ReplayAttackException();
 		}
 
-		else{
+		else {
 			Long nonce = noncemap.get(mnow);
-			if(!(nonce == null)){
-				if(nonce == mnonce){
+			if (!(nonce == null)) {
+				if (nonce == mnonce) {
 					throw new ReplayAttackException();
 				}
 			}
 
-			else{
-				noncemap.put(mnow,mnonce);
+			else {
+				noncemap.put(mnow, mnonce);
 			}
 		}
 	}
 
-
-	public byte[] readFromServer() throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException, InvalidSignatureException {
+	public byte[] readFromServer() throws IOException, NoSuchAlgorithmException, InvalidKeyException,
+			SignatureException, InvalidSignatureException {
 		PublicKey pubKey = loadServerPublicKey();
 		assert pubKey != null;
 		int msgLen = in.readInt();
 		byte[] mbytes = new byte[msgLen];
 		in.readFully(mbytes);
-		byte[] unwrapmsg = new byte[mbytes.length-30];
+		byte[] unwrapmsg = new byte[mbytes.length - 30];
 		byte[] originalmessage = new byte[30];
 
-		System.arraycopy(mbytes,0,originalmessage,0,30);
-		System.arraycopy(mbytes,30,unwrapmsg,0,unwrapmsg.length);
+		System.arraycopy(mbytes, 0, originalmessage, 0, 30);
+		System.arraycopy(mbytes, 30, unwrapmsg, 0, unwrapmsg.length);
 
 		HashMessage hashedoriginal = new HashMessage();
 		byte[] hashedcontent = hashedoriginal.hashBytes(originalmessage);
 		SignMessage sign = new SignMessage();
-		if(!sign.verifyServerMsg(hashedcontent,unwrapmsg,pubKey)){
+		if (!sign.verifyServerMsg(hashedcontent, unwrapmsg, pubKey)) {
 			throw new InvalidSignatureException();
 		}
 
@@ -144,12 +140,11 @@ public class NotaryConnection {
 	 * Sends a request to the notary expressing that a good is for sale. Fails if
 	 * user doesn't own it.
 	 */
-	public int intentionToSell(int gid, int uid) throws IOException, InvalidSignatureException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+	public int intentionToSell(int gid, int uid) throws IOException, InvalidSignatureException,
+			NoSuchAlgorithmException, InvalidKeyException, SignatureException {
 		connect();
-		Date date = new Date();
-		long now = date.getTime();
-		long nonce = rand.nextLong();
-		Message message = new Message(uid, -1, 'S', now, gid,nonce);
+
+		Message message = new Message(uid, -1, 'S', gid);
 
 		write(message);
 
@@ -157,7 +152,7 @@ public class NotaryConnection {
 		Message replyMessage = Message.fromBytes(reply);
 
 		disconnect();
-		return(replyMessage.getContent());
+		return (replyMessage.getContent());
 	}
 
 	/**
@@ -165,12 +160,11 @@ public class NotaryConnection {
 	 * doesn't own it.
 	 */
 
-	public Message transferGood(int good, int owner, int buyer) throws IOException, InvalidSignatureException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+	public Message transferGood(int good, int owner, int buyer) throws IOException, InvalidSignatureException,
+			NoSuchAlgorithmException, InvalidKeyException, SignatureException {
 		connect();
-		Date date = new Date();
-		long now = date.getTime();
-		long nonce = rand.nextLong();
-		Message message = new Message(owner, buyer, 'T', now, good,nonce);
+
+		Message message = new Message(owner, buyer, 'T', good);
 
 		write(message);
 
@@ -181,8 +175,7 @@ public class NotaryConnection {
 		return replyMessage;
 	}
 
-
-	public byte[] sign(Message message){
+	public byte[] sign(Message message) {
 
 		byte[] msg = message.toBytes();
 		HashMessage hashMessage = new HashMessage();
@@ -199,7 +192,7 @@ public class NotaryConnection {
 		return finalmsg;
 	}
 
-	private void write(Message message) throws IOException {
+	public void write(Message message) throws IOException {
 		byte[] finalmsg = sign(message);
 		out.writeInt(finalmsg.length);
 		out.write(finalmsg, 0, finalmsg.length);

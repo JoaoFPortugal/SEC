@@ -2,6 +2,7 @@ package hds_security;
 
 import java.nio.ByteBuffer;
 import java.util.Date;
+import java.util.Random;
 
 public class Message {
 
@@ -12,6 +13,7 @@ public class Message {
 	private int gid;
 	private long nonce;
 
+	Random rand = new Random();
 
 	public Message(int origin, int destination, char operation, long now, int gid, long nonce) {
 		this.origin = origin;
@@ -22,17 +24,30 @@ public class Message {
 		this.nonce = nonce;
 	}
 
+	public Message(int origin, int destination, char operation, int gid) {
+		this.origin = origin;
+		this.destination = destination;
+		this.operation = operation;
+		this.gid = gid;
+		this.now = createTimeStamp();
+		this.nonce = createNonce();
+	}
+
 	public long createTimeStamp() {
 		Date date = new Date();
 		now = date.getTime();
 		return now;
 	}
 
-	public long getNonce(){
+	public long createNonce() {
+		return rand.nextLong();
+	}
+
+	public long getNonce() {
 		return this.nonce;
 	}
 
-	public long getNow(){
+	public long getNow() {
 		return this.now;
 	}
 
@@ -81,7 +96,7 @@ public class Message {
 		long mnonce = bb.getLong();
 		int mgid = bb.getInt();
 
-		return new Message(morigin, mdestination, moperation, mnow, mgid,mnonce);
+		return new Message(morigin, mdestination, moperation, mnow, mgid, mnonce);
 
 	}
 

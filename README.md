@@ -27,6 +27,7 @@ Tested on Arch Linux
 - JDK 8
 - Gradle 5.2.1 (other versions may work)
 - The `pteidlibj` library was downloaded from [here](https://www.autenticacao.gov.pt/cc-aplicacao), the Ubuntu version. It is already included in the project so no need to download. The `pteidlibj.jar` was provided to us by the course, it is meant to run with JDK < 10, which is what we're using. The `pteidlibj-2.0.jar` is meant to run with JDK 10.
+- Smartcard drives. Installation instructions for Arch Linux [here](<https://wiki.archlinux.org/index.php/Smartcards>).
 - On Arch Linux the following is required in order to detect the card reader.
 
 ```sh
@@ -37,12 +38,26 @@ pcsc_scan
 **Running:**
 
 1. On project root do `gradle build`. 
+
 2. Insert a Portuguese Citizen Card (PT-CC) in the slot before running the program.
-3. On `notary` folder do `gradle run`.
-4. On `user` folder do `gradle run`.
+
+3. On `notary` folder do: 
+
+   ```sh
+   source setEnvVar.sh
+   gradle run
+   ```
+
+4. On `user` folder do: 
+
+   ```sh
+   source setEnvVar.sh
+   gradle run
+   ```
+
 5. Test with user id 1, 2, 3, 4 and/or 5. Passwords are 11, 22, 33, 44 and 55 respectively.
 
-*Note: If when trying to do an operation there is a `java.lang.UnsatisfiedLinkError` check if the `LD_LIBRARY_PATH` environment variable includes the path to the `lib/linux` folder. Same for the property `java.library.path`. Gradle should take care of these though.*
+*Note: If when trying to do an operation there is a `java.lang.UnsatisfiedLinkError` check if the `LD_LIBRARY_PATH` environment variable includes the path to the `lib/linux/lib` folder. Same for the property `java.library.path`. Also check if `PATH` includes `lib/linux/bin`*
 
 ## To-do
 

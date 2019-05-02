@@ -1,4 +1,4 @@
-package notary.exceptions;
+package hds_security.exceptions;
 
 
 public class ReplayAttackException extends Exception {

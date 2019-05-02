@@ -13,8 +13,9 @@ import java.util.Random;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import hds_security.Message;
-import notary.exceptions.InvalidSignatureException;
-import notary.exceptions.ReplayAttackException;
+import hds_security.Request;
+import hds_security.exceptions.InvalidSignatureException;
+import hds_security.exceptions.ReplayAttackException;
 import pteidlib.PteidException;
 import sun.security.pkcs11.wrapper.PKCS11Exception;
 
@@ -109,8 +110,7 @@ public class Server extends Thread {
 
 			if (request.operation == 'S') {
 				int reply = db.checkIntentionToSell(request.origin, request.gid);
-				long nonce = rand.nextLong();
-				Message message = new Message(-1, -1, 'R', now, reply, nonce);
+				Message message = new Message(-1, -1, 'R', reply);
 				try {
 					request.writeServer(message);
 				} catch (IOException e) {
@@ -121,9 +121,9 @@ public class Server extends Thread {
 			else if (request.operation == 'G') {
 				String query_result = db.getStateOfGood(request.gid);
 				String[] splitted_query = query_result.split(" ");
-				long nonce = rand.nextLong();
-				Message message = new Message(Integer.valueOf(splitted_query[0]), -1, 'R', now,
-						Integer.valueOf(splitted_query[1]), nonce);
+
+				Message message = new Message(Integer.valueOf(splitted_query[0]), -1, 'R',
+						Integer.valueOf(splitted_query[1]));
 				try {
 					request.writeServer(message);
 				} catch (IOException e) {
@@ -133,8 +133,8 @@ public class Server extends Thread {
 
 			else if (request.operation == 'T') {
 				int reply = db.transferGood(request.gid, request.origin, request.destin);
-				long nonce = rand.nextLong();
-				Message message = new Message(-1, -1, 'R', now, reply, nonce);
+
+				Message message = new Message(-1, -1, 'R', reply);
 				try {
 					request.writeServer(message);
 				} catch (IOException e) {

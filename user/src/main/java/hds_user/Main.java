@@ -5,12 +5,10 @@ import java.net.Socket;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
-import java.util.Date;
-import java.util.Random;
 import java.util.Scanner;
 
 import hds_security.Message;
-import notary.exceptions.InvalidSignatureException;
+import hds_security.exceptions.InvalidSignatureException;
 
 import javax.swing.JOptionPane;
 
@@ -22,7 +20,6 @@ public class Main {
 	private int userListenerPort;
 	private NotaryConnection conn;
 	private User user;
-	Random rand = new Random();
 
 	public static void main(String[] args) {
 
@@ -78,7 +75,8 @@ public class Main {
 
 		try {
 			b = conn.intentionToSell(gid, uid);
-		} catch (IOException | NoSuchAlgorithmException | InvalidSignatureException | InvalidKeyException | SignatureException e) {
+		} catch (IOException | NoSuchAlgorithmException | InvalidSignatureException | InvalidKeyException
+				| SignatureException e) {
 			e.printStackTrace();
 			System.exit(0);
 		}
@@ -94,7 +92,8 @@ public class Main {
 
 		try {
 			g = conn.getStateOfGood(gid, uid);
-		} catch (IOException | NoSuchAlgorithmException | SignatureException | InvalidKeyException | InvalidSignatureException e) {
+		} catch (IOException | NoSuchAlgorithmException | SignatureException | InvalidKeyException
+				| InvalidSignatureException e) {
 			e.printStackTrace();
 			System.exit(0);
 		}
@@ -117,20 +116,14 @@ public class Main {
 				DataOutputStream out = new DataOutputStream(owner.getOutputStream());
 				DataInputStream in = new DataInputStream(owner.getInputStream());) {
 
-			Date date = new Date();
-			long now = date.getTime();
-			long nonce = rand.nextLong();
-			Message message = new Message(userID, ownerID, 'B', now, gid, nonce);
-
-			byte[] finalmsg = conn.sign(message);
-			out.writeInt(finalmsg.length);
-			out.write(finalmsg, 0, finalmsg.length);
+			Message message = new Message(userID, ownerID, 'B', gid);
+			conn.write(message);
 
 			int msgLen = in.readInt();
 			byte[] msg = new byte[msgLen];
 			in.readFully(msg);
 			replyMessage = Message.fromBytes(msg);
-			
+
 		} catch (IOException e) {
 			e.printStackTrace();
 			return;
