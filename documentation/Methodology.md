@@ -6,7 +6,7 @@ Our system has two separate modules, the **notary** which acts as a server and i
 
 ### Data Storage
 
-We persist our data using **SQLite**, which is a RDMS that requires no server, therefore being thread safe and fault tolerant.
+We persist our data using **SQLite**, which is a RDMS that requires no server, therefore being thread safe and fault tolerant, assuring **durability**.
 
 ### Communication
 

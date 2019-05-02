@@ -26,7 +26,7 @@ Tested on Arch Linux
 
 - JDK 8
 - Gradle 5.2.1 (other versions may work)
-- The `pteidlibj` library was downloaded from [here](https://www.autenticacao.gov.pt/cc-aplicacao), the Ubuntu version. It is already included in the project so no need to download.
+- The `pteidlibj` library was downloaded from [here](https://www.autenticacao.gov.pt/cc-aplicacao), the Ubuntu version. It is already included in the project so no need to download. The `pteidlibj.jar` was provided to us by the course, it is meant to run with JDK < 10, which is what we're using. The `pteidlibj-2.0.jar` is meant to run with JDK 10.
 - On Arch Linux the following is required in order to detect the card reader.
 
 ```sh

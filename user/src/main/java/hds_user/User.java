@@ -29,7 +29,7 @@ public class User {
 	private PrivateKey privateKey;
 	String strongpassword;
 
-	public User(int id, String password){
+	public User(int id, String password) {
 		this.uid = id;
 		loadPubKey();
 		this.password = password;
@@ -38,8 +38,8 @@ public class User {
 		setOfUsers = new ArrayList<>();
 	}
 
-	private void loadPubKey(){
-		try{
+	private void loadPubKey() {
+		try {
 			byte[] pub = Files.readAllBytes(Paths.get("./src/main/resources/" + uid + "_public_key.txt"));
 			X509EncodedKeySpec keySpec = new X509EncodedKeySpec(pub);
 			KeyFactory kf = KeyFactory.getInstance("EC");
@@ -58,17 +58,18 @@ public class User {
 				PKCS8EncodedKeySpec ks = new PKCS8EncodedKeySpec(privateKey);
 				KeyFactory kf = KeyFactory.getInstance("EC");
 				this.privateKey = kf.generatePrivate(ks);
-			}catch(Exception e){
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 	}
 
 	private byte[] loadKey(int uid) {
-		SymmetricKeyEncryption symmetricKeyEncryption= new SymmetricKeyEncryption(fromHex(strongpassword));
+		SymmetricKeyEncryption symmetricKeyEncryption = new SymmetricKeyEncryption(fromHex(strongpassword));
 		byte[] decryptedPrivateKey = new byte[0];
 		try {
-			byte[] privateKeyEncoded = Files.readAllBytes(Paths.get("./src/main/resources/" + uid + "_private_key.txt"));
+			byte[] privateKeyEncoded = Files
+					.readAllBytes(Paths.get("./src/main/resources/" + uid + "_private_key.txt"));
 			decryptedPrivateKey = symmetricKeyEncryption.decrypt(privateKeyEncoded);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -80,7 +81,6 @@ public class User {
 		return decryptedPrivateKey;
 	}
 
-
 	public PublicKey getPublicKey() {
 		return publicKey;
 	}
@@ -89,33 +89,33 @@ public class User {
 		return privateKey;
 	}
 
-	private boolean invertPBKDF2(String password,int uid) {
-		//load salt
+	private boolean invertPBKDF2(String password, int uid) {
+		// load salt
 		byte[] salt = loadSalt(uid);
 
-		String key = generatePassword(password,salt);
+		String key = generatePassword(password, salt);
 
 		String parts[] = key.split(":");
 
-		//generate hash of key
+		// generate hash of key
 
 		byte[] finalKey = fromHex(parts[2]);
 
 		HashMessage hashMessage = new HashMessage();
 		byte[] hashedMessage = hashMessage.hashBytes(finalKey);
 
-		//load hash from file
+		// load hash from file
 
 		byte[] hashedPassword = loadHash(uid);
 
-		if(Arrays.equals(hashedMessage,hashedPassword)){
+		if (Arrays.equals(hashedMessage, hashedPassword)) {
 			strongpassword = parts[2];
 			return true;
 		}
 		return false;
 	}
 
-	private String generatePassword(String password,byte[] salt) {
+	private String generatePassword(String password, byte[] salt) {
 		StrongPasswordGenerator pass = new StrongPasswordGenerator(password);
 		try {
 			return pass.generateStrongPasswordHash(salt);
@@ -139,7 +139,7 @@ public class User {
 	}
 
 	private byte[] loadSalt(int uid) {
-		try{
+		try {
 			byte[] pub = Files.readAllBytes(Paths.get("./src/main/resources/saltfile" + uid + ".txt"));
 			return pub;
 		} catch (FileNotFoundException e) {
@@ -150,12 +150,10 @@ public class User {
 		return null;
 	}
 
-	private byte[] fromHex(String hex)
-	{
+	private byte[] fromHex(String hex) {
 		byte[] bytes = new byte[hex.length() / 2];
-		for(int i = 0; i<bytes.length ;i++)
-		{
-			bytes[i] = (byte)Integer.parseInt(hex.substring(2 * i, 2 * i + 2), 16);
+		for (int i = 0; i < bytes.length; i++) {
+			bytes[i] = (byte) Integer.parseInt(hex.substring(2 * i, 2 * i + 2), 16);
 		}
 		return bytes;
 	}

@@ -31,7 +31,8 @@ public class Request {
 	private DataOutputStream out;
 	private DataInputStream in;
 
-	public Request(Socket sock) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException, SignatureException, InvalidSignatureException {
+	public Request(Socket sock) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException,
+			InvalidKeyException, SignatureException, InvalidSignatureException {
 		System.out.println("Received packet");
 		this.addr = sock;
 		out = new DataOutputStream(addr.getOutputStream());
@@ -53,20 +54,21 @@ public class Request {
 		out.write(msg, 0, msg.length);
 	}
 
-
-	public void writeServer(Message message) throws IOException, PteidException, InvocationTargetException, IllegalAccessException, PKCS11Exception, NoSuchMethodException, ClassNotFoundException {
+	public void writeServer(Message message) throws IOException, PteidException, InvocationTargetException,
+			IllegalAccessException, PKCS11Exception, NoSuchMethodException, ClassNotFoundException {
 		CitizenCard citizenCard = new CitizenCard();
 		byte[] firstmsg = message.toBytes();
 		HashMessage hashMsg = new HashMessage();
 		byte[] secondmsg = citizenCard.signMessage(hashMsg.hashBytes(firstmsg));
-		byte[] finalmsg = new byte[firstmsg.length+secondmsg.length];
-		System.arraycopy(firstmsg,0,finalmsg,0,firstmsg.length);
-		System.arraycopy(secondmsg,0,finalmsg,firstmsg.length,secondmsg.length);
+		byte[] finalmsg = new byte[firstmsg.length + secondmsg.length];
+		System.arraycopy(firstmsg, 0, finalmsg, 0, firstmsg.length);
+		System.arraycopy(secondmsg, 0, finalmsg, firstmsg.length, secondmsg.length);
 		out.writeInt(finalmsg.length);
-		out.write(finalmsg,0,finalmsg.length);
+		out.write(finalmsg, 0, finalmsg.length);
 	}
 
-	public void fromBytes(byte[] mbytes) throws InvalidKeySpecException, NoSuchAlgorithmException, IOException, SignatureException, InvalidKeyException, InvalidSignatureException {
+	public void fromBytes(byte[] mbytes) throws InvalidKeySpecException, NoSuchAlgorithmException, IOException,
+			SignatureException, InvalidKeyException, InvalidSignatureException {
 
 		ByteBuffer bb = ByteBuffer.wrap(mbytes);
 		operation = bb.getChar();
@@ -76,21 +78,20 @@ public class Request {
 		nonce = bb.getLong();
 		gid = bb.getInt();
 
-		byte[] unwrapmsg = new byte[mbytes.length-30];
+		byte[] unwrapmsg = new byte[mbytes.length - 30];
 		byte[] originalmessage = new byte[30];
 
-		System.arraycopy(mbytes,0,originalmessage,0,30);
-		System.arraycopy(mbytes,30,unwrapmsg,0,unwrapmsg.length);
+		System.arraycopy(mbytes, 0, originalmessage, 0, 30);
+		System.arraycopy(mbytes, 30, unwrapmsg, 0, unwrapmsg.length);
 
 		HashMessage hashedoriginal = new HashMessage();
 		byte[] hashedcontent = hashedoriginal.hashBytes(originalmessage);
 		SignMessage sign = new SignMessage();
 
-		if(!sign.verify(hashedcontent,unwrapmsg,getPublicKey(origin))){
+		if (!sign.verify(hashedcontent, unwrapmsg, getPublicKey(origin))) {
 			throw new InvalidSignatureException();
 		}
 	}
-
 
 	private PublicKey getPublicKey(int origin) throws InvalidKeySpecException, NoSuchAlgorithmException, IOException {
 		byte[] pub = Files.readAllBytes(Paths.get("./src/main/resources/" + origin + "_public_key.txt"));
@@ -98,7 +99,6 @@ public class Request {
 		KeyFactory kf = KeyFactory.getInstance("EC");
 		return kf.generatePublic(keySpec);
 	}
-
 
 	public String getAddr() {
 		return addr.getRemoteSocketAddress().toString();

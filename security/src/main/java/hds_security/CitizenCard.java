@@ -1,22 +1,12 @@
 package hds_security;
 
-import pteidlib.PTEID_ADDR;
 import pteidlib.PTEID_Certif;
-import pteidlib.PTEID_ID;
-import pteidlib.PTEID_PIC;
-import pteidlib.PTEID_Pin;
-import pteidlib.PTEID_TokenInfo;
 import pteidlib.PteidException;
 import pteidlib.pteid;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.nio.charset.Charset;
 import java.lang.reflect.Method;
-import javax.crypto.*;
 
 import sun.security.pkcs11.wrapper.*;
 
@@ -24,10 +14,6 @@ import java.security.PublicKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.security.spec.X509EncodedKeySpec;
-
-
-@SuppressWarnings("Duplicates")
 
 public class CitizenCard{
 
@@ -39,7 +25,6 @@ public class CitizenCard{
         PKCS11 pkcs11;
         String osName = System.getProperty("os.name");
         String javaVersion = System.getProperty("java.version");
-        java.util.Base64.Encoder encoder = java.util.Base64.getEncoder();
 
         String libName = "libpteidpkcs11.so";
         if (osName.contains("Windows"))
@@ -47,7 +32,7 @@ public class CitizenCard{
         else if (osName.contains("Mac"))
             libName = "pteidpkcs11.dylib";
 
-        Class pkcs11Class = Class.forName("sun.security.pkcs11.wrapper.PKCS11");
+        Class<? extends Object> pkcs11Class = Class.forName("sun.security.pkcs11.wrapper.PKCS11");
         if (javaVersion.startsWith("1.5."))
         {
             Method getInstanceMethode = pkcs11Class.getDeclaredMethod("getInstance", new Class[] { String.class, CK_C_INITIALIZE_ARGS.class, boolean.class });
@@ -60,7 +45,7 @@ public class CitizenCard{
         }
 
         long p11_session = pkcs11.C_OpenSession(0, PKCS11Constants.CKF_SERIAL_SESSION, null, null);
-        PTEID_Pin[] pins = pteid.GetPINs();
+
         pkcs11.C_Login(p11_session, 1, null);
         CK_ATTRIBUTE[] attributes = new CK_ATTRIBUTE[1];
         attributes[0] = new CK_ATTRIBUTE();

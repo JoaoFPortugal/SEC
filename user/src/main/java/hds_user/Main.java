@@ -2,7 +2,6 @@ package hds_user;
 
 import java.io.*;
 import java.net.Socket;
-import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
@@ -10,13 +9,9 @@ import java.util.Date;
 import java.util.Random;
 import java.util.Scanner;
 
-import hds_security.HashMessage;
 import hds_security.Message;
-import hds_security.SignMessage;
-import hds_user.exceptions.*;
 import notary.exceptions.InvalidSignatureException;
 
-import javax.xml.crypto.Data;
 import javax.swing.JOptionPane;
 
 public class Main {
@@ -26,239 +21,191 @@ public class Main {
 	private int notaryPort = 6066;
 	private int userListenerPort;
 	private NotaryConnection conn;
-	private  User user;
+	private User user;
 	Random rand = new Random();
 
 	public static void main(String[] args) {
 
 		Main main = new Main();
-		main.println("Hello!");
-		int uid = 0;
-		while (true) {
-			try {
-				uid = Integer.parseInt(main.readString("Please enter your ID: ", main));
-				break;
-			} catch (Exception e) {
-				main.println("ID must be a number.");
-			}
-		}
+
+		println("Hello!");
+
+		int uid = readInt("Please enter your ID: ");
+
 		// Listen to user requests
-		byte[] port_bytes = null;
-		int port=0;
+		main.userListenerPort = readIntFromFile("./src/main/resources/" + uid + "_port.txt");
 
-		try {
-			FileInputStream fis = new FileInputStream("./src/main/resources/" + uid + "_port.txt");
-			Scanner scanner = new Scanner(fis);
-			port =  scanner.nextInt();
-			fis.close();
-		}catch( IOException e){
-			main.println("port file not found");
-		}
-
-		//ByteBuffer bb = ByteBuffer.wrap(port_bytes);
-		//int port = bb.getInt();
-		main.userListenerPort= port;
-		System.out.println(main.userListenerPort);
-		UserListener userListener = new UserListener(main.userListenerPort, "userListenerThread",main);
+		println("User listening on port: " + main.userListenerPort);
+		UserListener userListener = new UserListener(main.userListenerPort, "userListenerThread", main);
 		userListener.start();
 
-		String password = main.readPassword("Please enter your secret password: ", main);
-		main.user = new User(uid,password);
+		String password = readPassword("Please enter your secret password: ");
+		main.user = new User(uid, password);
 		main.conn = new NotaryConnection(main.serverName, main.notaryPort, main.user);
-
 
 		while (true) {
 
-			int option = 0;
+			String menuStr = "What would you like to do?\n" + "1. Get State of Good\n" + "2. Intention to sell\n"
+					+ "3. Intention to buy\n" + "0. Exit\n";
 
-			main.println("What would you like to do?");
-			main.println("1. Get State of Good");
-			main.println("2. Intention to sell");
-			main.println("3. Intention to buy");
-			main.println("0. Exit");
-
-			String input = main.readString("",main);
-
-			try {
-				option = Integer.parseInt(input);
-			} catch (Exception e) {
-				main.println("Wrong input!");
-				continue;
-			}
+			int option = readInt(menuStr);
 
 			switch (option) {
-				case 1:
-					main.menuPrintGood(uid,main);
-					break;
-				case 2:
-					main.intentionToSell(uid,main);
-					break;
-				case 3:
-				    main.buyGood(uid,main);
-					break;
-				case 0:
-					System.exit(0);
-				default:
-					main.println(("Wrong number!"));
+			case 1:
+				main.menuPrintGood(uid, main);
+				break;
+			case 2:
+				main.intentionToSell(uid, main);
+				break;
+			case 3:
+				main.buyGood(uid, main);
+				break;
+			case 0:
+				System.exit(0);
+			default:
+				println(("Wrong number!"));
 			}
 
 		}
 
 	}
 
-	public void intentionToSell(int uid,Main main) {
+	public void intentionToSell(int uid, Main main) {
 
-		int gid;
-
-		while (true) {
-			try {
-				gid = Integer.parseInt(main.readString("Good ID: ", main));
-				break;
-			} catch (NumberFormatException e) {
-				main.println("Not a valid ID.");
-			}
-		}
+		int gid = readInt("Good ID: ");
 
 		int b = 0;
 
 		try {
 			b = conn.intentionToSell(gid, uid);
-		} catch (IOException e) {
+		} catch (IOException | NoSuchAlgorithmException | InvalidSignatureException | InvalidKeyException | SignatureException e) {
 			e.printStackTrace();
-			return;
-		} catch (NoSuchAlgorithmException | InvalidSignatureException | InvalidKeyException | SignatureException e) {
-			e.printStackTrace();
+			System.exit(0);
 		}
 		System.out.println(b);
 
 	}
 
-	public void menuPrintGood(int uid,Main main) {
+	public void menuPrintGood(int uid, Main main) {
 
-		int gid;
-
-		while (true) {
-			try {
-				gid = Integer.parseInt(main.readString("Good ID: ", main));
-				break;
-			} catch (NumberFormatException e) {
-				main.println("Not a valid ID.");
-			}
-		}
+		int gid = readInt("Good ID: ");
 
 		Good g = null;
 
 		try {
 			g = conn.getStateOfGood(gid, uid);
-		} catch (IOException e) {
+		} catch (IOException | NoSuchAlgorithmException | SignatureException | InvalidKeyException | InvalidSignatureException e) {
 			e.printStackTrace();
-			return;
-		} catch (NoSuchAlgorithmException | SignatureException | InvalidKeyException | InvalidSignatureException e) {
-			e.printStackTrace();
+			System.exit(0);
 		}
 
-		assert g!=null;
+		assert g != null;
 
 		println("Good with ID=" + gid + " belongs to user with ID=" + g.getOwner() + " and is "
 				+ (g.getForSale() ? "" : "not ") + "for sale.");
 	}
 
+	private void buyGood(int userID, Main main) {
+		int gid = readInt("Good ID: ");
+		int ownerID = readInt("Owner ID: ");
 
-	private void buyGood(int userID,Main main) {
-		int gid, ownerID;
-		while (true) {
-			try {
-				gid = Integer.parseInt(main.readString("Good ID: ",main));
-				ownerID = Integer.parseInt(main.readString("Owner ID: ",main));
-				break;
-			} catch (NumberFormatException e) {
-				main.println("Not a valid ID.");
-			}
-		}
 		Message replyMessage;
 
-		try {
+		int port = readIntFromFile("./src/main/resources/" + ownerID + "_port.txt");
 
-			FileInputStream fis = new FileInputStream("./src/main/resources/" + ownerID + "_port.txt");
-			Scanner scanner = new Scanner(fis);
-			int port =  scanner.nextInt();
-			fis.close();
-
-			Socket owner = new Socket("localhost", port);
-			DataOutputStream out = new DataOutputStream(owner.getOutputStream());
-			DataInputStream in = new DataInputStream(owner.getInputStream());
+		try (Socket owner = new Socket("localhost", port);
+				DataOutputStream out = new DataOutputStream(owner.getOutputStream());
+				DataInputStream in = new DataInputStream(owner.getInputStream());) {
 
 			Date date = new Date();
 			long now = date.getTime();
 			long nonce = rand.nextLong();
-			Message message = new Message(userID,ownerID,'B', now, gid,nonce);
+			Message message = new Message(userID, ownerID, 'B', now, gid, nonce);
 
 			byte[] finalmsg = conn.sign(message);
 			out.writeInt(finalmsg.length);
 			out.write(finalmsg, 0, finalmsg.length);
 
-
 			int msgLen = in.readInt();
 			byte[] msg = new byte[msgLen];
 			in.readFully(msg);
 			replyMessage = Message.fromBytes(msg);
-			owner.close();
-
-
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 			return;
 		}
 		System.out.println(replyMessage.getContent());
-
 	}
 
-	private void println(String str) {
+	static public void println(String str) {
 		System.out.println(str);
 	}
 
 	/**
-	 * This method contemplates if the program is being run
-	 * in Eclipse or not, as Eclipse does not support System.console.
-	 * Same for Gradle.
+	 * This method contemplates if the program is being run in Eclipse or not, as
+	 * Eclipse does not support System.console. Same for Gradle.
 	 */
-	private String readString(String prompt, Main main) {
-		
+	static public String readString(String prompt) {
+
 		String input = "";
 		Console c = System.console();
-		
-		if(c == null) {
+
+		if (c == null) {
 			input = JOptionPane.showInputDialog(prompt);
 		} else {
-			main.println(prompt);
+			println(prompt);
 			input = c.readLine();
-			
+
 		}
-		
+
 		return input;
 	}
 
 	/**
-	 * This method contemplates if the program is being run
-	 * in Eclipse or not, as Eclipse does not support System.console.
-	 * Same for Gradle.
+	 * This method contemplates if the program is being run in Eclipse or not, as
+	 * Eclipse does not support System.console. Same for Gradle.
 	 */
-	private String readPassword(String prompt, Main main) {
-		
+	static public String readPassword(String prompt) {
+
 		String input = "";
 		Console c = System.console();
-		
-		if(c == null) {
+
+		if (c == null) {
 			input = JOptionPane.showInputDialog(prompt);
 		} else {
 			char[] in = System.console().readPassword(prompt);
-			input =  String.valueOf(in);
+			input = String.valueOf(in);
 		}
 		return input;
 	}
 
+	static public int readInt(String prompt) {
+		int i;
+		while (true) {
+			try {
+				i = Integer.parseInt(readString(prompt));
+				break;
+			} catch (NumberFormatException e) {
+				println("Not a valid number.");
+			}
+		}
+		return i;
+	}
 
-	public NotaryConnection getNotaryConnection(){
-	    return conn;
-    }
+	static public int readIntFromFile(String filename) {
+		int i = -1;
+		try (FileInputStream fis = new FileInputStream(filename); Scanner scanner = new Scanner(fis);) {
+			i = scanner.nextInt();
+		} catch (IOException e) {
+			e.printStackTrace();
+			println("Could not read from file '" + filename + "'.");
+			System.exit(0);
+		}
+		return i;
+	}
+
+	public NotaryConnection getNotaryConnection() {
+		return conn;
+	}
 }

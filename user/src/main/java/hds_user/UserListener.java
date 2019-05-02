@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.Random;
 import java.util.Vector;
 
-import hds_security.Message;
 import hds_user.exceptions.ReplayAttackException;
 import notary.Request;
 

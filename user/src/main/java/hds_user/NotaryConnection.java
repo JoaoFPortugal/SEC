@@ -1,14 +1,12 @@
 package hds_user;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.io.*;
 import java.net.Socket;
-import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.ArrayList;
 
 import hds_security.HashMessage;
 import hds_security.Message;
@@ -50,8 +48,6 @@ public class NotaryConnection {
 	/**
 	 * Sends a request to the notary to know if the good is for sale and who owns
 	 * it. Returns a Good object on success.
-	 *
-	 *
 	 */
 
 	public Good getStateOfGood(int gid, int uid) throws IOException, InvalidSignatureException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {

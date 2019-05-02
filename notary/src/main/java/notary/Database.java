@@ -19,16 +19,16 @@ public class Database {
 		this.conn = null;
 
 		/*
-		 * Check if database file exists because the connect method creates it if it doesn't
+		 * Check if database file exists because the connect method creates it if it
+		 * doesn't
 		 */
 		File f = new File(this.url);
-		if(!(f.exists() && !f.isDirectory())) {
+		if (!(f.exists() && !f.isDirectory())) {
 			throw new RuntimeException("Database file not found.");
 		}
-		
+
 		connect();
 	}
-
 
 	/**
 	 * Connect to a database
@@ -46,61 +46,57 @@ public class Database {
 	}
 
 	/**
-	 * Select all users
-	 * http://www.sqlitetutorial.net/sqlite-java/select/
+	 * Select all users http://www.sqlitetutorial.net/sqlite-java/select/
 	 * 
 	 * Select with parameters: http://www.sqlitetutorial.net/sqlite-java/select/
 	 */
 
+	public String getStateOfGood(int id) {
 
+		String sql = "SELECT owner_id, for_sale FROM goods WHERE gid = ?";
 
-	public String getStateOfGood(int id){
-
-		String sql = "SELECT owner_id, for_sale FROM goods WHERE gid = ?" ;
-
-		try (PreparedStatement pstmt  = conn.prepareStatement(sql)) {
+		try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
 			pstmt.setInt(1, id);
 
-			ResultSet rs  = pstmt.executeQuery();
+			ResultSet rs = pstmt.executeQuery();
 
 			while (rs.next()) {
 				int uid = rs.getInt("owner_id");
 				int for_sale = rs.getInt("for_sale");
-				return(Integer.toString(uid)  + " " + for_sale);
+				return (Integer.toString(uid) + " " + for_sale);
 			}
 
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		}
 
-		return("null");
+		return ("null");
 	}
 
-	public int checkIntentionToSell(int uid, int gid){
+	public int checkIntentionToSell(int uid, int gid) {
 
-		String sql = "UPDATE goods SET for_sale = ? WHERE gid = ? AND owner_id = ?" ;
+		String sql = "UPDATE goods SET for_sale = ? WHERE gid = ? AND owner_id = ?";
 
-		try (PreparedStatement pstmt  = conn.prepareStatement(sql)) {
+		try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
 			pstmt.setInt(1, 1);
 			pstmt.setInt(2, gid);
 			pstmt.setInt(3, uid);
 			pstmt.execute();
 
-
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		}
 
 		int result;
-		String sql2 = "SELECT for_sale FROM goods WHERE gid = ? AND owner_id = ?" ;
-		try (PreparedStatement pstmt  = conn.prepareStatement(sql2)) {
+		String sql2 = "SELECT for_sale FROM goods WHERE gid = ? AND owner_id = ?";
+		try (PreparedStatement pstmt = conn.prepareStatement(sql2)) {
 
 			pstmt.setInt(1, gid);
 			pstmt.setInt(2, uid);
-			ResultSet rs  = pstmt.executeQuery();
-			result= rs.getInt(1);
+			ResultSet rs = pstmt.executeQuery();
+			result = rs.getInt(1);
 
 		} catch (SQLException e) {
 			System.out.println("JJJ");
@@ -111,11 +107,12 @@ public class Database {
 		return result;
 
 	}
-	public int transferGood(int gid, int owner, int buyer){
-		int uid =-1;
-		int for_sale=-1;
+
+	public int transferGood(int gid, int owner, int buyer) {
+		int uid = -1;
+		int for_sale = -1;
 		String sql = "SELECT owner_id, for_sale FROM goods WHERE gid = ?";
-		try (PreparedStatement pstmt  = conn.prepareStatement(sql)) {
+		try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
 			pstmt.setInt(1, gid);
 
@@ -127,7 +124,7 @@ public class Database {
 				for_sale = rs.getInt("for_sale");
 
 			}
-			if ( uid!=owner || for_sale!=1){
+			if (uid != owner || for_sale != 1) {
 				return 0;
 			}
 
@@ -136,9 +133,9 @@ public class Database {
 			return 0;
 		}
 
-		String sql2 = "UPDATE goods SET for_sale = ?, owner_id = ? WHERE gid = ? AND owner_id = ? AND for_sale=?" ;
+		String sql2 = "UPDATE goods SET for_sale = ?, owner_id = ? WHERE gid = ? AND owner_id = ? AND for_sale=?";
 
-		try (PreparedStatement pstmt  = conn.prepareStatement(sql2)) {
+		try (PreparedStatement pstmt = conn.prepareStatement(sql2)) {
 
 			pstmt.setInt(1, 0);
 			pstmt.setInt(2, buyer);
@@ -155,42 +152,39 @@ public class Database {
 		}
 		return 1;
 	}
-	
+
 	public String getListOfUsers() {
-		
+
 		String sql = "SELECT uid, ip, port FROM users";
 		String output = "";
-		
-		try (Statement stmt = this.conn.createStatement();
-				ResultSet rs = stmt.executeQuery(sql)) {
+
+		try (Statement stmt = this.conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
 
 			while (rs.next()) {
-				output += rs.getInt("uid") + " " + rs.getString("ip") +
-						" " + rs.getInt("port");
+				output += rs.getInt("uid") + " " + rs.getString("ip") + " " + rs.getInt("port");
 			}
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		}
-		
+
 		return (output.isEmpty() ? "null" : output);
 	}
-	
+
 	public String getListOfGoods() {
-		
+
 		String sql = "SELECT gid, owner_id, for_sale FROM goods";
 		String output = "";
-		
-		try (Statement stmt = this.conn.createStatement();
-				ResultSet rs = stmt.executeQuery(sql)) {
+
+		try (Statement stmt = this.conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
 
 			while (rs.next()) {
-				output += rs.getInt("gid") + " " + rs.getInt("owner_id") +
-						" " + (rs.getInt("for_sale") == 1 ? "true" : "false") + " ";
+				output += rs.getInt("gid") + " " + rs.getInt("owner_id") + " "
+						+ (rs.getInt("for_sale") == 1 ? "true" : "false") + " ";
 			}
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		}
-		
+
 		return (output.isEmpty() ? "null" : output);
 	}
 }
