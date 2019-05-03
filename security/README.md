@@ -18,11 +18,11 @@ Got `.gitignore` file from <https://www.gitignore.io/api/eclipse> and <https://w
 gradle build
 ```
 
-### Run (Generate keys)
+### Run (Generate user keys)
 
 ```sh
 gradle run
-cp *.txt ../user/src/main/resources
 cp *_public_key.txt ../notary/src/main/resources
+mv *.txt ../user/src/main/resources
 ```
 
