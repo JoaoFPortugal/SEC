@@ -78,6 +78,4 @@ pcsc_scan
 
 ## To-do
 
-- Improve `documentation/Methodology.md`
-  - Prof: Use key stores (Java has this) instead of plain text to store the keys, because in key stores we can sign them.
 - Prof: Using the CC to cipher everything requires entering the PIN many times, try to mitigate this. Eg. Generate new key pair that is signed with the CC). But the `transferGood` method must be necessarily ciphered with the CC.
