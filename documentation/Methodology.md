@@ -31,9 +31,7 @@ Attacks to prevent:
 
 Each user has one pair of cryptographic keys, a public key known by everyone and a private key only known by him. The key pairs were generated using Elliptic Curve algorithm, for efficiency reasons since ECC can use keys with 224 bit size, whilst RSA requires 2048 bits for equivalent cryptographic strength, as explained [here](<https://www.globalsign.com/en/blog/elliptic-curve-cryptography/>). 
 
-In order to prevent the private keys from falling into the wrong hands, we protected them using the `PBKDF2 `algorithm with a random salt generated using `SHA1PRNG`, and can only be accessed using a password. For each session initiated, a user is asked the password to access his private key. The decrypted private key is then loaded to a private field in the `User.java` class.
-
-**Java KeyStore??**
+In order to prevent the private keys from falling into the wrong hands, we protected them using the `PBKDF2 `algorithm with a random salt generated using `SHA1PRNG`, and can only be accessed using a password. A more simple way to do this would have been perhaps to use Java KeyStore. For each session initiated, a user is asked the password to access his private key. The decrypted private key is then loaded to a private field in the `User.java` class.
 
 The Notary is equipped with a Portuguese Citizen Card (CC), which contains an RSA key-pair of its own. The CC's public key is inside a certificate, it assures us that the Notary's CC public key is that of the original Notary and not a fake Notary. However, we assume that the keys have been previously shared and the certificate validated by the users.
 
@@ -57,7 +55,7 @@ The users know that the messages sent by the Notary are authentic because they h
 
 **Freshness:**
 
-Noonce
+Each message contains a nonce and a timestamp. The nonce ensures no replay attacks can happen (they can still happen but have a minimal probability close to zero). The timestamp, by rejecting messages that are old, help reducing the number of nonces that we have to remember, thus we do not have to maintain persistent state, and also reduce the probability of nonce collisions.
 
 ### Timing attacks (DDoS, slowloris...)
 
