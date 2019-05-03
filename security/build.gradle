@@ -11,7 +11,7 @@ apply plugin: 'eclipse'
 
 // in order to run the application
 apply plugin: 'application'
-mainClassName = 'hds_security.GenPubAndPrivKeys'
+mainClassName = 'hds_security.GenerateKeys'
 
 repositories {
     // in order to use pteidlibj
