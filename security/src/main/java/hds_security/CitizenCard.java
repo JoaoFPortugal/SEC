@@ -83,7 +83,7 @@ public class CitizenCard{
     * in PKCS11 is just represented as a long */
 
     private void storePublicKey(PublicKey publicKey) throws IOException {
-        File f = new File("../resources/serverPublicKey.txt");
+        File f = new File("../user/src/main/resources/serverPublicKey.txt");
         if(f.exists()){
             return;
         }

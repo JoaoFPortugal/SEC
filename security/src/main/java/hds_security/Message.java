@@ -66,7 +66,6 @@ public class Message {
 		System.out.println(this.destination);
 		System.out.println(this.now);
 		System.out.println(this.gid);
-
 		System.out.println();
 	}
 
