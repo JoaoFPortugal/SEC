@@ -7,14 +7,14 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Random;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+
 import hds_security.Message;
-import hds_security.Request;
+import hds_security.SecureSession;
 import hds_security.exceptions.InvalidSignatureException;
+import hds_security.exceptions.NullPublicKeyException;
 import hds_security.exceptions.ReplayAttackException;
 import pteidlib.PteidException;
 import sun.security.pkcs11.wrapper.PKCS11Exception;
@@ -24,13 +24,12 @@ public class Server extends Thread {
 	private Database db;
 	private ServerSocket serverSocket;
 
+	private SecureSession secureSession;
 	private BlockingQueue<Request> requests;
 
 	// Does not allow more than 'max_queue' requests on the queue (for resources
 	// concern)
-	private int max_queue = 1024;
-	private HashMap<Long, Long> noncemap = new HashMap<>();
-	Random rand = new Random();
+	private final int max_queue = 1024;
 
 	public Server(int port, Database db) throws IOException {
 		this.db = db;
@@ -42,6 +41,7 @@ public class Server extends Thread {
 		 * processed in FIFO order; if false the access order is unspecified.
 		 */
 		requests = new ArrayBlockingQueue<Request>(max_queue, true);
+		secureSession = new SecureSession();
 	}
 
 	@Override
@@ -55,6 +55,7 @@ public class Server extends Thread {
 				} catch (PteidException | IllegalAccessException | PKCS11Exception | NoSuchMethodException
 						| InvocationTargetException | ClassNotFoundException e) {
 					e.printStackTrace();
+					System.exit(0);
 				}
 			}
 		}
@@ -64,20 +65,17 @@ public class Server extends Thread {
 		try {
 			System.out.println("Waiting for client on port " + serverSocket.getLocalPort() + "...");
 
-			Request request = null;
-			try {
-				request = new Request(serverSocket.accept());
-			} catch (NoSuchAlgorithmException | InvalidKeySpecException | SignatureException | InvalidKeyException
-					| InvalidSignatureException e) {
-				e.printStackTrace();
-			}
+			// Read is done in Request constructor
+			Request request = new Request(serverSocket.accept(), secureSession);
 
 			// 'put' blocks, 'add' throws exception
-			assert request != null;
 			requests.put(request);
 
 			System.out.println("Request created from: " + request.getAddr());
-		} catch (IOException | InterruptedException e) {
+
+		} catch (IOException | InterruptedException | NoSuchAlgorithmException | InvalidKeySpecException
+				| SignatureException | InvalidKeyException | InvalidSignatureException | IllegalAccessException
+				| ReplayAttackException | NullPublicKeyException e) {
 			e.printStackTrace();
 		}
 	}
@@ -88,61 +86,50 @@ public class Server extends Thread {
 		try {
 			// 'take' blocks, 'remove' throws exception
 			Request request = requests.take();
+			Message msg = request.getMessage();
 
-			Date date = new Date();
-			long now = date.getTime();
-			System.out.println(request.now);
-			System.out.println(request.now + 10000);
-			System.out.println(now);
-			if (request.now + 10000 <= now) {
-				System.out.println("Invalid packet, delay too long");
-				throw new IllegalAccessException();
-			} else {
-				Long nonce = noncemap.get(request.now);
-				if (!(nonce == null)) {
-					if (nonce == request.nonce) {
-						throw new ReplayAttackException();
-					}
+			if (msg.getOperation() == 'S') {
+				int reply;
+				synchronized(db) {
+					reply = db.intentionToSell(msg.getOrigin(), msg.getGoodID());
+				}
+				Message message = new Message('R', reply);
+				try {
+					SecureSession.writeWithCC(message, request.getDataOutputStream());
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			} else if (msg.getOperation() == 'G') {
+				HashMap<String, Integer> res;
+				synchronized(db) {
+					res = db.getStateOfGood(msg.getGoodID());
+				}
+				Message message;
+				if (res == null) {
+					message = new Message(-1, 'R', -1);
 				} else {
-					noncemap.put(request.now, request.nonce);
+					message = new Message(res.get("owner_id"), 'R', res.get("for_sale"));
 				}
-			}
-
-			if (request.operation == 'S') {
-				int reply = db.checkIntentionToSell(request.origin, request.gid);
-				Message message = new Message(-1, -1, 'R', reply);
 				try {
-					request.writeServer(message);
+					SecureSession.writeWithCC(message, request.getDataOutputStream());
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			} else if (msg.getOperation() == 'T') {
+				boolean reply;
+				synchronized(db) {
+					reply = db.transferGood(msg.getGoodID(), msg.getOrigin(), msg.getDestination());
+				}
+				// returns good id on success
+				Message message = new Message('R', (reply ? msg.getGoodID() : -1));
+				try {
+					SecureSession.writeWithCC(message, request.getDataOutputStream());
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
 
-			else if (request.operation == 'G') {
-				String query_result = db.getStateOfGood(request.gid);
-				String[] splitted_query = query_result.split(" ");
-
-				Message message = new Message(Integer.valueOf(splitted_query[0]), -1, 'R',
-						Integer.valueOf(splitted_query[1]));
-				try {
-					request.writeServer(message);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-
-			else if (request.operation == 'T') {
-				int reply = db.transferGood(request.gid, request.origin, request.destin);
-
-				Message message = new Message(-1, -1, 'R', reply);
-				try {
-					request.writeServer(message);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-
-		} catch (InterruptedException | ReplayAttackException e) {
+		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 	}

@@ -8,6 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.HashMap;
 
 public class Database {
 
@@ -51,7 +52,7 @@ public class Database {
 	 * Select with parameters: http://www.sqlitetutorial.net/sqlite-java/select/
 	 */
 
-	public String getStateOfGood(int id) {
+	public HashMap<String, Integer> getStateOfGood(int id) {
 
 		String sql = "SELECT owner_id, for_sale FROM goods WHERE gid = ?";
 
@@ -62,27 +63,28 @@ public class Database {
 			ResultSet rs = pstmt.executeQuery();
 
 			while (rs.next()) {
-				int uid = rs.getInt("owner_id");
-				int for_sale = rs.getInt("for_sale");
-				return (Integer.toString(uid) + " " + for_sale);
+				HashMap<String, Integer> map = new HashMap<String, Integer>();
+				map.put("owner_id", rs.getInt("owner_id"));
+				map.put("for_sale", rs.getInt("for_sale"));
+				return map;
 			}
 
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		}
 
-		return ("null");
+		return null;
 	}
 
-	public int checkIntentionToSell(int uid, int gid) {
+	public int intentionToSell(int uid, int gid) {
 
-		String sql = "UPDATE goods SET for_sale = ? WHERE gid = ? AND owner_id = ?";
+		String sql = "UPDATE goods SET for_sale = 1 WHERE gid = ? AND owner_id = ?";
 
 		try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-			pstmt.setInt(1, 1);
-			pstmt.setInt(2, gid);
-			pstmt.setInt(3, uid);
+			pstmt.setInt(1, gid);
+			pstmt.setInt(2, uid);
+			
 			pstmt.execute();
 
 		} catch (SQLException e) {
@@ -99,58 +101,50 @@ public class Database {
 			result = rs.getInt(1);
 
 		} catch (SQLException e) {
-			System.out.println("JJJ");
 			System.out.println(e.getMessage());
 			return 0;
-
 		}
 		return result;
 
 	}
 
-	public int transferGood(int gid, int owner, int buyer) {
-		int uid = -1;
-		int for_sale = -1;
+	public boolean transferGood(int gid, int owner, int buyer) {		
+		// Check if good belongs to the 'owner'
 		String sql = "SELECT owner_id, for_sale FROM goods WHERE gid = ?";
 		try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
 			pstmt.setInt(1, gid);
-
-			System.out.println("a Executar");
 			ResultSet rs = pstmt.executeQuery();
 
 			while (rs.next()) {
-				uid = rs.getInt("owner_id");
-				for_sale = rs.getInt("for_sale");
-
-			}
-			if (uid != owner || for_sale != 1) {
-				return 0;
+				int uid = rs.getInt("owner_id");
+				int for_sale = rs.getInt("for_sale");
+				if (uid != owner || for_sale != 1) {
+					return false;
+				}
 			}
 
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
-			return 0;
+			return false;
 		}
 
-		String sql2 = "UPDATE goods SET for_sale = ?, owner_id = ? WHERE gid = ? AND owner_id = ? AND for_sale=?";
+		// Change good's 'owner' and 'for_sale'.
+		String sql2 = "UPDATE goods SET owner_id = ?, for_sale = 0 WHERE gid = ? AND owner_id = ? AND for_sale = 1";
 
 		try (PreparedStatement pstmt = conn.prepareStatement(sql2)) {
 
-			pstmt.setInt(1, 0);
-			pstmt.setInt(2, buyer);
-			pstmt.setInt(3, gid);
-			pstmt.setInt(4, owner);
-			pstmt.setInt(5, 1);
+			pstmt.setInt(1, buyer);
+			pstmt.setInt(2, gid);
+			pstmt.setInt(3, owner);
 
 			pstmt.execute();
 
 		} catch (SQLException e) {
-			System.out.println("HHHHH");
 			System.out.println(e.getMessage());
-			return 0;
+			return false;
 		}
-		return 1;
+		return true;
 	}
 
 	public String getListOfUsers() {

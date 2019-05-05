@@ -1,9 +1,11 @@
 package hds_user;
 
 import hds_security.HashMessage;
+import hds_security.SecureSession;
 import hds_security.StrongPasswordGenerator;
 import hds_security.SymmetricKeyEncryption;
 import hds_security.Utility;
+import hds_security.exceptions.NullPublicKeyException;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -15,7 +17,6 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -30,7 +31,8 @@ public class User {
 	private PrivateKey privateKey;
 	String strongpassword;
 
-	public User(int id, String password) {
+	public User(int id, String password)
+			throws InvalidKeySpecException, NoSuchAlgorithmException, IOException, NullPublicKeyException {
 		this.uid = id;
 		loadPubKey();
 		this.password = password;
@@ -39,16 +41,9 @@ public class User {
 		setOfUsers = new ArrayList<>();
 	}
 
-	private void loadPubKey() {
-		try {
-			byte[] pub = Files.readAllBytes(Paths.get("./src/main/resources/" + uid + "_public_key.txt"));
-			X509EncodedKeySpec keySpec = new X509EncodedKeySpec(pub);
-			KeyFactory kf = KeyFactory.getInstance("EC");
-			this.publicKey = kf.generatePublic(keySpec);
-		} catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException e) {
-			e.printStackTrace();
-			System.exit(0);
-		}
+	private void loadPubKey()
+			throws InvalidKeySpecException, NoSuchAlgorithmException, IOException, NullPublicKeyException {
+		this.publicKey = SecureSession.loadPublicKey("./src/main/resources/" + uid + "_public_key.txt", "EC");
 	}
 
 	private void loadPrivKey() {

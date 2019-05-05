@@ -1,57 +1,64 @@
 package hds_user;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
-import java.util.Random;
+import java.security.spec.InvalidKeySpecException;
 
 import hds_security.Message;
-import hds_security.Request;
+import hds_security.SecureSession;
 import hds_security.exceptions.InvalidSignatureException;
+import hds_security.exceptions.NullDestination;
+import hds_security.exceptions.NullPrivateKeyException;
+import hds_security.exceptions.NullPublicKeyException;
+import hds_security.exceptions.ReplayAttackException;
 
 public class UserConnection implements Runnable {
 
 	private Thread t;
 	private String threadName;
-	private Socket clientSocket;
+	private DataOutputStream out;
+	private DataInputStream in;
 	private UserListener userListener;
-	private Request request;
-	private Random rand = new Random();
-	private Main main;
+	private NotaryConnection conn;
+	private SecureSession userSS;
+	private User user;
 
-	public UserConnection(UserListener ul, Socket s, String name, Request req, Main main) {
-		userListener = ul;
-		threadName = name;
-		clientSocket = s;
-		request=req;
-		this.main = main;
+	public UserConnection(UserListener ul, Socket s, String name, NotaryConnection conn, SecureSession userSS, User u) throws IOException {
+		this.userListener = ul;
+		this.threadName = name;
+		this.out = new DataOutputStream(s.getOutputStream());
+		this.in = new DataInputStream(s.getInputStream());
+		this.conn = conn;
+		this.userSS = userSS;
+		this.user = u;
 	}
 
 	@Override
 	public void run() {
-		NotaryConnection conn = main.getNotaryConnection();
-
-		Message replyMessage;
-		replyMessage = null;
 		try {
-			replyMessage = conn.transferGood(request.gid, request.destin, request.origin);
-		} catch (IOException e) {
+			Message request;
+			request = userSS.readFromUser(in);
+			
+			if(request.getOperation() != 'B') {
+				System.out.println("Invalid request: " + request.getOperation());
+			}
+			
+			Message replyMessage = conn.transferGood(request.getGoodID(), request.getDestination(), request.getOrigin());
+			
+			SecureSession.write(replyMessage, out, user.getPrivateKey());
+		} catch (IOException | IllegalAccessException e) {
 			e.printStackTrace();
-			return;
 		} catch (NoSuchAlgorithmException | SignatureException | InvalidSignatureException | InvalidKeyException e) {
 			e.printStackTrace();
-		}
-		assert replyMessage != null;
-		System.out.println(replyMessage.getContent());
-		try {
-			request.write(replyMessage);
-		} catch(IOException e){
+		} catch (NullPrivateKeyException | NullPublicKeyException | NullDestination | InvalidKeySpecException | ReplayAttackException e) {
 			e.printStackTrace();
 		}
-
-
+		
 		System.out.println("Thread " + threadName + " exiting.");
 		userListener.clientConnections.remove(this);
 	}

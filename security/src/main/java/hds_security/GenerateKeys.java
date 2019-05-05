@@ -80,9 +80,7 @@ public class GenerateKeys {
 	}
 
 	private void storePasswordHash(byte[] password, String filename) {
-		HashMessage hashMessage = new HashMessage();
-
-		byte[] hashedMessage = hashMessage.hashBytes(password);
+		byte[] hashedMessage = HashMessage.hashBytes(password);
 
 		try (FileOutputStream fos = new FileOutputStream(filename + "_hash.txt");) {
 			fos.write(hashedMessage);

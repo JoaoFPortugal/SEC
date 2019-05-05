@@ -6,7 +6,7 @@ import java.security.NoSuchAlgorithmException;
 
 public class HashMessage {
 
-	public byte[] hashMessage(String message) {
+	public static byte[] hashMessage(String message) {
 		MessageDigest digest = null;
 		try {
 			/**
@@ -24,7 +24,7 @@ public class HashMessage {
 		return hashedMessage;
 	}
 
-	public byte[] hashBytes(byte[] bytes) {
+	public static byte[] hashBytes(byte[] bytes) {
 		MessageDigest digest = null;
 		try {
 			digest = MessageDigest.getInstance("SHA-256");

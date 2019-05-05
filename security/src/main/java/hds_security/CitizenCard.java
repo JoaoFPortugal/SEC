@@ -83,16 +83,20 @@ public class CitizenCard{
     * in PKCS11 is just represented as a long */
 
     private void storePublicKey(PublicKey publicKey) throws IOException {
-        File f = new File("../user/src/main/resources/serverPublicKey.txt");
-        if(f.exists()){
-            return;
-        }
-        else{
-            f.createNewFile();
-        }
-        FileOutputStream fos = new FileOutputStream(f);
-        fos.write(publicKey.getEncoded());
-        fos.close();
+    	// Store in User
+    	try (FileOutputStream fos = new FileOutputStream("../user/src/main/resources/serverPublicKey.txt");) {
+			fos.write(publicKey.getEncoded());
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(0);
+		}
+    	// Store in Notary
+    	try (FileOutputStream fos = new FileOutputStream("./src/main/resources/serverPublicKey.txt");) {
+			fos.write(publicKey.getEncoded());
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(0);
+		}
     }
 
     //Returns the CITIZEN AUTHENTICATION CERTIFICATE

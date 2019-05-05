@@ -1,21 +1,53 @@
 package hds_security;
 
 import java.nio.ByteBuffer;
-import java.util.Date;
-import java.util.Random;
 
+/**
+ * Messages sent by the Notary
+ */
 public class Message {
+	
+	public static final int length = 30;
 
-	private char operation;
-	private int origin;
-	private int destination;
-	private long now;
-	private int gid;
-	private long nonce;
+	protected char operation;
+	protected int origin;
+	protected int destination;
+	protected long now;
+	protected int gid;
+	protected long nonce;
 
-	Random rand = new Random();
+	// FIXME Throw exception if arguments are invalid
+	public Message(int origin, int destination, char operation, int gid) {
+		this.origin = origin;
+		this.destination = destination;
+		this.operation = operation;
+		this.gid = gid;
+		this.now = Utility.createTimeStamp();
+		this.nonce = Utility.createNonce();
+	}
 
-	public Message(int origin, int destination, char operation, long now, int gid, long nonce) {
+	// FIXME Throw exception if arguments are invalid
+	public Message(int origin, char operation, int gid) {
+		this.origin = origin;
+		this.destination = -1;
+		this.operation = operation;
+		this.gid = gid;
+		this.now = Utility.createTimeStamp();
+		this.nonce = Utility.createNonce();
+	}
+
+	// FIXME Throw exception if arguments are invalid
+	public Message(char operation, int gid) {
+		this.origin = -1;
+		this.destination = -1;
+		this.operation = operation;
+		this.gid = gid;
+		this.now = Utility.createTimeStamp();
+		this.nonce = Utility.createNonce();
+	}
+
+	// Used by 'fromBytes'
+	protected Message(int origin, int destination, char operation, long now, int gid, long nonce) {
 		this.origin = origin;
 		this.destination = destination;
 		this.operation = operation;
@@ -24,25 +56,10 @@ public class Message {
 		this.nonce = nonce;
 	}
 
-	public Message(int origin, int destination, char operation, int gid) {
-		this.origin = origin;
-		this.destination = destination;
-		this.operation = operation;
-		this.gid = gid;
-		this.now = createTimeStamp();
-		this.nonce = createNonce();
+	public long getOperation() {
+		return this.operation;
 	}
-
-	public long createTimeStamp() {
-		Date date = new Date();
-		now = date.getTime();
-		return now;
-	}
-
-	public long createNonce() {
-		return rand.nextLong();
-	}
-
+	
 	public long getNonce() {
 		return this.nonce;
 	}
@@ -54,8 +71,12 @@ public class Message {
 	public int getOrigin() {
 		return origin;
 	}
+	
+	public int getDestination() {
+		return destination;
+	}
 
-	public int getContent() {
+	public int getGoodID() {
 		return gid;
 	}
 
@@ -70,8 +91,7 @@ public class Message {
 	}
 
 	public byte[] toBytes() {
-
-		ByteBuffer bb = ByteBuffer.allocate(30);
+		ByteBuffer bb = ByteBuffer.allocate(length);
 
 		bb.putChar(operation);
 		bb.putInt(origin);
@@ -81,11 +101,9 @@ public class Message {
 		bb.putInt(gid);
 
 		return bb.array();
-
 	}
 
 	public static Message fromBytes(byte[] mbytes) {
-
 		ByteBuffer bb = ByteBuffer.wrap(mbytes);
 
 		char moperation = bb.getChar();
@@ -96,7 +114,6 @@ public class Message {
 		int mgid = bb.getInt();
 
 		return new Message(morigin, mdestination, moperation, mnow, mgid, mnonce);
-
 	}
 
 }

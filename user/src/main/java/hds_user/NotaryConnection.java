@@ -2,20 +2,16 @@ package hds_user;
 
 import java.io.*;
 import java.net.Socket;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
 
-import hds_security.HashMessage;
 import hds_security.Message;
-import hds_security.SignMessage;
+import hds_security.SecureSession;
 import hds_security.exceptions.InvalidSignatureException;
-import hds_user.exceptions.*;
-
-import java.util.Date;
-import java.util.HashMap;
+import hds_security.exceptions.NullDestination;
+import hds_security.exceptions.NullPrivateKeyException;
+import hds_security.exceptions.NullPublicKeyException;
+import hds_security.exceptions.ReplayAttackException;
 
 public class NotaryConnection {
 
@@ -25,12 +21,15 @@ public class NotaryConnection {
 	private DataOutputStream out;
 	private DataInputStream in;
 	private User user;
-	private HashMap<Long, Long> noncemap = new HashMap<>();
+	private SecureSession notarySS;
+	private String serverPubKeyPath;
 
 	public NotaryConnection(String serverName, int port, User user) {
 		this.serverName = serverName;
 		this.port = port;
 		this.user = user;
+		notarySS = new SecureSession();
+		this.serverPubKeyPath = "./src/main/resources/serverPublicKey.txt";
 	}
 
 	private void connect() throws IOException {
@@ -49,91 +48,23 @@ public class NotaryConnection {
 	 */
 
 	public Good getStateOfGood(int gid, int uid) throws IOException, InvalidSignatureException,
-			NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+			NoSuchAlgorithmException, InvalidKeyException, SignatureException, NullPrivateKeyException, NullDestination,
+			NullPublicKeyException, InvalidKeySpecException, ReplayAttackException {
 		connect();
 
-		Message message = new Message(uid, -1, 'G', gid);
+		SecureSession.write(new Message(uid, 'G', gid), out, user.getPrivateKey());
 
-		write(message);
+		Message replyMessage = notarySS.readFromCC(in, serverPubKeyPath);
 
-		byte[] reply = readFromServer();
-
-		Message replyMessage = Message.fromBytes(reply);
-
-		Good g = new Good(gid, replyMessage.getOrigin(), replyMessage.getContent() == 1);
+		// Origin value of reply is actually the 'owner' value.
+		// Good ID value of reply is actually the 'for_sale' value.
+		if(replyMessage.getOrigin() < 0) {
+			return null;
+		}
+		Good g = new Good(gid, replyMessage.getOrigin(), replyMessage.getGoodID() == 1);
 
 		disconnect();
 		return g;
-
-	}
-
-	private void verifyFreshness(Message replyMessage) throws ReplayAttackException {
-		Date date = new Date();
-		long now = date.getTime();
-		long mnow = replyMessage.getNow();
-		long mnonce = replyMessage.getNonce();
-
-		if (mnow + 10000 >= now) {
-			throw new ReplayAttackException();
-		}
-
-		else {
-			Long nonce = noncemap.get(mnow);
-			if (!(nonce == null)) {
-				if (nonce == mnonce) {
-					throw new ReplayAttackException();
-				}
-			}
-
-			else {
-				noncemap.put(mnow, mnonce);
-			}
-		}
-	}
-
-	public byte[] readFromServer() throws IOException, NoSuchAlgorithmException, InvalidKeyException,
-			SignatureException, InvalidSignatureException {
-		PublicKey pubKey = loadServerPublicKey();
-		assert pubKey != null;
-		int msgLen = in.readInt();
-		byte[] mbytes = new byte[msgLen];
-		in.readFully(mbytes);
-		byte[] unwrapmsg = new byte[mbytes.length - 30];
-		byte[] originalmessage = new byte[30];
-
-		System.arraycopy(mbytes, 0, originalmessage, 0, 30);
-		System.arraycopy(mbytes, 30, unwrapmsg, 0, unwrapmsg.length);
-
-		HashMessage hashedoriginal = new HashMessage();
-		byte[] hashedcontent = hashedoriginal.hashBytes(originalmessage);
-		SignMessage sign = new SignMessage();
-		if (!sign.verifyServerMsg(hashedcontent, unwrapmsg, pubKey)) {
-			throw new InvalidSignatureException();
-		}
-
-		Message replyMessage = Message.fromBytes(originalmessage);
-
-		try {
-			verifyFreshness(replyMessage);
-		} catch (ReplayAttackException e) {
-			e.printStackTrace();
-		}
-
-		return originalmessage;
-	}
-
-	private PublicKey loadServerPublicKey() {
-		PublicKey pub;
-		try {
-			byte[] pubKey = Files.readAllBytes(Paths.get("./src/main/resources/serverPublicKey.txt"));
-			X509EncodedKeySpec keySpec = new X509EncodedKeySpec(pubKey);
-			KeyFactory kf = KeyFactory.getInstance("RSA");
-			pub = kf.generatePublic(keySpec);
-			return pub;
-		} catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException e) {
-			e.printStackTrace();
-		}
-		return null;
 	}
 
 	/**
@@ -141,60 +72,35 @@ public class NotaryConnection {
 	 * user doesn't own it.
 	 */
 	public int intentionToSell(int gid, int uid) throws IOException, InvalidSignatureException,
-			NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+			NoSuchAlgorithmException, InvalidKeyException, SignatureException, NullPrivateKeyException, NullDestination,
+			NullPublicKeyException, InvalidKeySpecException, ReplayAttackException {
 		connect();
 
-		Message message = new Message(uid, -1, 'S', gid);
+		SecureSession.write(new Message(uid, 'S', gid), out, user.getPrivateKey());
 
-		write(message);
-
-		byte[] reply = readFromServer();
-		Message replyMessage = Message.fromBytes(reply);
+		Message replyMessage = notarySS.readFromCC(in, serverPubKeyPath);
 
 		disconnect();
-		return (replyMessage.getContent());
+		// Good id contains 'for_sale' value.
+		return (replyMessage.getGoodID());
 	}
 
 	/**
 	 * Sends a request to the server to change the owner of a good. Fails if user
-	 * doesn't own it.
+	 * doesn't own it. Returns good ID on success.
 	 */
 
 	public Message transferGood(int good, int owner, int buyer) throws IOException, InvalidSignatureException,
-			NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+			NoSuchAlgorithmException, InvalidKeyException, SignatureException, NullPrivateKeyException, NullDestination,
+			NullPublicKeyException, InvalidKeySpecException, ReplayAttackException {
 		connect();
 
-		Message message = new Message(owner, buyer, 'T', good);
+		SecureSession.write(new Message(owner, buyer, 'T', good), out, user.getPrivateKey());
 
-		write(message);
-
-		byte[] reply = readFromServer();
-		Message replyMessage = Message.fromBytes(reply);
+		Message replyMessage = notarySS.readFromCC(in, serverPubKeyPath);
 
 		disconnect();
 		return replyMessage;
 	}
 
-	public byte[] sign(Message message) {
-
-		byte[] msg = message.toBytes();
-		HashMessage hashMessage = new HashMessage();
-		SignMessage signMessage = new SignMessage();
-		byte[] finalmsg = new byte[0];
-		try {
-			byte[] signedmessage = signMessage.sign(hashMessage.hashBytes(msg), user.getPrivateKey());
-			finalmsg = new byte[msg.length + signedmessage.length];
-			System.arraycopy(msg, 0, finalmsg, 0, msg.length);
-			System.arraycopy(signedmessage, 0, finalmsg, msg.length, signedmessage.length);
-		} catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {
-			e.printStackTrace();
-		}
-		return finalmsg;
-	}
-
-	public void write(Message message) throws IOException {
-		byte[] finalmsg = sign(message);
-		out.writeInt(finalmsg.length);
-		out.write(finalmsg, 0, finalmsg.length);
-	}
 }
