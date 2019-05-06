@@ -13,6 +13,7 @@ import java.util.concurrent.BlockingQueue;
 
 import hds_security.Message;
 import hds_security.SecureSession;
+import hds_security.Utils;
 import hds_security.exceptions.InvalidSignatureException;
 import hds_security.exceptions.NullPublicKeyException;
 import hds_security.exceptions.ReplayAttackException;
@@ -95,7 +96,7 @@ public class Server extends Thread {
 				}
 				Message message = new Message('R', reply);
 				try {
-					SecureSession.writeWithCC(message, request.getDataOutputStream());
+					Utils.writeWithCC(message, request.getDataOutputStream());
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -111,7 +112,7 @@ public class Server extends Thread {
 					message = new Message(res.get("owner_id"), 'R', res.get("for_sale"));
 				}
 				try {
-					SecureSession.writeWithCC(message, request.getDataOutputStream());
+					Utils.writeWithCC(message, request.getDataOutputStream());
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -123,7 +124,7 @@ public class Server extends Thread {
 				// returns good id on success
 				Message message = new Message('R', (reply ? msg.getGoodID() : -1));
 				try {
-					SecureSession.writeWithCC(message, request.getDataOutputStream());
+					Utils.writeWithCC(message, request.getDataOutputStream());
 				} catch (IOException e) {
 					e.printStackTrace();
 				}

@@ -11,6 +11,7 @@ import java.security.spec.InvalidKeySpecException;
 
 import hds_security.Message;
 import hds_security.SecureSession;
+import hds_security.Utils;
 import hds_security.exceptions.InvalidSignatureException;
 import hds_security.exceptions.NullDestination;
 import hds_security.exceptions.NullPrivateKeyException;
@@ -28,13 +29,13 @@ public class UserConnection implements Runnable {
 	private SecureSession userSS;
 	private User user;
 
-	public UserConnection(UserListener ul, Socket s, String name, NotaryConnection conn, SecureSession userSS, User u) throws IOException {
+	public UserConnection(UserListener ul, Socket s, String name, User u) throws IOException {
 		this.userListener = ul;
 		this.threadName = name;
 		this.out = new DataOutputStream(s.getOutputStream());
 		this.in = new DataInputStream(s.getInputStream());
-		this.conn = conn;
-		this.userSS = userSS;
+		this.conn = u.getNotaryConnection();
+		this.userSS = u.getUserSecureSession();
 		this.user = u;
 	}
 
@@ -50,7 +51,7 @@ public class UserConnection implements Runnable {
 			
 			Message replyMessage = conn.transferGood(request.getGoodID(), request.getDestination(), request.getOrigin());
 			
-			SecureSession.write(replyMessage, out, user.getPrivateKey());
+			Utils.write(replyMessage, out, user.getPrivateKey());
 		} catch (IOException | IllegalAccessException e) {
 			e.printStackTrace();
 		} catch (NoSuchAlgorithmException | SignatureException | InvalidSignatureException | InvalidKeyException e) {

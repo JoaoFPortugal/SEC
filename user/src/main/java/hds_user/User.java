@@ -1,146 +1,152 @@
 package hds_user;
 
-import hds_security.HashMessage;
+import hds_security.LoadKeys;
+import hds_security.Message;
 import hds_security.SecureSession;
-import hds_security.StrongPasswordGenerator;
-import hds_security.SymmetricKeyEncryption;
-import hds_security.Utility;
+import hds_security.Utils;
+import hds_security.exceptions.InvalidSignatureException;
+import hds_security.exceptions.NullDestination;
+import hds_security.exceptions.NullPrivateKeyException;
 import hds_security.exceptions.NullPublicKeyException;
+import hds_security.exceptions.ReplayAttackException;
 
-import java.io.FileNotFoundException;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.security.KeyFactory;
+import java.net.Socket;
+import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class User {
 
-	private String password;
-	private List<Good> setOfGoods;
-	private List<UserInfo> setOfUsers;
 	private final int uid;
+	private final String password;
 	private PublicKey publicKey;
 	private PrivateKey privateKey;
 	String strongpassword;
+	
+	private NotaryConnection conn;
+	private SecureSession userSS;
+	private UserListener userListener;
 
-	public User(int id, String password)
-			throws InvalidKeySpecException, NoSuchAlgorithmException, IOException, NullPublicKeyException {
+	public User(int id, String password, String serverName, int notaryPort, int userListenerPort) throws Exception {
 		this.uid = id;
-		loadPubKey();
 		this.password = password;
+		loadPubKey();
 		loadPrivKey();
-		setOfGoods = new ArrayList<>();
-		setOfUsers = new ArrayList<>();
+		
+		this.userSS = new SecureSession();
+		this.conn = new NotaryConnection(serverName, notaryPort, this);
+		
+		this.userListener = new UserListener(userListenerPort, "userListenerThread", this);
+		userListener.start();
+		Utility.println("User listening on port: " + userListenerPort);
 	}
 
 	private void loadPubKey()
 			throws InvalidKeySpecException, NoSuchAlgorithmException, IOException, NullPublicKeyException {
-		this.publicKey = SecureSession.loadPublicKey("./src/main/resources/" + uid + "_public_key.txt", "EC");
+		this.publicKey = LoadKeys.loadPublicKey("./src/main/resources/" + uid + "_public_key.txt", "EC");
 	}
 
-	private void loadPrivKey() {
-		boolean left = invertPBKDF2(password, uid);
-		if (left) {
-			byte[] privateKey = loadKey(uid);
-			try {
-				PKCS8EncodedKeySpec ks = new PKCS8EncodedKeySpec(privateKey);
-				KeyFactory kf = KeyFactory.getInstance("EC");
-				this.privateKey = kf.generatePrivate(ks);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
-	private byte[] loadKey(int uid) {
-		SymmetricKeyEncryption symmetricKeyEncryption = new SymmetricKeyEncryption(Utility.hexToBytes(strongpassword));
-		byte[] decryptedPrivateKey = new byte[0];
-		try {
-			byte[] privateKeyEncoded = Files
-					.readAllBytes(Paths.get("./src/main/resources/" + uid + "_private_key.txt"));
-			decryptedPrivateKey = symmetricKeyEncryption.decrypt(privateKeyEncoded);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return decryptedPrivateKey;
+	private void loadPrivKey()
+			throws Exception {
+		this.privateKey = LoadKeys.loadPrivateKey("./src/main/resources/" + uid + "_private_key.txt",
+				"./src/main/resources/" + uid + "_salt.txt", "./src/main/resources/" + uid + "_hash.txt",
+				this.password);
 	}
 
 	public PublicKey getPublicKey() {
-		return publicKey;
+		return this.publicKey;
 	}
 
 	public PrivateKey getPrivateKey() {
-		return privateKey;
+		return this.privateKey;
 	}
+	
+	public void getStateOfGood(int uid) {
 
-	private boolean invertPBKDF2(String password, int uid) {
-		// load salt
-		byte[] salt = loadSalt(uid);
+		int gid = Utility.readInt("Good ID: ");
 
-		String key = generatePassword(password, salt);
-
-		String parts[] = key.split(":");
-
-		// generate hash of key
-
-		byte[] finalKey = Utility.hexToBytes(parts[2]);
-
-		HashMessage hashMessage = new HashMessage();
-		byte[] hashedMessage = hashMessage.hashBytes(finalKey);
-
-		// load hash from file
-
-		byte[] hashedPassword = loadHash(uid);
-
-		if (Arrays.equals(hashedMessage, hashedPassword)) {
-			strongpassword = parts[2];
-			return true;
-		}
-		return false;
-	}
-
-	private String generatePassword(String password, byte[] salt) {
-		StrongPasswordGenerator pass = new StrongPasswordGenerator(password);
 		try {
-			return pass.generateStrongPasswordHash(salt);
-		} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	private byte[] loadHash(int uid) {
-		try {
-			byte[] pub = Files.readAllBytes(Paths.get("./src/main/resources/" + uid + "_hash.txt"));
-			return pub;
-		} catch (IOException e) {
+			Good g = conn.getStateOfGood(gid, uid);
+			if (g == null) {
+				Utility.println("Good with ID=" + gid + " does not exist.");
+			} else {
+				Utility.println("Good with ID=" + gid + " belongs to user with ID=" + g.getOwner() + " and is "
+						+ (g.getForSale() ? "" : "not ") + "for sale.");
+			}
+		} catch (IOException | NoSuchAlgorithmException | SignatureException | InvalidKeyException
+				| InvalidSignatureException | NullPrivateKeyException | NullDestination | NullPublicKeyException
+				| InvalidKeySpecException | ReplayAttackException e) {
 			e.printStackTrace();
 			System.exit(0);
 		}
-		return null;
 	}
 
-	private byte[] loadSalt(int uid) {
+	public void intentionToSell(int uid) {
+
+		int gid = Utility.readInt("Good ID: ");
+
 		try {
-			byte[] pub = Files.readAllBytes(Paths.get("./src/main/resources/" + uid + "_salt.txt"));
-			return pub;
-		} catch (IOException e) {
+			int for_sale = conn.intentionToSell(gid, uid);
+			System.out.println("Good with ID=" + gid + " is " + (for_sale == 1 ? "" : "not ") + "for sale.");
+		} catch (IOException | NoSuchAlgorithmException | InvalidSignatureException | InvalidKeyException
+				| SignatureException | NullPrivateKeyException | NullDestination | NullPublicKeyException
+				| InvalidKeySpecException | ReplayAttackException e) {
 			e.printStackTrace();
 			System.exit(0);
 		}
-		return null;
+	}
+
+	/**
+	 * Asks another user to buy a good.
+	 */
+	public void buyGood(int userID) {
+		int gid = Utility.readInt("Good ID: ");
+		int ownerID = Utility.readInt("Owner ID: ");
+
+		int port = Utility.readIntFromFile("./src/main/resources/" + ownerID + "_port.txt");
+
+		try (Socket owner = new Socket("localhost", port);
+				DataOutputStream out = new DataOutputStream(owner.getOutputStream());
+				DataInputStream in = new DataInputStream(owner.getInputStream());) {
+			Utils.write(new Message(userID, ownerID, 'B', gid), out, this.getPrivateKey());
+
+			Message replyMessage = userSS.readFromUser(in);
+			
+			if (replyMessage.getGoodID() < 0) {
+				System.out.println("Failed to transfer good with ID=" + gid + ". Do you own it?");
+				return;
+			}
+			
+			System.out.println("Good with ID=" + gid + " successfully transfered to me.");
+		} catch (IOException e) {
+			e.printStackTrace();
+			Utility.println("Failed to contact user with ID=" + userID + ".");
+			return;
+		} catch (InvalidKeyException | NoSuchAlgorithmException | SignatureException e) {
+			e.printStackTrace();
+			Utility.println("Problem with user's key.");
+			return;
+		} catch (InvalidKeySpecException | IllegalAccessException | InvalidSignatureException | ReplayAttackException
+				| NullPublicKeyException e) {
+			e.printStackTrace();
+			Utility.println("Problem with reply message.");
+			return;
+		}
+
+	}
+	
+	public NotaryConnection getNotaryConnection() {
+		return conn;
+	}
+	
+	public SecureSession getUserSecureSession() {
+		return userSS;
 	}
 
 }

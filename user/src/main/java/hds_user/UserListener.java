@@ -10,13 +10,13 @@ public class UserListener implements Runnable {
 	private Thread t;
 	private String threadName;
 	protected Vector<UserConnection> clientConnections;
-	private Main main;
+	private User user;
 
-	public UserListener(int port, String name, Main main) {
+	public UserListener(int port, String name, User user) {
 		this.portNumber = port;
 		this.threadName = name;
 		this.clientConnections = new Vector<>();
-		this.main = main;
+		this.user = user;
 	}
 
 	@Override
@@ -26,7 +26,7 @@ public class UserListener implements Runnable {
 			while (true) {
 				Socket clientSocket = serverSocket.accept();
 				UserConnection cn = new UserConnection(this, clientSocket, "Client: " + clientSocket.getInetAddress(),
-						main.getNotaryConnection(), main.getUserSecureSession(), main.getUser());
+						user);
 				cn.start();
 				this.clientConnections.add(cn);
 			}

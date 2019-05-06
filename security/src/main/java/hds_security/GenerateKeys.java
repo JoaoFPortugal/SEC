@@ -54,9 +54,9 @@ public class GenerateKeys {
 			e.printStackTrace();
 		}
 		String[] parts = strongPassword.split(":");
-		storeEncryptedPrivateKey(Utility.hexToBytes(parts[2]), filename, privateKey);
-		storeSalt(Utility.hexToBytes(parts[1]), filename);
-		storePasswordHash(Utility.hexToBytes(parts[2]), filename);
+		storeEncryptedPrivateKey(Utils.hexToBytes(parts[2]), filename, privateKey);
+		storeSalt(Utils.hexToBytes(parts[1]), filename);
+		storePasswordHash(Utils.hexToBytes(parts[2]), filename);
 	}
 
 	private void storeEncryptedPrivateKey(byte[] key, String filename, PrivateKey privateKey) {

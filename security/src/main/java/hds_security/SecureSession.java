@@ -1,26 +1,17 @@
 package hds_security;
 
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.security.InvalidKeyException;
-import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.Hashtable;
 
 import hds_security.exceptions.InvalidSignatureException;
 import hds_security.exceptions.NullPublicKeyException;
 import hds_security.exceptions.ReplayAttackException;
-import pteidlib.PteidException;
-import sun.security.pkcs11.wrapper.PKCS11Exception;
 
 /**
  * Messages sent by users
@@ -53,7 +44,7 @@ public class SecureSession {
 
 		Message replyMessage = Message.fromBytes(originalmessage);
 		String pubKeyPath = "./src/main/resources/" + replyMessage.origin + "_public_key.txt";
-		PublicKey pubKey = loadPublicKey(pubKeyPath, "EC");
+		PublicKey pubKey = LoadKeys.loadPublicKey(pubKeyPath, "EC");
 
 		// Create hash
 		byte[] hashedcontent = HashMessage.hashBytes(originalmessage);
@@ -71,7 +62,7 @@ public class SecureSession {
 	public Message readFromCC(DataInputStream in, String serverPubKeyPath)
 			throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException,
 			InvalidSignatureException, NullPublicKeyException, InvalidKeySpecException, ReplayAttackException {
-		PublicKey pubKey = loadPublicKey(serverPubKeyPath, "RSA");
+		PublicKey pubKey = LoadKeys.loadPublicKey(serverPubKeyPath, "RSA");
 		
 		int msgLen = in.readInt();
 		byte[] mbytes = new byte[msgLen];
@@ -100,20 +91,8 @@ public class SecureSession {
 		return replyMessage;
 	}
 
-	public static PublicKey loadPublicKey(String pubKeyPath, String algorithm)
-			throws InvalidKeySpecException, NoSuchAlgorithmException, IOException, NullPublicKeyException {
-		byte[] pub = Files.readAllBytes(Paths.get(pubKeyPath));
-		X509EncodedKeySpec keySpec = new X509EncodedKeySpec(pub);
-		KeyFactory kf = KeyFactory.getInstance(algorithm);
-		PublicKey pk = kf.generatePublic(keySpec);
-		if (pk == null) {
-			throw new NullPublicKeyException();
-		}
-		return pk;
-	}
-
 	protected void verifyFreshness(Message replyMessage) throws ReplayAttackException {
-		long now = Utility.createTimeStamp();
+		long now = Utils.createTimeStamp();
 		long msgNow = replyMessage.getNow();
 		long msgNonce = replyMessage.getNonce();
 		Long nonce = nonceTable.get(msgNow);
@@ -122,44 +101,5 @@ public class SecureSession {
 		} else {
 			nonceTable.put(msgNow, msgNonce);
 		}
-	}
-
-	/**
-	 * Creates an hash of the message and signs the hash
-	 */
-	private static byte[] sign(Message msg, PrivateKey privKey)
-			throws InvalidKeyException, NoSuchAlgorithmException, SignatureException {
-		byte[] mbytes = msg.toBytes();
-		byte[] signedmessage = SignMessage.sign(HashMessage.hashBytes(mbytes), privKey);
-		// Final message = message + signed hash
-		byte[] finalmsg = new byte[mbytes.length + signedmessage.length];
-		System.arraycopy(mbytes, 0, finalmsg, 0, mbytes.length);
-		System.arraycopy(signedmessage, 0, finalmsg, mbytes.length, signedmessage.length);
-		return finalmsg;
-	}
-
-	public static void write(Message msg, DataOutputStream out, PrivateKey privKey)
-			throws IOException, InvalidKeyException, NoSuchAlgorithmException, SignatureException {
-		byte[] finalmsg = sign(msg, privKey);
-		out.writeInt(finalmsg.length);
-		out.write(finalmsg, 0, finalmsg.length);
-	}
-	
-	private static byte[] signWithCC(Message msg) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, PteidException, PKCS11Exception {
-		CitizenCard citizenCard = new CitizenCard();
-		byte[] firstmsg = msg.toBytes();
-		byte[] secondmsg = citizenCard.signMessage(HashMessage.hashBytes(firstmsg));
-		// Final message = message + signed hash
-		byte[] finalmsg = new byte[firstmsg.length + secondmsg.length];
-		System.arraycopy(firstmsg, 0, finalmsg, 0, firstmsg.length);
-		System.arraycopy(secondmsg, 0, finalmsg, firstmsg.length, secondmsg.length);
-		return finalmsg;
-	}
-
-	public static void writeWithCC(Message message, DataOutputStream out) throws IOException, PteidException, InvocationTargetException,
-			IllegalAccessException, PKCS11Exception, NoSuchMethodException, ClassNotFoundException {
-		byte[] finalmsg = signWithCC(message);
-		out.writeInt(finalmsg.length);
-		out.write(finalmsg, 0, finalmsg.length);
 	}
 }

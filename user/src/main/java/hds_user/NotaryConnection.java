@@ -7,6 +7,7 @@ import java.security.spec.InvalidKeySpecException;
 
 import hds_security.Message;
 import hds_security.SecureSession;
+import hds_security.Utils;
 import hds_security.exceptions.InvalidSignatureException;
 import hds_security.exceptions.NullDestination;
 import hds_security.exceptions.NullPrivateKeyException;
@@ -52,7 +53,7 @@ public class NotaryConnection {
 			NullPublicKeyException, InvalidKeySpecException, ReplayAttackException {
 		connect();
 
-		SecureSession.write(new Message(uid, 'G', gid), out, user.getPrivateKey());
+		Utils.write(new Message(uid, 'G', gid), out, user.getPrivateKey());
 
 		Message replyMessage = notarySS.readFromCC(in, serverPubKeyPath);
 
@@ -76,7 +77,7 @@ public class NotaryConnection {
 			NullPublicKeyException, InvalidKeySpecException, ReplayAttackException {
 		connect();
 
-		SecureSession.write(new Message(uid, 'S', gid), out, user.getPrivateKey());
+		Utils.write(new Message(uid, 'S', gid), out, user.getPrivateKey());
 
 		Message replyMessage = notarySS.readFromCC(in, serverPubKeyPath);
 
@@ -95,7 +96,7 @@ public class NotaryConnection {
 			NullPublicKeyException, InvalidKeySpecException, ReplayAttackException {
 		connect();
 
-		SecureSession.write(new Message(owner, buyer, 'T', good), out, user.getPrivateKey());
+		Utils.write(new Message(owner, buyer, 'T', good), out, user.getPrivateKey());
 
 		Message replyMessage = notarySS.readFromCC(in, serverPubKeyPath);
 

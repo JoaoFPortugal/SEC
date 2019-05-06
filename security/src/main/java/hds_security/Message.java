@@ -22,8 +22,8 @@ public class Message {
 		this.destination = destination;
 		this.operation = operation;
 		this.gid = gid;
-		this.now = Utility.createTimeStamp();
-		this.nonce = Utility.createNonce();
+		this.now = Utils.createTimeStamp();
+		this.nonce = Utils.createNonce();
 	}
 
 	// FIXME Throw exception if arguments are invalid
@@ -32,8 +32,8 @@ public class Message {
 		this.destination = -1;
 		this.operation = operation;
 		this.gid = gid;
-		this.now = Utility.createTimeStamp();
-		this.nonce = Utility.createNonce();
+		this.now = Utils.createTimeStamp();
+		this.nonce = Utils.createNonce();
 	}
 
 	// FIXME Throw exception if arguments are invalid
@@ -42,8 +42,8 @@ public class Message {
 		this.destination = -1;
 		this.operation = operation;
 		this.gid = gid;
-		this.now = Utility.createTimeStamp();
-		this.nonce = Utility.createNonce();
+		this.now = Utils.createTimeStamp();
+		this.nonce = Utils.createNonce();
 	}
 
 	// Used by 'fromBytes'
