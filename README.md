@@ -79,3 +79,7 @@ pcsc_scan
 ## To-do
 
 - Prof: Using the CC to cipher everything requires entering the PIN many times, try to mitigate this. Eg. Generate new key pair that is signed with the CC). But the `transferGood` method must be necessarily ciphered with the CC.
+
+## Problems
+
+- Currently `Message` has a fixed size and parameters, should be dynamic.
