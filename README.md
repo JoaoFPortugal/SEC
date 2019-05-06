@@ -35,7 +35,7 @@ cd lib/linux
 sudo ./install.sh
 ```
 
-- Smartcard drives. Installation instructions for Arch Linux [here](<https://wiki.archlinux.org/index.php/Smartcards>).
+- Smart card drives and reader with fake CC. Installation instructions for Arch Linux [here](<https://wiki.archlinux.org/index.php/Smartcards>).
 
 - On Arch Linux the following is required in order to detect the card reader.
 
@@ -78,7 +78,7 @@ pcsc_scan
 
 ## To-do
 
-- Prof: Using the CC to cipher everything requires entering the PIN many times, try to mitigate this. Eg. Generate new key pair that is signed with the CC). But the `transferGood` method must be necessarily ciphered with the CC.
+- Using the CC to cipher everything requires entering the PIN many times, try to mitigate this. Eg. Generate new key pair that is signed with the CC). But the `transferGood` method must be necessarily ciphered with the CC.
 
 ## Problems
 
