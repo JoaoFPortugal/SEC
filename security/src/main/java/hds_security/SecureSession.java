@@ -8,6 +8,7 @@ import java.security.PublicKey;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Hashtable;
+import java.util.logging.Level;
 
 import hds_security.exceptions.InvalidSignatureException;
 import hds_security.exceptions.NullPublicKeyException;
@@ -51,6 +52,7 @@ public class SecureSession {
 		
 		// Verify if hashes are the same, using EC
 		if (!SignMessage.verify(hashedcontent, unwrapmsg, pubKey)) {
+			MessageLogger.log(SecureSession.class.getName(),Level.WARNING,replyMessage.toBytes());
 			throw new InvalidSignatureException();
 		}
 
@@ -83,6 +85,7 @@ public class SecureSession {
 		
 		// Verify if hashes are the same, using RSA
 		if (!SignMessage.verifyServerMsg(hashedcontent, unwrapmsg, pubKey)) {
+			MessageLogger.log(SecureSession.class.getName(), Level.WARNING,replyMessage.toBytes());
 			throw new InvalidSignatureException();
 		}
 
@@ -97,6 +100,7 @@ public class SecureSession {
 		long msgNonce = replyMessage.getNonce();
 		Long nonce = nonceTable.get(msgNow);
 		if ((now - replayDelayMs >= msgNow) || (nonce != null && nonce == msgNonce)) {
+			MessageLogger.log(SecureSession.class.getName(),Level.WARNING,replyMessage.toBytes());
 			throw new ReplayAttackException();
 		} else {
 			nonceTable.put(msgNow, msgNonce);
