@@ -19,7 +19,7 @@ import hds_security.exceptions.ReplayAttackException;
 public class SecureSession {
 
 	// Delay allowed for messages, within this time we'll save nonces
-	private final int replayDelayMs = 3600*24; // 24 hours
+	private final int replayDelayMs = 900*1000; // 15mins
 	
 	// XXX - replace with TreeMap? must be thread safe
 	// XXX - make method to periodically clean nonces older than `replayDelayMs`
