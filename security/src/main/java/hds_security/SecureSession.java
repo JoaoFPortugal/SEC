@@ -22,7 +22,7 @@ import hds_security.exceptions.ReplayAttackException;
 public class SecureSession {
 
 	// Delay allowed for messages, within this time we'll save nonces
-	private final int replayDelayMs = 900*1000; // 15mins
+	private final int replayDelayMs = 15*60*1000; // 15 mins
 	
 	// Timestamp, Nonce
 	protected SortedMap<Long, Long> nonceMap = Collections.synchronizedSortedMap(new TreeMap<Long, Long>());
@@ -53,6 +53,7 @@ public class SecureSession {
 		
 		// Verify if hashes are the same, using EC
 		if (!SignMessage.verify(hashedcontent, unwrapmsg, pubKey)) {
+			// XXX
 			MessageLogger.log(SecureSession.class.getName(),Level.WARNING,replyMessage.toBytes());
 			throw new InvalidSignatureException();
 		}
@@ -86,6 +87,7 @@ public class SecureSession {
 		
 		// Verify if hashes are the same, using RSA
 		if (!SignMessage.verifyServerMsg(hashedcontent, unwrapmsg, pubKey)) {
+			// XXX
 			MessageLogger.log(SecureSession.class.getName(), Level.WARNING,replyMessage.toBytes());
 			throw new InvalidSignatureException();
 		}
@@ -110,6 +112,7 @@ public class SecureSession {
 		long msgNonce = replyMessage.getNonce();
 		Long nonce = nonceMap.get(msgNow);
 		if ((now - replayDelayMs >= msgNow) || (nonce != null && nonce == msgNonce)) {
+			// XXX
 			MessageLogger.log(SecureSession.class.getName(),Level.WARNING,replyMessage.toBytes());
 			throw new ReplayAttackException();
 		} else {

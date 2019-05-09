@@ -91,6 +91,7 @@ public class Server extends Thread {
 			Request request = requests.take();
 			Message msg = request.getMessage();
 
+			// XXX
 			MessageLogger.log(Server.class.getName(), Level.INFO,msg.toBytes());
 
 			if (msg.getOperation() == 'S') {
