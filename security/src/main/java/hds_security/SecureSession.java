@@ -7,7 +7,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.Hashtable;
+import java.util.Collections;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.logging.Level;
 
 import hds_security.exceptions.InvalidSignatureException;
@@ -22,9 +24,8 @@ public class SecureSession {
 	// Delay allowed for messages, within this time we'll save nonces
 	private final int replayDelayMs = 900*1000; // 15mins
 	
-	// XXX - replace with TreeMap? must be thread safe
-	// XXX - make method to periodically clean nonces older than `replayDelayMs`
-	protected Hashtable<Long, Long> nonceTable = new Hashtable<>();
+	// Timestamp, Nonce
+	protected SortedMap<Long, Long> nonceMap = Collections.synchronizedSortedMap(new TreeMap<Long, Long>());
 	
 
 	public Message readFromUser(DataInputStream in) throws IOException, InvalidKeyException, InvalidKeySpecException,
@@ -96,14 +97,23 @@ public class SecureSession {
 
 	protected void verifyFreshness(Message replyMessage) throws ReplayAttackException {
 		long now = Utils.createTimeStamp();
+		
+		/**
+		 * Remove entries with timestamp less than 'now' from the nonce collection.
+		 * Note: The method returns the entries removed.
+		 * 
+		 * https://www.geeksforgeeks.org/treemap-headmap-method-in-java/ 
+		 */
+		nonceMap.headMap(now);
+		
 		long msgNow = replyMessage.getNow();
 		long msgNonce = replyMessage.getNonce();
-		Long nonce = nonceTable.get(msgNow);
+		Long nonce = nonceMap.get(msgNow);
 		if ((now - replayDelayMs >= msgNow) || (nonce != null && nonce == msgNonce)) {
 			MessageLogger.log(SecureSession.class.getName(),Level.WARNING,replyMessage.toBytes());
 			throw new ReplayAttackException();
 		} else {
-			nonceTable.put(msgNow, msgNonce);
+			nonceMap.put(msgNow, msgNonce);
 		}
 	}
 }

@@ -57,6 +57,8 @@ The users know that the messages sent by the Notary are authentic because they h
 
 Each message contains a nonce and a timestamp. The nonce ensures no replay attacks can happen (they can still happen but have a minimal probability close to zero). The timestamp, by rejecting messages that are old, help reducing the number of nonces that we have to remember, thus we do not have to maintain persistent state, and also reduce the probability of nonce collisions.
 
+Note: We use Java TreeMap to store our <timestamp, nonce> pair and the method `headMap` to remove older pairs.
+
 ### Timing attacks (DDoS, slowloris...)
 
 We do not deal with these attacks as they require more effort to mitigate and are outside the scope of this particular project.
