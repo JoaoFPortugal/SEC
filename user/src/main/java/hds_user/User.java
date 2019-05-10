@@ -58,6 +58,10 @@ public class User {
 				"./src/main/resources/" + uid + "_salt.txt", "./src/main/resources/" + uid + "_hash.txt",
 				this.password);
 	}
+	
+	public int getID() {
+		return this.uid;
+	}
 
 	public PublicKey getPublicKey() {
 		return this.publicKey;

@@ -19,7 +19,7 @@ public class Database {
 		this.url = url;
 		this.conn = null;
 
-		/*
+		/**
 		 * Check if database file exists because the connect method creates it if it
 		 * doesn't
 		 */
@@ -29,6 +29,23 @@ public class Database {
 		}
 
 		connect();
+		
+		/**
+		 * Use batch statements for transactions
+		 * https://stackoverflow.com/questions/9601030/transaction-in-java-sqlite3
+		 */
+		try {
+			if(this.conn.getMetaData().supportsBatchUpdates()) {
+				System.out.println("SQL Driver supports batch updates.");
+			} else {
+				System.err.println("SQL Driver does not support batch updates.");
+				System.exit(0);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.err.println("SQL Driver does not support batch updates.");
+			System.exit(0);
+		}
 	}
 
 	/**
@@ -66,6 +83,7 @@ public class Database {
 				HashMap<String, Integer> map = new HashMap<String, Integer>();
 				map.put("owner_id", rs.getInt("owner_id"));
 				map.put("for_sale", rs.getInt("for_sale"));
+				//logQuery();
 				return map;
 			}
 
@@ -146,16 +164,35 @@ public class Database {
 		}
 		return true;
 	}
+	
+	public void logQuery(int uid, String query, String result, long timestamp, String error, String attack) {
+		String sql2 = "INSERT INTO log(uid, query, result, timestamp, error, attack) VALUES(?,?,?,?,?,?)";
 
+		try (PreparedStatement pstmt = conn.prepareStatement(sql2)) {
+
+			pstmt.setInt(1, uid);
+			pstmt.setString(2, query);
+			pstmt.setString(3, result);
+			pstmt.setLong(4, timestamp);
+			pstmt.setString(5, error);
+			pstmt.setString(6, attack);
+
+			pstmt.execute();
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+	}
+
+	// Not being used
 	public String getListOfUsers() {
 
-		String sql = "SELECT uid, ip, port FROM users";
+		String sql = "SELECT uid FROM users";
 		String output = "";
 
 		try (Statement stmt = this.conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
 
 			while (rs.next()) {
-				output += rs.getInt("uid") + " " + rs.getString("ip") + " " + rs.getInt("port");
+				output += rs.getInt("uid") + "\n";
 			}
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
@@ -164,6 +201,7 @@ public class Database {
 		return (output.isEmpty() ? "null" : output);
 	}
 
+	// Not being used
 	public String getListOfGoods() {
 
 		String sql = "SELECT gid, owner_id, for_sale FROM goods";

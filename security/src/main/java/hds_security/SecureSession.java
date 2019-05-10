@@ -10,7 +10,6 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.Collections;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.logging.Level;
 
 import hds_security.exceptions.InvalidSignatureException;
 import hds_security.exceptions.NullPublicKeyException;
@@ -54,7 +53,7 @@ public class SecureSession {
 		// Verify if hashes are the same, using EC
 		if (!SignMessage.verify(hashedcontent, unwrapmsg, pubKey)) {
 			// XXX
-			MessageLogger.log(SecureSession.class.getName(),Level.WARNING,replyMessage.toBytes());
+			//MessageLogger.log(SecureSession.class.getName(),Level.WARNING,replyMessage.toBytes());
 			throw new InvalidSignatureException();
 		}
 
@@ -88,7 +87,7 @@ public class SecureSession {
 		// Verify if hashes are the same, using RSA
 		if (!SignMessage.verifyServerMsg(hashedcontent, unwrapmsg, pubKey)) {
 			// XXX
-			MessageLogger.log(SecureSession.class.getName(), Level.WARNING,replyMessage.toBytes());
+			//MessageLogger.log(SecureSession.class.getName(), Level.WARNING,replyMessage.toBytes());
 			throw new InvalidSignatureException();
 		}
 
@@ -113,7 +112,7 @@ public class SecureSession {
 		Long nonce = nonceMap.get(msgNow);
 		if ((now - replayDelayMs >= msgNow) || (nonce != null && nonce == msgNonce)) {
 			// XXX
-			MessageLogger.log(SecureSession.class.getName(),Level.WARNING,replyMessage.toBytes());
+			//MessageLogger.log(SecureSession.class.getName(),Level.WARNING,replyMessage.toBytes());
 			throw new ReplayAttackException();
 		} else {
 			nonceMap.put(msgNow, msgNonce);

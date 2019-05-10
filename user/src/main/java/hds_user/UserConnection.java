@@ -51,7 +51,9 @@ public class UserConnection implements Runnable {
 			
 			Message replyMessage = conn.transferGood(request.getGoodID(), request.getDestination(), request.getOrigin());
 			
-			Utils.write(replyMessage, out, user.getPrivateKey());
+			Message toUser = new Message(this.user.getID(), request.getOrigin(), replyMessage.getOperation(), replyMessage.getGoodID());
+			
+			Utils.write(toUser, out, user.getPrivateKey());
 		} catch (IOException | IllegalAccessException e) {
 			e.printStackTrace();
 		} catch (NoSuchAlgorithmException | SignatureException | InvalidSignatureException | InvalidKeyException e) {

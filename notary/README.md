@@ -27,7 +27,6 @@ gradle build
 Insert a Portuguese Citizen Card (PT-CC) in the slot before running the program.
 
 ```sh
-source setEnvVar.sh
 gradle run
 ```
 

@@ -56,7 +56,7 @@ public class Message {
 		this.nonce = nonce;
 	}
 
-	public long getOperation() {
+	public char getOperation() {
 		return this.operation;
 	}
 	

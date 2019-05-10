@@ -10,10 +10,8 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.HashMap;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.logging.Level;
 
 import hds_security.Message;
-import hds_security.MessageLogger;
 import hds_security.SecureSession;
 import hds_security.Utils;
 import hds_security.exceptions.InvalidSignatureException;
@@ -92,7 +90,7 @@ public class Server extends Thread {
 			Message msg = request.getMessage();
 
 			// XXX
-			MessageLogger.log(Server.class.getName(), Level.INFO,msg.toBytes());
+			//MessageLogger.log(Server.class.getName(), Level.INFO,msg.toBytes());
 
 			if (msg.getOperation() == 'S') {
 				int reply;

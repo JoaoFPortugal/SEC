@@ -23,6 +23,5 @@ gradle build
 ### Run
 
 ```sh
-source setEnvVar.sh
 gradle run
 ```

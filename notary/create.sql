@@ -5,9 +5,7 @@
 --- we do it this way.
 ---
 CREATE TABLE IF NOT EXISTS `users` (
-	`uid` INTEGER PRIMARY KEY,
-	`ip` TEXT,
-	`port` INTEGER
+	`uid` INTEGER PRIMARY KEY
 );
 
 ---
@@ -18,4 +16,18 @@ CREATE TABLE IF NOT EXISTS `goods` (
 	`owner_id` INTEGER,
 	`for_sale` INTEGER, -- 0 (false), 1 (true)
 	FOREIGN KEY(`owner_id`) REFERENCES `users`(`uid`)
+);
+
+---
+--- Log
+---
+CREATE TABLE IF NOT EXISTS 'log' (
+	`lid` INTEGER PRIMARY KEY,
+	`uid` INTEGER,
+	`query` TEXT,
+	`result` TEXT,
+	`timestamp` INTEGER,
+	`error` TEXT,
+	`attack` TEXT,
+	FOREIGN KEY(`uid`) REFERENCES `users`(`uid`)
 );
