@@ -48,7 +48,7 @@ pcsc_scan
 
 **Running:**
 
-1. On project root do `gradle build`. Do `export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib`
+1. On project root do `gradle build`. Do `export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib` on every terminal you open for this project.
 
 2. Inside `security` folder do:
 
@@ -76,7 +76,11 @@ pcsc_scan
    
 6. Test with user id 1, 2, 3, 4 and/or 5. Passwords are 11, 22, 33, 44 and 55 respectively.
 
-*Note: If when trying to do an operation there is a `java.lang.UnsatisfiedLinkError` check if the `LD_LIBRARY_PATH` environment variable includes the path to the `/usr/local/lib` folder. Same for the property `java.library.path`. If you get `/usr/local/bin/pteiddialogsQTsrv: No such file or directory`, check if you ran the `install.sh` script in the `lib/linux` folder. You may also get on the user `java.nio.file.NoSuchFileException: ./src/main/resources/serverPublicKey.txt`, check if the notary read the card correctly and placed that file in the `user` resources.*
+*Note: If when trying to do an operation there is a `java.lang.UnsatisfiedLinkError` check if the `LD_LIBRARY_PATH` environment variable includes the path to the `/usr/local/lib` folder. Same for the property `java.library.path`.*
+
+*If you get `/usr/local/bin/pteiddialogsQTsrv: No such file or directory`, check if you ran the `install.sh` script in the `lib/linux` folder.*
+
+*You may also get on the user `java.nio.file.NoSuchFileException: ./src/main/resources/serverPublicKey.txt`, check if the notary read the card correctly and placed that file in the `user` resources, if it didn't it may be somewhere in the notary resources and you may manually copy/paste the file to the user's resources.*
 
 ## To-do
 
