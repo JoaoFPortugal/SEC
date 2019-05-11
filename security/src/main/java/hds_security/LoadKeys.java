@@ -20,7 +20,7 @@ public class LoadKeys {
 			throws InvalidKeySpecException, NoSuchAlgorithmException, IOException, NullPublicKeyException {
 		byte[] pub = Files.readAllBytes(Paths.get(pubKeyPath));
 		X509EncodedKeySpec keySpec = new X509EncodedKeySpec(pub);
-		KeyFactory kf = KeyFactory.getInstance(algorithm);
+		KeyFactory kf = KeyFactory.getInstance("RSA");
 		PublicKey pk = kf.generatePublic(keySpec);
 		if (pk == null) {
 			throw new NullPublicKeyException();
@@ -35,7 +35,7 @@ public class LoadKeys {
 		if (strongPassword != null) {
 			byte[] privateKey = loadAndDecryptKey(privKeyPath, strongPassword);
 			PKCS8EncodedKeySpec ks = new PKCS8EncodedKeySpec(privateKey);
-			KeyFactory kf = KeyFactory.getInstance("EC");
+			KeyFactory kf = KeyFactory.getInstance("RSA");
 			return kf.generatePrivate(ks);
 		} else {
 			throw new NullPrivateKeyException();

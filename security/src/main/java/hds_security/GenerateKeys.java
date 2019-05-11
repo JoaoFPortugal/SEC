@@ -26,12 +26,12 @@ public class GenerateKeys {
 		 * is Elliptical Curves (EC), but could be RSA, ElGammal... EC is the key with
 		 * smaller size, more efficient with equivalent security.
 		 */
-		KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
+		KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
 		// SHA1PRNG is the standard to generate secure randoms
 		SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
 
 		// Use 224 key size
-		keyGen.initialize(224, random);
+		keyGen.initialize(2048, random);
 		KeyPair keys = keyGen.generateKeyPair();
 		return keys;
 	}
