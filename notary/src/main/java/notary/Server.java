@@ -6,7 +6,6 @@ import java.net.ServerSocket;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.util.HashMap;
-import java.util.TreeSet;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -18,7 +17,6 @@ import hds_security.exceptions.InvalidSignatureException;
 import hds_security.exceptions.NullPublicKeyException;
 import hds_security.exceptions.ReplayAttackException;
 import pteidlib.PteidException;
-import sun.reflect.generics.tree.Tree;
 import sun.security.pkcs11.wrapper.PKCS11Exception;
 
 public class Server extends Thread {
@@ -125,29 +123,31 @@ public class Server extends Thread {
 			Request request = requests.take();
 			Message msg = request.getMessage();
 
-			// XXX
-			//MessageLogger.log(Server.class.getName(), Level.INFO,msg.toBytes());
-
-			if (msg.getOperation() == 'S') {
+			if (msg.getOperation() == 'G') {
+				HashMap<String, Integer> res;
+				synchronized(db) {
+					res = db.getStateOfGood(msg.getOrigin(), msg.getGoodID(), msg.getNow());
+				}
+				Message message;
+				if (res == null) {
+					message = new Message(-1, 'R', -1);
+				} else {
+					message = new Message(res.get("owner_id"), 'R', res.get("for_sale"));
+				}
+				try {
+					Utils.writeWithCC(message, request.getDataOutputStream());
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			} else if (msg.getOperation() == 'S') {
 				int reply;
 				synchronized(db) {
 					reply = db.intentionToSell(msg.getOrigin(), msg.getGoodID(), msg.getNow());
 				}
 				Message message = new Message('R', reply);
 				try {
-					write(message, request);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			} else if (msg.getOperation() == 'G') {
-				int reply;
-				synchronized(db) {
-					reply = db.getStateOfGood(msg.getGoodID(), msg.getGoodID(), msg.getNow());
-				}
-				Message message = new Message( 'R', reply);
-				try {
-					write(message, request);
-				} catch (Exception e) {
+					Utils.writeWithCC(message, request.getDataOutputStream());
+				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			} else if (msg.getOperation() == 'T') {
@@ -158,8 +158,8 @@ public class Server extends Thread {
 				// returns good id on success
 				Message message = new Message('R', (reply ? msg.getGoodID() : -1));
 				try {
-					write(message, request);
-				} catch (Exception e) {
+					Utils.writeWithCC(message, request.getDataOutputStream());
+				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}

@@ -44,7 +44,7 @@ public class User {
 		
 		this.userListener = new UserListener(userListenerPort, "userListenerThread", this);
 		userListener.start();
-		Utility.println("User listening on port: " + userListenerPort);
+		Utils.println("User listening on port: " + userListenerPort);
 	}
 
 	private void loadPubKey()
@@ -73,14 +73,14 @@ public class User {
 	
 	public void getStateOfGood(int uid) {
 
-		int gid = Utility.readInt("Good ID: ");
+		int gid = Utils.readInt("Good ID: ");
 
 		try {
 			Good g = conn.getStateOfGood(gid, uid);
 			if (g == null) {
-				Utility.println("Good with ID=" + gid + " does not exist.");
+				Utils.println("Good with ID=" + gid + " does not exist.");
 			} else {
-				Utility.println("Good with ID=" + gid + " belongs to user with ID=" + g.getOwner() + " and is "
+				Utils.println("Good with ID=" + gid + " belongs to user with ID=" + g.getOwner() + " and is "
 						+ (g.getForSale() ? "" : "not ") + "for sale.");
 			}
 		} catch (IOException | NoSuchAlgorithmException | SignatureException | InvalidKeyException
@@ -93,7 +93,7 @@ public class User {
 
 	public void intentionToSell(int uid) {
 
-		int gid = Utility.readInt("Good ID: ");
+		int gid = Utils.readInt("Good ID: ");
 
 		try {
 			int for_sale = conn.intentionToSell(gid, uid);
@@ -110,10 +110,10 @@ public class User {
 	 * Asks another user to buy a good.
 	 */
 	public void buyGood(int userID) {
-		int gid = Utility.readInt("Good ID: ");
-		int ownerID = Utility.readInt("Owner ID: ");
+		int gid = Utils.readInt("Good ID: ");
+		int ownerID = Utils.readInt("Owner ID: ");
 
-		int port = Utility.readIntFromFile("./src/main/resources/" + ownerID + "_port.txt");
+		int port = Utils.readIntFromFile("./src/main/resources/" + ownerID + "_port.txt");
 
 		try (Socket owner = new Socket("localhost", port);
 				DataOutputStream out = new DataOutputStream(owner.getOutputStream());
@@ -130,16 +130,16 @@ public class User {
 			System.out.println("Good with ID=" + gid + " successfully transfered to me.");
 		} catch (IOException e) {
 			e.printStackTrace();
-			Utility.println("Failed to contact user with ID=" + userID + ".");
+			Utils.println("Failed to contact user with ID=" + userID + ".");
 			return;
 		} catch (InvalidKeyException | NoSuchAlgorithmException | SignatureException e) {
 			e.printStackTrace();
-			Utility.println("Problem with user's key.");
+			Utils.println("Problem with user's key.");
 			return;
 		} catch (InvalidKeySpecException | IllegalAccessException | InvalidSignatureException | ReplayAttackException
 				| NullPublicKeyException e) {
 			e.printStackTrace();
-			Utility.println("Problem with reply message.");
+			Utils.println("Problem with reply message.");
 			return;
 		}
 

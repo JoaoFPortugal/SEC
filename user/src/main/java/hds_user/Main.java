@@ -1,6 +1,7 @@
 package hds_user;
 
 import java.util.List;
+import hds_security.Utils;
 
 public class Main {
 
@@ -14,18 +15,18 @@ public class Main {
 
 		Main main = new Main();
 
-		int uid = Utility.readInt("Hello!\nPlease enter your ID: ");
+		int uid = Utils.readInt("Hello!\nPlease enter your ID: ");
 
 		// For listening to user requests
-		main.userListenerPort = Utility.readIntFromFile("./src/main/resources/" + uid + "_port.txt");
+		main.userListenerPort = Utils.readIntFromFile("./src/main/resources/" + uid + "_port.txt");
 
-		String password = Utility.readPassword("Please enter your secret password: ");
+		String password = Utils.readPassword("Please enter your secret password: ");
 		
 		try {
 			main.user = new User(uid, password, main.serverName, main.notaryPorts, main.userListenerPort);
 		} catch (Exception e) {
 			e.printStackTrace();
-			Utility.println(e.getMessage());
+			Utils.println(e.getMessage());
 			System.exit(0);
 		}
 
@@ -34,7 +35,7 @@ public class Main {
 			String menuStr = "What would you like to do?\n" + "1. Get State of Good\n" + "2. Intention to sell\n"
 					+ "3. Intention to buy\n" + "0. Exit\n";
 
-			int option = Utility.readInt(menuStr);
+			int option = Utils.readInt(menuStr);
 
 			switch (option) {
 			case 1:
@@ -49,7 +50,7 @@ public class Main {
 			case 0:
 				System.exit(0);
 			default:
-				Utility.println(("Wrong number!"));
+				Utils.println(("Wrong number!"));
 			}
 
 		}

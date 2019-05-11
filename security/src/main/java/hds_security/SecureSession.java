@@ -52,8 +52,6 @@ public class SecureSession {
 		
 		// Verify if hashes are the same, using EC
 		if (!SignMessage.verify(hashedcontent, unwrapmsg, pubKey)) {
-			// XXX
-			//MessageLogger.log(SecureSession.class.getName(),Level.WARNING,replyMessage.toBytes());
 			throw new InvalidSignatureException();
 		}
 
@@ -86,8 +84,6 @@ public class SecureSession {
 		
 		// Verify if hashes are the same, using RSA
 		if (!SignMessage.verifyServerMsg(hashedcontent, unwrapmsg, pubKey)) {
-			// XXX
-			//MessageLogger.log(SecureSession.class.getName(), Level.WARNING,replyMessage.toBytes());
 			throw new InvalidSignatureException();
 		}
 
@@ -111,8 +107,6 @@ public class SecureSession {
 		long msgNonce = replyMessage.getNonce();
 		Long nonce = nonceMap.get(msgNow);
 		if ((now - replayDelayMs >= msgNow) || (nonce != null && nonce == msgNonce)) {
-			// XXX
-			//MessageLogger.log(SecureSession.class.getName(),Level.WARNING,replyMessage.toBytes());
 			throw new ReplayAttackException();
 		} else {
 			nonceMap.put(msgNow, msgNonce);

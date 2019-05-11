@@ -64,6 +64,9 @@ public class Message {
 		return this.nonce;
 	}
 
+	/**
+	 * Returns the timestamp of this message 
+	 */
 	public long getNow() {
 		return this.now;
 	}

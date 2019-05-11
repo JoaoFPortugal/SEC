@@ -49,6 +49,8 @@ The user assures integrity by following the same logic, except it uses SHA-2 to 
 
 Since the messages are signed using the notary / users private keys (more specifically the hash is signed), and only each knows his own private-key and the password to decrypt it, we know that the message has been sent by them.
 
+Moreover, we also log the user's valid requests in the database along the timestamp, so that we keep track of all requests and transactions.
+
 **Authenticity:**
 
 The users know that the messages sent by the Notary are authentic because they have the public key of the Notary's CC with which they can validate the signature of the messages, by decrypting the hash and comparing with the hash they generated themselves. And the Notary knows the public keys of the users and verifies authenticity in the same manner.

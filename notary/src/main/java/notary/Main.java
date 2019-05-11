@@ -2,6 +2,7 @@ package notary;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import hds_security.Utils;
 
 public class Main {
 
@@ -28,10 +29,10 @@ public class Main {
 		System.out.println("CPU cores: " + cores);
 
 		main.db = new Database(main.db_name);
-		String port = Utility.readString(
+		String port = Utils.readString(
 				"Port:\n");
-		String pass = Utility.readString("Password:\n");
-		int cc = Utility.readInt("Hello!\n" + "Would you like to use your CC?\n" + "0. No\n" + "1. Yes\n");
+		String pass = Utils.readString("Password:\n");
+		int cc = Utils.readInt("Hello!\n" + "Would you like to use your CC?\n" + "0. No\n" + "1. Yes\n");
 
 
 		try {

@@ -1,6 +1,5 @@
 package hds_security;
 
-import java.io.Console;
 import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -13,21 +12,77 @@ import java.util.Date;
 import java.util.Random;
 import java.util.Scanner;
 
+import java.io.Console;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Scanner;
+
+import javax.swing.JOptionPane;
+
 import pteidlib.PteidException;
 import sun.security.pkcs11.wrapper.PKCS11Exception;
-
-import javax.swing.*;
 
 public class Utils {
 	private Utils() {
 	}
 
-	public static byte[] hexToBytes(String hex) {
-		byte[] bytes = new byte[hex.length() / 2];
-		for (int i = 0; i < bytes.length; i++) {
-			bytes[i] = (byte) Integer.parseInt(hex.substring(2 * i, 2 * i + 2), 16);
+	/**
+	 * I/O stuff
+	 */
+
+	public static void println(String str) {
+		System.out.println(str);
+	}
+
+	/**
+	 * This method contemplates if the program is being run in Eclipse or not, as
+	 * Eclipse does not support System.console. Same for Gradle.
+	 */
+	public static String readString(String prompt) {
+
+		String input = "";
+		Console c = System.console();
+
+		if (c == null) {
+			input = JOptionPane.showInputDialog(prompt);
+		} else {
+			println(prompt);
+			input = c.readLine();
+
 		}
-		return bytes;
+
+		return input;
+	}
+
+	/**
+	 * This method contemplates if the program is being run in Eclipse or not, as
+	 * Eclipse does not support System.console. Same for Gradle.
+	 */
+	public static String readPassword(String prompt) {
+
+		String input = "";
+		Console c = System.console();
+
+		if (c == null) {
+			input = JOptionPane.showInputDialog(prompt);
+		} else {
+			char[] in = System.console().readPassword(prompt);
+			input = String.valueOf(in);
+		}
+		return input;
+	}
+
+	public static int readInt(String prompt) {
+		int i;
+		while (true) {
+			try {
+				i = Integer.parseInt(readString(prompt));
+				break;
+			} catch (NumberFormatException e) {
+				println("Not a valid number.");
+			}
+		}
+		return i;
 	}
 
 	public static int readIntFromFile(String filename) {
@@ -40,6 +95,18 @@ public class Utils {
 			System.exit(0);
 		}
 		return i;
+	}
+
+	/**
+	 * Security stuff
+	 */
+
+	public static byte[] hexToBytes(String hex) {
+		byte[] bytes = new byte[hex.length() / 2];
+		for (int i = 0; i < bytes.length; i++) {
+			bytes[i] = (byte) Integer.parseInt(hex.substring(2 * i, 2 * i + 2), 16);
+		}
+		return bytes;
 	}
 
 	/**
@@ -96,6 +163,4 @@ public class Utils {
 		out.writeInt(finalmsg.length);
 		out.write(finalmsg, 0, finalmsg.length);
 	}
-
-
 }
