@@ -4,6 +4,8 @@ import java.io.*;
 import java.net.Socket;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
+import java.util.ArrayList;
+import java.util.List;
 
 import hds_security.Message;
 import hds_security.SecureSession;
@@ -17,31 +19,39 @@ import hds_security.exceptions.ReplayAttackException;
 public class NotaryConnection {
 
 	private String serverName;
-	private int port;
-	private Socket client;
-	private DataOutputStream out;
-	private DataInputStream in;
+	private int[] ports;
+	private List<Socket> servers = new ArrayList<>();
+	private List<DataOutputStream> outs = new ArrayList<>();
+	private List<DataInputStream> ins = new ArrayList<>();
 	private User user;
 	private SecureSession notarySS;
 	private String serverPubKeyPath;
 
-	public NotaryConnection(String serverName, int port, User user) {
+	public NotaryConnection(String serverName, int[] ports, User user) {
 		this.serverName = serverName;
-		this.port = port;
+		this.ports = ports;
 		this.user = user;
 		notarySS = new SecureSession();
 		this.serverPubKeyPath = "./src/main/resources/serverPublicKey.txt";
 	}
 
 	private void connect() throws IOException {
-		client = new Socket(serverName, port);
-		out = new DataOutputStream(client.getOutputStream());
-		in = new DataInputStream(client.getInputStream());
+	    for(int port : ports) {
+            servers.add(new Socket(serverName, port));
+        }
+
+        for (Socket server : servers) {
+            outs.add(new DataOutputStream(server.getOutputStream()));
+            ins.add(new DataInputStream(server.getInputStream()));
+        }
 	}
 
 	private void disconnect() throws IOException {
-		client.close();
-	}
+        for (Socket server : servers) {
+            server.close();
+
+        }
+    }
 
 	/**
 	 * Sends a request to the notary to know if the good is for sale and who owns
@@ -51,9 +61,10 @@ public class NotaryConnection {
 	public Good getStateOfGood(int gid, int uid) throws IOException, InvalidSignatureException,
 			NoSuchAlgorithmException, InvalidKeyException, SignatureException, NullPrivateKeyException, NullDestination,
 			NullPublicKeyException, InvalidKeySpecException, ReplayAttackException {
-		connect();
-
-		Utils.write(new Message(uid, 'G', gid), out, user.getPrivateKey());
+        connect();
+        for (DataOutputStream out : outs){
+            Utils.write(new Message(uid, 'G', gid), out, user.getPrivateKey());
+        }
 
 		Message replyMessage = notarySS.readFromCC(in, serverPubKeyPath);
 

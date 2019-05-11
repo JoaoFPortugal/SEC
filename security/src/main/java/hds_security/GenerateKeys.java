@@ -96,5 +96,10 @@ public class GenerateKeys {
 		new GenerateKeys("3", "33").createFiles();
 		new GenerateKeys("4", "44").createFiles();
 		new GenerateKeys("5", "55").createFiles();
+		new GenerateKeys("6066", "s1").createFiles();
+		new GenerateKeys("6067", "s2").createFiles();
+		new GenerateKeys("6068", "s3").createFiles();
+		new GenerateKeys("6069", "s4").createFiles();
+		new GenerateKeys("6070", "s5").createFiles();
 	}
 }

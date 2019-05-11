@@ -28,9 +28,14 @@ public class Main {
 		System.out.println("CPU cores: " + cores);
 
 		main.db = new Database(main.db_name);
+		String port = Utility.readString(
+				"Port:\n");
+		String pass = Utility.readString("Password:\n");
+		int cc = Utility.readInt("Hello!\n" + "Would you like to use your CC?\n" + "0. No\n" + "1. Yes\n");
+
 
 		try {
-			main.server = new Server(main.port, main.db);
+			main.server = new Server(port, main.db, cc, pass);
 			main.producer = new Thread(main.server, "producer");
 			main.producer.start();
 
@@ -46,7 +51,7 @@ public class Main {
 				c.start();
 			}
 
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

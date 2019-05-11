@@ -1,10 +1,12 @@
 package hds_user;
 
+import java.util.List;
+
 public class Main {
 
 	// Connection stuff
 	private final String serverName = "localhost";
-	private final int notaryPort = 6066;
+	private final int[] notaryPorts = {6066, 6067, 6068, 6069, 6070};
 	private int userListenerPort;
 	private User user;
 
@@ -20,7 +22,7 @@ public class Main {
 		String password = Utility.readPassword("Please enter your secret password: ");
 		
 		try {
-			main.user = new User(uid, password, main.serverName, main.notaryPort, main.userListenerPort);
+			main.user = new User(uid, password, main.serverName, main.notaryPorts, main.userListenerPort);
 		} catch (Exception e) {
 			e.printStackTrace();
 			Utility.println(e.getMessage());

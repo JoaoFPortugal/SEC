@@ -1,5 +1,6 @@
 package hds_security;
 
+import java.io.Console;
 import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -14,6 +15,8 @@ import java.util.Scanner;
 
 import pteidlib.PteidException;
 import sun.security.pkcs11.wrapper.PKCS11Exception;
+
+import javax.swing.*;
 
 public class Utils {
 	private Utils() {
@@ -93,4 +96,6 @@ public class Utils {
 		out.writeInt(finalmsg.length);
 		out.write(finalmsg, 0, finalmsg.length);
 	}
+
+
 }
