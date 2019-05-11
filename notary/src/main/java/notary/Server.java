@@ -131,7 +131,7 @@ public class Server extends Thread {
 			if (msg.getOperation() == 'S') {
 				int reply;
 				synchronized(db) {
-					reply = db.intentionToSell(msg.getOrigin(), msg.getGoodID());
+					reply = db.intentionToSell(msg.getOrigin(), msg.getGoodID(), msg.getNow());
 				}
 				Message message = new Message('R', reply);
 				try {
@@ -140,16 +140,11 @@ public class Server extends Thread {
 					e.printStackTrace();
 				}
 			} else if (msg.getOperation() == 'G') {
-				HashMap<String, Integer> res;
+				int reply;
 				synchronized(db) {
-					res = db.getStateOfGood(msg.getGoodID());
+					reply = db.getStateOfGood(msg.getGoodID(), msg.getGoodID(), msg.getNow());
 				}
-				Message message;
-				if (res == null) {
-					message = new Message(-1, 'R', -1);
-				} else {
-					message = new Message(res.get("owner_id"), 'R', res.get("for_sale"));
-				}
+				Message message = new Message( 'R', reply);
 				try {
 					write(message, request);
 				} catch (Exception e) {
@@ -158,7 +153,7 @@ public class Server extends Thread {
 			} else if (msg.getOperation() == 'T') {
 				boolean reply;
 				synchronized(db) {
-					reply = db.transferGood(msg.getGoodID(), msg.getOrigin(), msg.getDestination());
+					reply = db.transferGood(msg.getGoodID(), msg.getOrigin(), msg.getDestination(), msg.getNow());
 				}
 				// returns good id on success
 				Message message = new Message('R', (reply ? msg.getGoodID() : -1));
