@@ -15,6 +15,7 @@ public class Message {
 	protected long now;
 	protected int gid;
 	protected long nonce;
+	protected int tag;
 
 	// FIXME Throw exception if arguments are invalid
 	public Message(int origin, int destination, char operation, int gid) {
@@ -24,6 +25,16 @@ public class Message {
 		this.gid = gid;
 		this.now = Utils.createTimeStamp();
 		this.nonce = Utils.createNonce();
+	}
+
+	public Message(int origin, int destination, char operation, int gid, int tag) {
+		this.origin = origin;
+		this.destination = destination;
+		this.operation = operation;
+		this.gid = gid;
+		this.now = Utils.createTimeStamp();
+		this.nonce = Utils.createNonce();
+		this.tag = tag;
 	}
 
 	// FIXME Throw exception if arguments are invalid
@@ -54,6 +65,10 @@ public class Message {
 		this.now = now;
 		this.gid = gid;
 		this.nonce = nonce;
+	}
+
+	public int getTag(){
+		return tag;
 	}
 
 	public char getOperation() {
@@ -104,6 +119,13 @@ public class Message {
 		bb.putInt(gid);
 
 		return bb.array();
+	}
+
+	public boolean isEqual(Message m){
+		if(this.operation == m.getOperation() || this.origin == m.getOrigin() || this.destination == m.getDestination() || this.now == m.getNow() || this.gid == m.getGoodID() || this.nonce == m.getNonce()){
+			return true;
+		}
+		return false;
 	}
 
 	public static Message fromBytes(byte[] mbytes) {

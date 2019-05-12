@@ -6,6 +6,7 @@ import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import hds_security.Message;
 import hds_security.SecureSession;
@@ -26,6 +27,11 @@ public class NotaryConnection {
 	private User user;
 	private SecureSession notarySS;
 	private String serverPubKeyPath;
+	private AtomicInteger currentTag;
+	private int[] portsBehindTag;
+	private boolean quorumAchieved = false;
+	private int finalTag;
+	private Message finalValue;
 
 	public NotaryConnection(String serverName, int[] ports, User user) {
 		this.serverName = serverName;
@@ -49,7 +55,6 @@ public class NotaryConnection {
 	private void disconnect() throws IOException {
         for (Socket server : servers) {
             server.close();
-
         }
     }
 
@@ -66,6 +71,8 @@ public class NotaryConnection {
             Utils.write(new Message(uid, 'G', gid), out, user.getPrivateKey());
         }
 
+
+        //below is wrong
 		Message replyMessage = notarySS.readFromCC(in, serverPubKeyPath);
 
 		// Origin value of reply is actually the 'owner' value.
@@ -90,6 +97,8 @@ public class NotaryConnection {
 
 		Utils.write(new Message(uid, 'S', gid), out, user.getPrivateKey());
 
+		//below is wrong
+
 		Message replyMessage = notarySS.readFromCC(in, serverPubKeyPath);
 
 		disconnect();
@@ -102,6 +111,31 @@ public class NotaryConnection {
 	 * doesn't own it. Returns good ID on success.
 	 */
 
+	public synchronized int getFinalTag(){
+		return finalTag;
+	}
+
+	public synchronized void setFinalTag(int finalTag){
+		this.finalTag = finalTag;
+	}
+
+	public synchronized Message getFinalValue(){
+		return finalValue;
+	}
+
+	public synchronized void setFinalValue(Message m){
+		this.finalValue = m;
+	}
+
+	public synchronized boolean getQuorum(){
+		return quorumAchieved;
+	}
+
+	public synchronized void setQuorum(boolean bool){
+		quorumAchieved = bool;
+	}
+
+	
 	public Message transferGood(int good, int owner, int buyer) throws IOException, InvalidSignatureException,
 			NoSuchAlgorithmException, InvalidKeyException, SignatureException, NullPrivateKeyException, NullDestination,
 			NullPublicKeyException, InvalidKeySpecException, ReplayAttackException {
@@ -109,6 +143,7 @@ public class NotaryConnection {
 
 		Utils.write(new Message(owner, buyer, 'T', good), out, user.getPrivateKey());
 
+		//below is wrong
 		Message replyMessage = notarySS.readFromCC(in, serverPubKeyPath);
 
 		disconnect();

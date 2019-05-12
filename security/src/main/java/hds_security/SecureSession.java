@@ -45,7 +45,7 @@ public class SecureSession {
 
 		Message replyMessage = Message.fromBytes(originalmessage);
 		String pubKeyPath = "./src/main/resources/" + replyMessage.origin + "_public_key.txt";
-		PublicKey pubKey = LoadKeys.loadPublicKey(pubKeyPath, "EC");
+		PublicKey pubKey = LoadKeys.loadPublicKey(pubKeyPath, "RSA");
 
 		// Create hash
 		byte[] hashedcontent = HashMessage.hashBytes(originalmessage);

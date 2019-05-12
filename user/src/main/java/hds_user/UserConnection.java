@@ -54,14 +54,10 @@ public class UserConnection implements Runnable {
 			Message toUser = new Message(this.user.getID(), request.getOrigin(), replyMessage.getOperation(), replyMessage.getGoodID());
 			
 			Utils.write(toUser, out, user.getPrivateKey());
-		} catch (IOException | IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (NoSuchAlgorithmException | SignatureException | InvalidSignatureException | InvalidKeyException e) {
-			e.printStackTrace();
-		} catch (NullPrivateKeyException | NullPublicKeyException | NullDestination | InvalidKeySpecException | ReplayAttackException e) {
+		} catch (IOException | IllegalAccessException | NoSuchAlgorithmException | SignatureException | InvalidSignatureException | InvalidKeyException | NullPrivateKeyException | NullPublicKeyException | NullDestination | InvalidKeySpecException | ReplayAttackException e) {
 			e.printStackTrace();
 		}
-		
+
 		System.out.println("Thread " + threadName + " exiting.");
 		userListener.clientConnections.remove(this);
 	}
