@@ -8,6 +8,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.HashMap;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import hds_security.LoadKeys;
 import hds_security.Message;
@@ -30,6 +31,7 @@ public class Server extends Thread {
 	private PublicKey publicKey;
 	private PrivateKey privateKey;
 	private String password;
+	private AtomicInteger tag;
 
 	// Does not allow more than 'max_queue' requests on the queue (for resources
 	// concern)
@@ -43,6 +45,7 @@ public class Server extends Thread {
 		serverSocket = new ServerSocket(Integer.valueOf(port));
 		loadPrivKey();
 		loadPubKey();
+		this.tag.set(0);
 
 
 		/**
@@ -56,7 +59,7 @@ public class Server extends Thread {
 
 	private void loadPubKey()
 			throws InvalidKeySpecException, NoSuchAlgorithmException, IOException, NullPublicKeyException {
-		this.publicKey = LoadKeys.loadPublicKey("./src/main/resources/" + port + "_public_key.txt", "EC");
+		this.publicKey = LoadKeys.loadPublicKey("./src/main/resources/" + port + "_public_key.txt", "RSA");
 	}
 
 	private void loadPrivKey()
@@ -135,8 +138,8 @@ public class Server extends Thread {
 					message = new Message(res.get("owner_id"), 'R', res.get("for_sale"));
 				}
 				try {
-					Utils.writeWithCC(message, request.getDataOutputStream());
-				} catch (IOException e) {
+					write(message, request);
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			} else if (msg.getOperation() == 'S') {
@@ -146,8 +149,8 @@ public class Server extends Thread {
 				}
 				Message message = new Message('R', reply);
 				try {
-					Utils.writeWithCC(message, request.getDataOutputStream());
-				} catch (IOException e) {
+					write(message, request);
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			} else if (msg.getOperation() == 'T') {
@@ -158,8 +161,8 @@ public class Server extends Thread {
 				// returns good id on success
 				Message message = new Message('R', (reply ? msg.getGoodID() : -1));
 				try {
-					Utils.writeWithCC(message, request.getDataOutputStream());
-				} catch (IOException e) {
+					write(message, request);
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
