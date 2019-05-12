@@ -50,10 +50,10 @@ public class NotaryThread implements Runnable {
         if(quorumAchieved){
             int finalTag = notary.getFinalTag();
             Message finalValue = notary.getFinalValue();
+            readWriteLock.unlockRead();
             if(!finalValue.isEqual(m)){ //if notupdated
                 //writeback
             }
-            readWriteLock.unlockRead();
         }
         else{
             try {
