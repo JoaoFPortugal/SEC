@@ -32,6 +32,7 @@ public class NotaryConnection {
 	private boolean quorumAchieved = false;
 	private int finalTag;
 	private Message finalValue;
+	private ReadWriteLock readWriteLock = new ReadWriteLock();
 
 	public NotaryConnection(String serverName, int[] ports, User user) {
 		this.serverName = serverName;
@@ -135,7 +136,7 @@ public class NotaryConnection {
 		quorumAchieved = bool;
 	}
 
-	
+
 	public Message transferGood(int good, int owner, int buyer) throws IOException, InvalidSignatureException,
 			NoSuchAlgorithmException, InvalidKeyException, SignatureException, NullPrivateKeyException, NullDestination,
 			NullPublicKeyException, InvalidKeySpecException, ReplayAttackException {

@@ -23,11 +23,11 @@ public class NotaryThread implements Runnable {
     private final DataOutputStream out;
     private boolean quorumAchieved = false;
 
-    public NotaryThread(NotaryConnection notary, DataInputStream in, DataOutputStream out){
+    public NotaryThread(NotaryConnection notary, DataInputStream in, DataOutputStream out, ReadWriteLock readWriteLock){
         this.notary = notary;
         this.in = in;
         this.out = out;
-        this.readWriteLock = new ReadWriteLock();
+        this.readWriteLock  = readWriteLock;
     }
 
     @Override
@@ -50,9 +50,10 @@ public class NotaryThread implements Runnable {
         if(quorumAchieved){
             int finalTag = notary.getFinalTag();
             Message finalValue = notary.getFinalValue();
-            if(!finalValue.isEqual(m)){
+            if(!finalValue.isEqual(m)){ //if notupdated
                 //writeback
             }
+            readWriteLock.unlockRead();
         }
         else{
             try {
