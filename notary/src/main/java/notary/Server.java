@@ -31,7 +31,7 @@ public class Server extends Thread {
 	private PublicKey publicKey;
 	private PrivateKey privateKey;
 	private String password;
-	private AtomicInteger tag;
+	private HashMap<Integer, Integer> tags;
 
 	// Does not allow more than 'max_queue' requests on the queue (for resources
 	// concern)
@@ -45,7 +45,12 @@ public class Server extends Thread {
 		serverSocket = new ServerSocket(Integer.valueOf(port));
 		loadPrivKey();
 		loadPubKey();
-		this.tag.set(0);
+		this.tags = new HashMap<>();
+		tags.put(1, 0);
+		tags.put(2, 0);
+		tags.put(3, 0);
+		tags.put(4, 0);
+		tags.put(5, 0);
 
 
 		/**
@@ -126,6 +131,9 @@ public class Server extends Thread {
 			Request request = requests.take();
 			Message msg = request.getMessage();
 
+			int tag = tags.get(msg.getOrigin());
+
+
 			if (msg.getOperation() == 'G') {
 				HashMap<String, Integer> res;
 				synchronized(db) {
@@ -133,33 +141,47 @@ public class Server extends Thread {
 				}
 				Message message;
 				if (res == null) {
-					message = new Message(-1, 'R', -1);
+					message = new Message(-1, 'R', -1, tag);
 				} else {
-					message = new Message(res.get("owner_id"), 'R', res.get("for_sale"));
+					message = new Message(res.get("owner_id"), 'R', res.get("for_sale"), tag);
 				}
 				try {
 					write(message, request);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
+
+
 			} else if (msg.getOperation() == 'S') {
+				if (tag < msg.getTag()) {
+					tags.replace(msg.getOrigin(), msg.getTag());
+					tag = tags.get(msg.getOrigin());
+				}
 				int reply;
-				synchronized(db) {
+				synchronized (db) {
 					reply = db.intentionToSell(msg.getOrigin(), msg.getGoodID(), msg.getNow());
 				}
-				Message message = new Message('R', reply);
+				Message message = new Message('R', reply, tag);
 				try {
 					write(message, request);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-			} else if (msg.getOperation() == 'T') {
+
+			}
+
+
+			else if (msg.getOperation() == 'T') {
+				if (tag < msg.getTag()) {
+					tags.replace(msg.getOrigin(), msg.getTag());
+					tag = tags.get(msg.getOrigin());
+				}
 				boolean reply;
 				synchronized(db) {
 					reply = db.transferGood(msg.getGoodID(), msg.getOrigin(), msg.getDestination(), msg.getNow());
 				}
 				// returns good id on success
-				Message message = new Message('R', (reply ? msg.getGoodID() : -1));
+				Message message = new Message('R', (reply ? msg.getGoodID() : -1), tag);
 				try {
 					write(message, request);
 				} catch (Exception e) {

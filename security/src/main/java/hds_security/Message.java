@@ -18,14 +18,6 @@ public class Message {
 	protected int tag;
 
 	// FIXME Throw exception if arguments are invalid
-	public Message(int origin, int destination, char operation, int gid) {
-		this.origin = origin;
-		this.destination = destination;
-		this.operation = operation;
-		this.gid = gid;
-		this.now = Utils.createTimeStamp();
-		this.nonce = Utils.createNonce();
-	}
 
 	public Message(int origin, int destination, char operation, int gid, int tag) {
 		this.origin = origin;
@@ -38,33 +30,36 @@ public class Message {
 	}
 
 	// FIXME Throw exception if arguments are invalid
-	public Message(int origin, char operation, int gid) {
+	public Message(int origin, char operation, int gid, int tag) {
 		this.origin = origin;
 		this.destination = -1;
 		this.operation = operation;
 		this.gid = gid;
 		this.now = Utils.createTimeStamp();
 		this.nonce = Utils.createNonce();
+		this.tag = tag;
 	}
 
 	// FIXME Throw exception if arguments are invalid
-	public Message(char operation, int gid) {
+	public Message(char operation, int gid, int tag) {
 		this.origin = -1;
 		this.destination = -1;
 		this.operation = operation;
 		this.gid = gid;
 		this.now = Utils.createTimeStamp();
 		this.nonce = Utils.createNonce();
+		this.tag = tag;
 	}
 
 	// Used by 'fromBytes'
-	protected Message(int origin, int destination, char operation, long now, int gid, long nonce) {
+	protected Message(int origin, int destination, char operation, long now, int gid, long nonce, int tag) {
 		this.origin = origin;
 		this.destination = destination;
 		this.operation = operation;
 		this.now = now;
 		this.gid = gid;
 		this.nonce = nonce;
+		this.tag = tag;
 	}
 
 	public int getTag(){
@@ -117,6 +112,7 @@ public class Message {
 		bb.putLong(now);
 		bb.putLong(nonce);
 		bb.putInt(gid);
+		bb.putInt(tag);
 
 		return bb.array();
 	}
@@ -137,8 +133,9 @@ public class Message {
 		long mnow = bb.getLong();
 		long mnonce = bb.getLong();
 		int mgid = bb.getInt();
+		int mtag = bb.getInt();
 
-		return new Message(morigin, mdestination, moperation, mnow, mgid, mnonce);
+		return new Message(morigin, mdestination, moperation, mnow, mgid, mnonce, mtag);
 	}
 
 }
