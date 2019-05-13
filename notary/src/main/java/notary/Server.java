@@ -114,7 +114,7 @@ public class Server extends Thread {
 
 			// Read is done in Request constructor
 			Request request = new Request(serverSocket.accept(), secureSession);
-
+			System.out.println("CANCRO FDS VAI TE MATAR");
 			// 'put' blocks, 'add' throws exception
 			requests.put(request);
 

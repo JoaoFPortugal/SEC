@@ -27,9 +27,6 @@ public class NotaryConnection {
 	private List<Socket> servers = new ArrayList<>();
 	private List<DataOutputStream> outs = new ArrayList<>();
 	private List<DataInputStream> ins = new ArrayList<>();
-	private List<Integer> portstobedcd = new ArrayList<>();
-	private List<DataOutputStream> outstobedcd = new ArrayList<>();
-	private List<DataInputStream> instobedcd = new ArrayList<>();
 	private User user;
 	private SecureSession notarySS;
 	private String serverPubKeyPath;
@@ -40,6 +37,7 @@ public class NotaryConnection {
 	private ReadWriteLock readWriteLock = new ReadWriteLock();
 	private int responses=0;
 	private final Object lock = new Object();
+	private final Object lock1 = new Object();
 	private boolean flag;
 	private boolean notReceived;
 	private Message reply;
@@ -68,7 +66,6 @@ public class NotaryConnection {
 
 		for (Socket server : servers) {
             outs.add(new DataOutputStream(server.getOutputStream()));
-			DataOutputStream d = new DataOutputStream(server.getOutputStream());
             ins.add(new DataInputStream(server.getInputStream()));
         }
 
@@ -79,30 +76,6 @@ public class NotaryConnection {
 		}
 	}
 
-	private void disconnect() throws IOException {
-		List<Socket> serverstoberemoved = new ArrayList<>();
-
-		for (Socket server : servers) {
-        	if(portstobedcd.contains(server.getPort())) {
-				server.close();
-				serverstoberemoved.add(server);
-			}
-        }
-        for(Socket server : serverstoberemoved){
-        	servers.remove(server);
-		}
-
-        for(DataOutputStream out : outstobedcd){
-			outs.remove(out);
-		}
-
-		for(DataInputStream in : instobedcd){
-			ins.remove(in);
-		}
-		portstobedcd.clear();
-		instobedcd.clear();
-		outstobedcd.clear();
-	}
 
 	public void sendRead(int gid, int uid)throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException{
 		for (DataOutputStream out : outs){
@@ -138,7 +111,6 @@ public class NotaryConnection {
 			return null;
 		}
 		Good g = new Good(gid, replyMessage.getOrigin(), replyMessage.getFor_sale() == 1);
-		disconnect();
 		return g;
 	}
 
@@ -160,18 +132,23 @@ public class NotaryConnection {
 		flag = true;
 
 		int tag = getFinalTag();
+		System.out.println(tag);
+
+
 		for (DataOutputStream out : outs) {
 			Utils.write(new Message(uid, 'S', gid, -1, tag + 1), out, user.getPrivateKey());
 		}
 
+
 		while(notReceived){
-			waitLock();
+			waitLock1();
 		}
 
+		System.out.println("SAHSADUFHASUFVHAUGAHUHU");
+
 		notReceived = true;
+		System.out.println("SAHSADUFHASUFVHAUGAHUHU");
 
-
-		disconnect();
 		// Good id contains 'for_sale' value.
 		return (reply.getGoodID());
 	}
@@ -198,14 +175,13 @@ public class NotaryConnection {
 		}
 
 		while(notReceived){
-			waitLock();
+			waitLock1();
 		}
 
 		notReceived = true;
 
 		//below is wrong
 
-		disconnect();
 		return reply;
 	}
 
@@ -237,32 +213,11 @@ public class NotaryConnection {
 		return user;
 	}
 
-	public synchronized void specialDisconnect(int port, DataInputStream in, DataOutputStream out){
-		List<Socket> serverstoberemoved = new ArrayList<>();
 
-		for (Socket server : servers) {
-			if(port == server.getPort()) {
-				try {
-					server.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				serverstoberemoved.add(server);
-			}
-		}
-		for(Socket server : serverstoberemoved){
-			servers.remove(server);
-		}
-
-		ins.remove(in);
-		outs.remove(out);
-	}
 
 	public synchronized void responseFromServer(Message m,int port,DataOutputStream out, DataInputStream in) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException{
 		responses +=1;
-		portstobedcd.add(port);
-		outstobedcd.add(out);
-		instobedcd.add(in);
+
 		if (responses<=3) {
 			int tag = m.getTag();
 			if (tag >= getFinalTag()) {
@@ -287,9 +242,9 @@ public class NotaryConnection {
 	}
 
 	public synchronized  void returnReply(Message m){
-		synchronized (lock) {
+		synchronized (lock1) {
 			notReceived = false;
-			lock.notifyAll();
+			lock1.notifyAll();
 		}
 		reply = m;
 	}
@@ -298,6 +253,16 @@ public class NotaryConnection {
 		synchronized (lock){
 			try{
 				lock.wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private void waitLock1(){
+		synchronized (lock1){
+			try{
+				lock1.wait();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
