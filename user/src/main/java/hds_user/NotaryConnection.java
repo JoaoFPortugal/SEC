@@ -33,6 +33,10 @@ public class NotaryConnection {
 	private int finalTag;
 	private Message finalValue;
 	private ReadWriteLock readWriteLock = new ReadWriteLock();
+	private int tag;
+	private int responses=0;
+	private int owner;
+	private int for_sale;
 
 	public NotaryConnection(String serverName, int[] ports, User user) {
 		this.serverName = serverName;
@@ -40,6 +44,7 @@ public class NotaryConnection {
 		this.user = user;
 		notarySS = new SecureSession();
 		this.serverPubKeyPath = "./src/main/resources/serverPublicKey.txt";
+		this.tag = 0;
 	}
 
 	private void connect() throws IOException {
@@ -51,6 +56,11 @@ public class NotaryConnection {
             outs.add(new DataOutputStream(server.getOutputStream()));
             ins.add(new DataInputStream(server.getInputStream()));
         }
+
+		for (int i = 0; i < ports.length; i++) {
+			NotaryThread t = new NotaryThread(this, ins.get(i), outs.get(i), readWriteLock);
+			t.run();
+		}
 	}
 
 	private void disconnect() throws IOException {
@@ -58,6 +68,12 @@ public class NotaryConnection {
             server.close();
         }
     }
+
+	public void sendRead(int gid, int uid)throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException{
+		for (DataOutputStream out : outs){
+			Utils.write(new Message(uid, 'G', gid, -1), out, user.getPrivateKey());
+		}
+	}
 
 	/**
 	 * Sends a request to the notary to know if the good is for sale and who owns
@@ -69,7 +85,7 @@ public class NotaryConnection {
 			NullPublicKeyException, InvalidKeySpecException, ReplayAttackException {
         connect();
         for (DataOutputStream out : outs){
-            Utils.write(new Message(uid, 'G', gid), out, user.getPrivateKey());
+            Utils.write(new Message(uid, 'G', gid, -1), out, user.getPrivateKey());
         }
 
 
@@ -95,6 +111,8 @@ public class NotaryConnection {
 			NoSuchAlgorithmException, InvalidKeyException, SignatureException, NullPrivateKeyException, NullDestination,
 			NullPublicKeyException, InvalidKeySpecException, ReplayAttackException {
 		connect();
+
+		sendRead(gid, uid);
 
 		Utils.write(new Message(uid, 'S', gid), out, user.getPrivateKey());
 
@@ -135,6 +153,26 @@ public class NotaryConnection {
 	public synchronized void setQuorum(boolean bool){
 		quorumAchieved = bool;
 	}
+
+	public synchronized void responseFromServer(Message m) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException{
+		while (responses<3) {
+
+			if (m.getTag() < this.tag) {
+				//writeback
+				for (DataOutputStream out : outs) {
+					Utils.write(new Message(owner, 'W', m.getGoodID(), for_sale, this.tag), out, user.getPrivateKey());
+					return;
+				}
+			}
+
+			owner = m.getOrigin();
+			for_sale = m.getFor_sale();
+
+
+			responses +=1;
+		}
+	}
+
 
 
 	public Message transferGood(int good, int owner, int buyer) throws IOException, InvalidSignatureException,

@@ -14,6 +14,7 @@ public class Message {
 	protected int destination;
 	protected long now;
 	protected int gid;
+	protected int for_sale;
 	protected long nonce;
 	protected int tag;
 
@@ -30,11 +31,12 @@ public class Message {
 	}
 
 	// FIXME Throw exception if arguments are invalid
-	public Message(int origin, char operation, int gid, int tag) {
+	public Message(int origin, char operation, int gid,int for_sale, int tag) {
 		this.origin = origin;
 		this.destination = -1;
 		this.operation = operation;
 		this.gid = gid;
+		this.for_sale = for_sale;
 		this.now = Utils.createTimeStamp();
 		this.nonce = Utils.createNonce();
 		this.tag = tag;
@@ -52,12 +54,13 @@ public class Message {
 	}
 
 	// Used by 'fromBytes'
-	protected Message(int origin, int destination, char operation, long now, int gid, long nonce, int tag) {
+	protected Message(int origin, int destination, char operation, long now, int gid, int for_sale, long nonce, int tag) {
 		this.origin = origin;
 		this.destination = destination;
 		this.operation = operation;
 		this.now = now;
 		this.gid = gid;
+		this.for_sale = for_sale;
 		this.nonce = nonce;
 		this.tag = tag;
 	}
@@ -93,6 +96,8 @@ public class Message {
 		return gid;
 	}
 
+	public int getFor_sale(){return for_sale;}
+
 	public void print() {
 		System.out.println();
 		System.out.println(this.operation);
@@ -112,6 +117,7 @@ public class Message {
 		bb.putLong(now);
 		bb.putLong(nonce);
 		bb.putInt(gid);
+		bb.putInt(for_sale);
 		bb.putInt(tag);
 
 		return bb.array();
@@ -133,9 +139,10 @@ public class Message {
 		long mnow = bb.getLong();
 		long mnonce = bb.getLong();
 		int mgid = bb.getInt();
+		int mfor_sale = bb.getInt();
 		int mtag = bb.getInt();
 
-		return new Message(morigin, mdestination, moperation, mnow, mgid, mnonce, mtag);
+		return new Message(morigin, mdestination, moperation, mnow, mgid, mfor_sale, mnonce, mtag);
 	}
 
 }

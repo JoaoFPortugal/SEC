@@ -41,6 +41,14 @@ public class NotaryThread implements Runnable {
         }
         assert m != null;
         int receivedTag = m.getTag();
+
+        //fazer isto dentro de if char da msg for G
+        try {
+            notary.responseFromServer(m);
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+
         try {
             readWriteLock.lockRead();
         } catch (InterruptedException e) {

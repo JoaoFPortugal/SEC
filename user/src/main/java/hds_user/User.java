@@ -118,7 +118,7 @@ public class User {
 		try (Socket owner = new Socket("localhost", port);
 				DataOutputStream out = new DataOutputStream(owner.getOutputStream());
 				DataInputStream in = new DataInputStream(owner.getInputStream());) {
-			Utils.write(new Message(userID, ownerID, 'B', gid), out, this.getPrivateKey());
+			Utils.write(new Message(userID, ownerID, 'B', gid, -1), out, this.getPrivateKey());
 
 			Message replyMessage = userSS.readFromUser(in);
 			

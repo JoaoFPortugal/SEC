@@ -141,9 +141,9 @@ public class Server extends Thread {
 				}
 				Message message;
 				if (res == null) {
-					message = new Message(-1, 'R', -1, tag);
+					message = new Message(-1, 'R', -1 ,-1, tag);
 				} else {
-					message = new Message(res.get("owner_id"), 'R', res.get("for_sale"), tag);
+					message = new Message(res.get("owner_id"), 'R', msg.getGoodID(), res.get("for_sale"), tag);
 				}
 				try {
 					write(message, request);
