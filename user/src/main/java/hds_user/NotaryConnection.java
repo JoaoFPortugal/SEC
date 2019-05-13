@@ -56,13 +56,16 @@ public class NotaryConnection {
             servers.add(new Socket(serverName, port));
         }
 
-        for (Socket server : servers) {
+
+		for (Socket server : servers) {
             outs.add(new DataOutputStream(server.getOutputStream()));
             ins.add(new DataInputStream(server.getInputStream()));
         }
 
+
 		for (int i = 0; i < ports.length; i++) {
 			NotaryThread t = new NotaryThread(this, ins.get(i), outs.get(i), readWriteLock, wr,ports[i]);
+			System.out.println("1SCASDFJAEWOFAJFVOIAJVIARJI1");
 			t.run();
 		}
 	}
@@ -90,8 +93,9 @@ public class NotaryConnection {
 	public Good getStateOfGood(int gid, int uid) throws IOException, InvalidSignatureException,
 			NoSuchAlgorithmException, InvalidKeyException, SignatureException, NullPrivateKeyException, NullDestination,
 			NullPublicKeyException, InvalidKeySpecException, ReplayAttackException {
-        connect(0);
-        for (DataOutputStream out : outs){
+		connect(0);
+
+		for (DataOutputStream out : outs){
             Utils.write(new Message(uid, 'G', gid, -1,-1), out, user.getPrivateKey());
         }
 
@@ -243,7 +247,9 @@ public class NotaryConnection {
 	private void waitLock(){
 		synchronized (lock){
 			try{
+				System.out.println("HHHEHEHEHEHE");
 				lock.wait();
+				System.out.println(":)");
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
