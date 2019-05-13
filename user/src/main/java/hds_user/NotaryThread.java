@@ -68,6 +68,7 @@ public class NotaryThread implements Runnable {
 
 
         quorumAchieved = notary.getQuorum();
+
         if (quorumAchieved) {
             int finalTag = notary.getFinalTag();
             Message finalValue = notary.getFinalValue();
@@ -100,7 +101,6 @@ public class NotaryThread implements Runnable {
         } catch (IOException | InvalidKeyException | NoSuchAlgorithmException | InvalidKeySpecException | SignatureException | InvalidSignatureException | IllegalAccessException | ReplayAttackException | NullPublicKeyException e) {
             e.printStackTrace();
         }
-
         notary.returnReply(m);
 
     }

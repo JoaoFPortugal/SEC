@@ -15,7 +15,7 @@ public class Main {
 	private ArrayList<Thread> consumers;
 
 	// Database stuff
-	private String db_name = "notary.db";
+	private String db_name = "notary";
 	private Database db;
 
 	// Singleton
@@ -28,9 +28,10 @@ public class Main {
 		int cores = Runtime.getRuntime().availableProcessors();
 		System.out.println("CPU cores: " + cores);
 
-		main.db = new Database(main.db_name);
 		String port = Utils.readString(
 				"Port:\n");
+
+		main.db = new Database(main.db_name + port + ".db");
 		String pass = Utils.readString("Password:\n");
 		int cc = Utils.readInt("Hello!\n" + "Would you like to use your CC?\n" + "0. No\n" + "1. Yes\n");
 

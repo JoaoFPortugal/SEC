@@ -101,11 +101,11 @@ public class NotaryConnection {
 
 		flag = true;
 
-        //below is wrong
 		Message replyMessage = getFinalValue();
 
 		// Origin value of reply is actually the 'owner' value.
 		// Good ID value of reply is actually the 'for_sale' value.
+
 		if(replyMessage.getOrigin() < 0) {
 			return null;
 		}
@@ -181,8 +181,6 @@ public class NotaryConnection {
 		disconnect();
 		return reply;
 	}
-
-
 
 
 	public synchronized int getFinalTag(){

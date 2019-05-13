@@ -52,7 +52,6 @@ public class Server extends Thread {
 		tags.put(4, 0);
 		tags.put(5, 0);
 
-
 		/**
 		 * 1st parameter: capacity - the capacity of this queue 2nd parameter: fair - if
 		 * true then queue accesses for threads blocked on insertion or removal, are
