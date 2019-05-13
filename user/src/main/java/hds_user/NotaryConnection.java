@@ -293,9 +293,7 @@ public class NotaryConnection {
 	private void waitLock(){
 		synchronized (lock){
 			try{
-				System.out.println("HHHEHEHEHEHE");
 				lock.wait();
-				System.out.println(":)");
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
