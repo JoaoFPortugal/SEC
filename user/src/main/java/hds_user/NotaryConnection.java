@@ -46,7 +46,7 @@ public class NotaryConnection {
 		this.user = user;
 		notarySS = new SecureSession();
 		this.serverPubKeyPath = "./src/main/resources/serverPublicKey.txt";
-		this.tag = 0;
+		this.tag = -1;
 		this.flag = true;
 		this.notReceived = true;
 	}

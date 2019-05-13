@@ -83,7 +83,12 @@ public class Server extends Thread {
 
 	public void write(Message message, Request request) throws Exception{
 		if(cc==1){Utils.writeWithCC(message, request.getDataOutputStream());}
-		else{ Utils.write(message, request.getDataOutputStream(), this.getPrivateKey());}
+		else{
+			System.out.println("writing to server (origin, forsale, tag):");
+			System.out.println(message.getOrigin());
+			System.out.println(message.getFor_sale());
+			System.out.println(message.getTag());
+			Utils.write(message, request.getDataOutputStream(), this.getPrivateKey());}
 	}
 
 	@Override
