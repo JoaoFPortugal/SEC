@@ -16,6 +16,8 @@ import hds_security.exceptions.NullDestination;
 import hds_security.exceptions.NullPrivateKeyException;
 import hds_security.exceptions.NullPublicKeyException;
 import hds_security.exceptions.ReplayAttackException;
+
+import javax.xml.crypto.Data;
 import java.util.HashMap;
 
 public class NotaryConnection {
@@ -25,6 +27,9 @@ public class NotaryConnection {
 	private List<Socket> servers = new ArrayList<>();
 	private List<DataOutputStream> outs = new ArrayList<>();
 	private List<DataInputStream> ins = new ArrayList<>();
+	private List<Integer> portstobedcd = new ArrayList<>();
+	private List<DataOutputStream> outstobedcd = new ArrayList<>();
+	private List<DataInputStream> instobedcd = new ArrayList<>();
 	private User user;
 	private SecureSession notarySS;
 	private String serverPubKeyPath;
@@ -60,6 +65,7 @@ public class NotaryConnection {
 
 		for (Socket server : servers) {
             outs.add(new DataOutputStream(server.getOutputStream()));
+			DataOutputStream d = new DataOutputStream(server.getOutputStream());
             ins.add(new DataInputStream(server.getInputStream()));
         }
 
@@ -72,12 +78,25 @@ public class NotaryConnection {
 	}
 
 	private void disconnect() throws IOException {
-        for (Socket server : servers) {
-            server.close();
+		List<Socket> serverstoberemoved = new ArrayList<>();
+
+		for (Socket server : servers) {
+        	if(portstobedcd.contains(server.getPort())) {
+				server.close();
+				serverstoberemoved.add(server);
+			}
         }
-        servers.clear();
-        outs.clear();
-        ins.clear();
+        for(Socket server : serverstoberemoved){
+        	servers.remove(server);
+		}
+
+        for(DataOutputStream out : outstobedcd){
+			outs.remove(out);
+		}
+
+		for(DataInputStream in : instobedcd){
+			ins.remove(in);
+		}
     }
 
 	public void sendRead(int gid, int uid)throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException{
@@ -111,11 +130,11 @@ public class NotaryConnection {
 		// Origin value of reply is actually the 'owner' value.
 		// Good ID value of reply is actually the 'for_sale' value.
 		if(replyMessage.getOrigin() < 0) {
-			System.out.println("aaaaa");
 			return null;
 		}
-		Good g = new Good(gid, replyMessage.getOrigin(), replyMessage.getGoodID() == 1);
-
+		Good g = new Good(gid, replyMessage.getOrigin(), replyMessage.getFor_sale() == 1);
+		System.out.println(replyMessage.getFor_sale());
+		System.out.println("HELLLLOOOOOOO");
 		disconnect();
 		return g;
 	}
@@ -215,14 +234,35 @@ public class NotaryConnection {
 		return user;
 	}
 
-	public synchronized void responseFromServer(Message m) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException{
-		responses +=1;
+	public synchronized void specialDisconnect(int port, DataInputStream in, DataOutputStream out){
+		List<Socket> serverstoberemoved = new ArrayList<>();
 
+		for (Socket server : servers) {
+			if(port == server.getPort()) {
+				try {
+					server.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				serverstoberemoved.add(server);
+			}
+		}
+		for(Socket server : serverstoberemoved){
+			servers.remove(server);
+		}
+		ins.remove(in);
+		outs.remove(out);
+	}
+
+	public synchronized void responseFromServer(Message m,int port,DataOutputStream out, DataInputStream in) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException{
+		responses +=1;
+		portstobedcd.add(port);
+		outstobedcd.add(out);
+		instobedcd.add(in);
 		if (responses<=3) {
 			int tag = m.getTag();
 			if (tag > getFinalTag()) {
 				setFinalTag(tag);
-				System.out.println("holdum nur");
 				setFinalValue(m);
 			}
 		}

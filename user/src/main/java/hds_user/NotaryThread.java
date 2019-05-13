@@ -42,6 +42,7 @@ public class NotaryThread extends Thread {
 
         if(writer == 0){
             read(secureSession,m);
+
         }
 
         if(writer == 1){
@@ -70,9 +71,14 @@ public class NotaryThread extends Thread {
         quorumAchieved = notary.getQuorum();
 
         if (quorumAchieved) {
+            try {
+                readWriteLock.lockWrite();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             int finalTag = notary.getFinalTag();
             Message finalValue = notary.getFinalValue();
-            readWriteLock.unlockRead();
+            notary.specialDisconnect(port,in,out);
             if(finalTag > m.getTag()) {
                     try {
                         Utils.write(new Message(finalValue.getOrigin(), 'W', finalValue.getGoodID(), finalValue.getFor_sale(), finalValue.getTag()), out, notary.getUser().getPrivateKey());
@@ -80,12 +86,18 @@ public class NotaryThread extends Thread {
                         e.printStackTrace();
                     }
                 }
+            try {
+                readWriteLock.unlockWrite();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            readWriteLock.unlockRead();
         }
 
         else {
             try {
                 readWriteLock.lockWrite();
-                notary.responseFromServer(m);
+                notary.responseFromServer(m,port,out,in);
                 readWriteLock.unlockRead();
                 readWriteLock.unlockWrite();
 
