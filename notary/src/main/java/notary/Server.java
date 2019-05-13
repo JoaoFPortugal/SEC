@@ -84,10 +84,11 @@ public class Server extends Thread {
 	public void write(Message message, Request request) throws Exception{
 		if(cc==1){Utils.writeWithCC(message, request.getDataOutputStream());}
 		else{
-			System.out.println("writing to server (origin, forsale, tag):");
+			System.out.println("writing to server (origin, forsale, tag, operation):");
 			System.out.println(message.getOrigin());
 			System.out.println(message.getFor_sale());
 			System.out.println(message.getTag());
+			System.out.println(message.getOperation());
 			Utils.write(message, request.getDataOutputStream(), this.getPrivateKey());}
 	}
 
@@ -145,9 +146,9 @@ public class Server extends Thread {
 				}
 				Message message;
 				if (res == null) {
-					message = new Message(-1, 'R', -1 ,-1, tag);
+					message = new Message(-1, 'G', -1 ,-1, tag);
 				} else {
-					message = new Message(res.get("owner_id"), 'R', msg.getGoodID(), res.get("for_sale"), tag);
+					message = new Message(res.get("owner_id"), 'G', msg.getGoodID(), res.get("for_sale"), tag);
 				}
 				try {
 					write(message, request);
@@ -165,7 +166,7 @@ public class Server extends Thread {
 				synchronized (db) {
 					reply = db.intentionToSell(msg.getOrigin(), msg.getGoodID(), msg.getNow());
 				}
-				Message message = new Message('R', reply, tag);
+				Message message = new Message('S', reply, tag);
 				try {
 					write(message, request);
 				} catch (Exception e) {
@@ -185,7 +186,7 @@ public class Server extends Thread {
 					reply = db.transferGood(msg.getGoodID(), msg.getOrigin(), msg.getDestination(), msg.getNow());
 				}
 				// returns good id on success
-				Message message = new Message('R', (reply ? msg.getGoodID() : -1), tag);
+				Message message = new Message('T', (reply ? msg.getGoodID() : -1), tag);
 				try {
 					write(message, request);
 				} catch (Exception e) {

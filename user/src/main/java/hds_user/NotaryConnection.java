@@ -54,7 +54,7 @@ public class NotaryConnection {
 
 	private void connect(int wr) throws IOException {
 		setQuorum(false);
-		if(!(servers.isEmpty() || outs.isEmpty() || ins.isEmpty())){
+		if((!servers.isEmpty()) && !(outs.isEmpty()) && (ins.isEmpty())){
 			servers.clear();
 			outs.clear();
 			ins.clear();
@@ -121,7 +121,7 @@ public class NotaryConnection {
 	public int intentionToSell(int gid, int uid) throws IOException, InvalidSignatureException,
 			NoSuchAlgorithmException, InvalidKeyException, SignatureException, NullPrivateKeyException, NullDestination,
 			NullPublicKeyException, InvalidKeySpecException, ReplayAttackException {
-		connect(1);
+		connect(0);
 
 		sendRead(gid, uid);
 
@@ -134,6 +134,8 @@ public class NotaryConnection {
 		int tag = getFinalTag();
 		System.out.println(tag);
 
+
+		connect(1);
 
 		for (DataOutputStream out : outs) {
 			Utils.write(new Message(uid, 'S', gid, -1, tag + 1), out, user.getPrivateKey());

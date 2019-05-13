@@ -43,11 +43,11 @@ public class Message {
 	}
 
 	// FIXME Throw exception if arguments are invalid
-	public Message(char operation, int gid, int tag) {
+	public Message(char operation, int for_sale, int tag) {
 		this.origin = -1;
 		this.destination = -1;
 		this.operation = operation;
-		this.gid = gid;
+		this.for_sale = for_sale;
 		this.now = Utils.createTimeStamp();
 		this.nonce = Utils.createNonce();
 		this.tag = tag;
