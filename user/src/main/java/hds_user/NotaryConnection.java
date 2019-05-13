@@ -55,13 +55,18 @@ public class NotaryConnection {
 	}
 
 	private void connect(int wr) throws IOException {
+		setQuorum(false);
+		if(!(servers.isEmpty() || outs.isEmpty() || ins.isEmpty())){
+			servers.clear();
+			outs.clear();
+			ins.clear();
+		}
 
 		System.out.println(ports.length);
 
 	    for(int port : ports) {
             servers.add(new Socket(serverName, port));
         }
-
 
 		for (Socket server : servers) {
             outs.add(new DataOutputStream(server.getOutputStream()));
@@ -250,6 +255,7 @@ public class NotaryConnection {
 		for(Socket server : serverstoberemoved){
 			servers.remove(server);
 		}
+
 		ins.remove(in);
 		outs.remove(out);
 	}

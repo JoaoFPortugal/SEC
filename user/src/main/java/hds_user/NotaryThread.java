@@ -49,12 +49,14 @@ public class NotaryThread extends Thread {
             read(secureSession,m);
             write(secureSession,m);
         }
-        }
+        this.interrupt();
+    }
 
 
     public void read(SecureSession secureSession, Message m) {
 
         try {
+            System.out.println("Connected and waiting for server from port " + port);
             m = secureSession.readFromUser(in,Integer.toString(port));
         } catch (IOException | InvalidKeyException | NoSuchAlgorithmException | InvalidKeySpecException | SignatureException | InvalidSignatureException | IllegalAccessException | ReplayAttackException | NullPublicKeyException e) {
             e.printStackTrace();
