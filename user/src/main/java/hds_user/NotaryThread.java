@@ -79,12 +79,15 @@ public class NotaryThread implements Runnable {
                     }
                 }
             }
-        } else {
+        }
+
+        else {
             try {
                 readWriteLock.lockWrite();
                 notary.responseFromServer(m);
+                readWriteLock.unlockRead();
+                readWriteLock.unlockWrite();
 
-                //write tag received
             } catch (InterruptedException | IOException | NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {
                 e.printStackTrace();
             }

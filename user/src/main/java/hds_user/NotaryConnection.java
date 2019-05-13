@@ -37,6 +37,8 @@ public class NotaryConnection {
 	private int tag;
 	private int responses=0;
 	private HashMap<Integer,Message> responsesMessages = new HashMap<>();
+	private final Object lock = new Object();
+	private boolean flag;
 
 	public NotaryConnection(String serverName, int[] ports, User user) {
 		this.serverName = serverName;
@@ -114,6 +116,19 @@ public class NotaryConnection {
 
 		sendRead(gid, uid);
 
+		while(flag){
+			synchronized (lock){
+				try{
+					lock.wait();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+
+			}
+		}
+
+		flag = true;
+
 		Utils.write(new Message(uid, 'S', gid), out, user.getPrivateKey());
 
 		//below is wrong
@@ -170,7 +185,14 @@ public class NotaryConnection {
 			}
 		}
 
+		if(responses == 5){
+			responses = 0;
+			setQuorum(false);
+		}
+
 		if(responses==3){
+			flag = false;
+			lock.notifyAll();
 			setQuorum(true);
 		}
 
