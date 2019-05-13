@@ -137,6 +137,7 @@ public class NotaryConnection {
 		if(replyMessage.getOrigin() < 0) {
 			return null;
 		}
+		System.out.println(replyMessage.getOrigin());
 		Good g = new Good(gid, replyMessage.getOrigin(), replyMessage.getFor_sale() == 1);
 		System.out.println(replyMessage.getFor_sale());
 		System.out.println("HELLLLOOOOOOO");
@@ -267,7 +268,7 @@ public class NotaryConnection {
 		instobedcd.add(in);
 		if (responses<=3) {
 			int tag = m.getTag();
-			if (tag > getFinalTag()) {
+			if (tag >= getFinalTag()) {
 				setFinalTag(tag);
 				setFinalValue(m);
 			}
