@@ -62,7 +62,7 @@ public class NotaryConnection {
         }
 
 		for (int i = 0; i < ports.length; i++) {
-			NotaryThread t = new NotaryThread(this, ins.get(i), outs.get(i), readWriteLock, wr);
+			NotaryThread t = new NotaryThread(this, ins.get(i), outs.get(i), readWriteLock, wr,ports[i]);
 			t.run();
 		}
 	}

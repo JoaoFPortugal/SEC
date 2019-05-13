@@ -23,14 +23,16 @@ public class NotaryThread implements Runnable {
     private final DataInputStream in;
     private final DataOutputStream out;
     private final int writer;
+    private final int port;
     private boolean quorumAchieved = false;
 
-    public NotaryThread(NotaryConnection notary, DataInputStream in, DataOutputStream out, ReadWriteLock readWriteLock, int writer){
+    public NotaryThread(NotaryConnection notary, DataInputStream in, DataOutputStream out, ReadWriteLock readWriteLock, int writer, int port){
         this.notary = notary;
         this.in = in;
         this.out = out;
         this.readWriteLock  = readWriteLock;
         this.writer = writer;
+        this.port = port;
     }
 
     @Override
@@ -52,7 +54,7 @@ public class NotaryThread implements Runnable {
     public void read(SecureSession secureSession, Message m) {
 
         try {
-            m = secureSession.readFromUser(in);
+            m = secureSession.readFromUser(in,Integer.toString(port));
         } catch (IOException | InvalidKeyException | NoSuchAlgorithmException | InvalidKeySpecException | SignatureException | InvalidSignatureException | IllegalAccessException | ReplayAttackException | NullPublicKeyException e) {
             e.printStackTrace();
         }
@@ -94,7 +96,7 @@ public class NotaryThread implements Runnable {
 
     public void write(SecureSession secureSession, Message m){
         try {
-            m = secureSession.readFromUser(in);
+            m = secureSession.readFromUser(in,Integer.toString(port));
         } catch (IOException | InvalidKeyException | NoSuchAlgorithmException | InvalidKeySpecException | SignatureException | InvalidSignatureException | IllegalAccessException | ReplayAttackException | NullPublicKeyException e) {
             e.printStackTrace();
         }

@@ -59,6 +59,39 @@ public class SecureSession {
 
 		return replyMessage;
 	}
+
+
+	public Message readFromUser(DataInputStream in, String name) throws IOException, InvalidKeyException, InvalidKeySpecException,
+			NoSuchAlgorithmException, SignatureException, InvalidSignatureException, IllegalAccessException,
+			ReplayAttackException, NullPublicKeyException {
+
+		int msgLen = in.readInt();
+		byte[] mbytes = new byte[msgLen];
+		in.readFully(mbytes);
+
+		byte[] unwrapmsg = new byte[mbytes.length - Message.length];
+		byte[] originalmessage = new byte[Message.length];
+
+		// Get original message
+		System.arraycopy(mbytes, 0, originalmessage, 0, Message.length);
+		// Get signed hash
+		System.arraycopy(mbytes, Message.length, unwrapmsg, 0, unwrapmsg.length);
+		Message replyMessage = Message.fromBytes(originalmessage);
+		String pubKeyPath = "./src/main/resources/" + name + "_public_key.txt";
+		PublicKey pubKey = LoadKeys.loadPublicKey(pubKeyPath, "RSA");
+
+		// Create hash
+		byte[] hashedcontent = HashMessage.hashBytes(originalmessage);
+
+		// Verify if hashes are the same, using EC
+		if (!SignMessage.verify(hashedcontent, unwrapmsg, pubKey)) {
+			throw new InvalidSignatureException();
+		}
+
+		verifyFreshness(replyMessage);
+
+		return replyMessage;
+	}
 	
 	public Message readFromCC(DataInputStream in, String serverPubKeyPath)
 			throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException,
