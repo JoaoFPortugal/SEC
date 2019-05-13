@@ -28,17 +28,17 @@ public class NotaryConnection {
 	private User user;
 	private SecureSession notarySS;
 	private String serverPubKeyPath;
-	private AtomicInteger currentTag;
-	private int[] portsBehindTag;
+
 	private boolean quorumAchieved = false;
 	private int finalTag=0;
 	private Message finalValue;
 	private ReadWriteLock readWriteLock = new ReadWriteLock();
 	private int tag;
 	private int responses=0;
-	private HashMap<Integer,Message> responsesMessages = new HashMap<>();
 	private final Object lock = new Object();
 	private boolean flag;
+	private boolean notReceived;
+	private Message reply;
 
 	public NotaryConnection(String serverName, int[] ports, User user) {
 		this.serverName = serverName;
@@ -47,9 +47,11 @@ public class NotaryConnection {
 		notarySS = new SecureSession();
 		this.serverPubKeyPath = "./src/main/resources/serverPublicKey.txt";
 		this.tag = 0;
+		this.flag = true;
+		this.notReceived = true;
 	}
 
-	private void connect() throws IOException {
+	private void connect(int wr) throws IOException {
 	    for(int port : ports) {
             servers.add(new Socket(serverName, port));
         }
@@ -60,7 +62,7 @@ public class NotaryConnection {
         }
 
 		for (int i = 0; i < ports.length; i++) {
-			NotaryThread t = new NotaryThread(this, ins.get(i), outs.get(i), readWriteLock);
+			NotaryThread t = new NotaryThread(this, ins.get(i), outs.get(i), readWriteLock, wr);
 			t.run();
 		}
 	}
@@ -69,11 +71,14 @@ public class NotaryConnection {
         for (Socket server : servers) {
             server.close();
         }
+        servers.clear();
+        outs.clear();
+        ins.clear();
     }
 
 	public void sendRead(int gid, int uid)throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException{
 		for (DataOutputStream out : outs){
-			Utils.write(new Message(uid, 'G', gid, -1), out, user.getPrivateKey());
+			Utils.write(new Message(uid, 'G', gid, -1,-1), out, user.getPrivateKey());
 		}
 	}
 
@@ -85,9 +90,9 @@ public class NotaryConnection {
 	public Good getStateOfGood(int gid, int uid) throws IOException, InvalidSignatureException,
 			NoSuchAlgorithmException, InvalidKeyException, SignatureException, NullPrivateKeyException, NullDestination,
 			NullPublicKeyException, InvalidKeySpecException, ReplayAttackException {
-        connect();
+        connect(0);
         for (DataOutputStream out : outs){
-            Utils.write(new Message(uid, 'G', gid, -1), out, user.getPrivateKey());
+            Utils.write(new Message(uid, 'G', gid, -1,-1), out, user.getPrivateKey());
         }
 
 
@@ -112,7 +117,7 @@ public class NotaryConnection {
 	public int intentionToSell(int gid, int uid) throws IOException, InvalidSignatureException,
 			NoSuchAlgorithmException, InvalidKeyException, SignatureException, NullPrivateKeyException, NullDestination,
 			NullPublicKeyException, InvalidKeySpecException, ReplayAttackException {
-		connect();
+		connect(1);
 
 		sendRead(gid, uid);
 
@@ -123,7 +128,6 @@ public class NotaryConnection {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-
 			}
 		}
 
@@ -134,19 +138,45 @@ public class NotaryConnection {
 			Utils.write(new Message(uid, 'S', gid, -1, tag + 1), out, user.getPrivateKey());
 		}
 
-		//below is wrong
+		while(notReceived){
+			synchronized (lock){
+				try{
+					lock.wait();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 
-		Message replyMessage = notarySS.readFromCC(in, serverPubKeyPath);
+		notReceived = true;
+
 
 		disconnect();
 		// Good id contains 'for_sale' value.
-		return (replyMessage.getGoodID());
+		return (reply.getGoodID());
 	}
 
 	/**
 	 * Sends a request to the server to change the owner of a good. Fails if user
 	 * doesn't own it. Returns good ID on success.
 	 */
+
+	public Message transferGood(int good, int owner, int buyer) throws IOException, InvalidSignatureException,
+			NoSuchAlgorithmException, InvalidKeyException, SignatureException, NullPrivateKeyException, NullDestination,
+			NullPublicKeyException, InvalidKeySpecException, ReplayAttackException {
+		connect(1);
+
+		Utils.write(new Message(owner, buyer, 'T', good), out, user.getPrivateKey());
+
+		//below is wrong
+		Message replyMessage = notarySS.readFromCC(in, serverPubKeyPath);
+
+		disconnect();
+		return replyMessage;
+	}
+
+
+
 
 	public synchronized int getFinalTag(){
 		return finalTag;
@@ -180,8 +210,6 @@ public class NotaryConnection {
 
 		if (responses<=3) {
 			int tag = m.getTag();
-			responsesMessages.put(tag, m);
-
 			if (tag > getFinalTag()) {
 				setFinalTag(tag);
 				setFinalValue(m);
@@ -201,20 +229,12 @@ public class NotaryConnection {
 
 	}
 
-
-
-	public Message transferGood(int good, int owner, int buyer) throws IOException, InvalidSignatureException,
-			NoSuchAlgorithmException, InvalidKeyException, SignatureException, NullPrivateKeyException, NullDestination,
-			NullPublicKeyException, InvalidKeySpecException, ReplayAttackException {
-		connect();
-
-		Utils.write(new Message(owner, buyer, 'T', good), out, user.getPrivateKey());
-
-		//below is wrong
-		Message replyMessage = notarySS.readFromCC(in, serverPubKeyPath);
-
-		disconnect();
-		return replyMessage;
+	public synchronized  void returnReply(Message m){
+		notReceived=false;
+		lock.notifyAll();
+		reply = m;
 	}
+
+
 
 }

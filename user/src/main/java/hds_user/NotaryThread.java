@@ -101,6 +101,8 @@ public class NotaryThread implements Runnable {
             e.printStackTrace();
         }
 
+        notary.returnReply(m);
+
     }
 }
 
