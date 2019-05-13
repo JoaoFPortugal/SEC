@@ -21,17 +21,32 @@ public class NotaryThread implements Runnable {
     private final NotaryConnection notary;
     private final DataInputStream in;
     private final DataOutputStream out;
+    private final int writer;
     private boolean quorumAchieved = false;
 
-    public NotaryThread(NotaryConnection notary, DataInputStream in, DataOutputStream out, ReadWriteLock readWriteLock){
+    public NotaryThread(NotaryConnection notary, DataInputStream in, DataOutputStream out, ReadWriteLock readWriteLock, int writer){
         this.notary = notary;
         this.in = in;
         this.out = out;
         this.readWriteLock  = readWriteLock;
+        this.writer = writer;
     }
 
     @Override
     public void run(){
+
+        if(writer == 0){
+            read();
+        }
+
+        if(writer == 1){
+            read();
+            write();
+        }
+        }
+
+
+    public void read() {
         SecureSession secureSession = new SecureSession();
         Message m = null;
         try {
@@ -45,7 +60,7 @@ public class NotaryThread implements Runnable {
         //fazer isto dentro de if char da msg for G
         try {
             notary.responseFromServer(m);
-        } catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -55,20 +70,25 @@ public class NotaryThread implements Runnable {
             e.printStackTrace();
         }
         quorumAchieved = notary.getQuorum();
-        if(quorumAchieved){
+        if (quorumAchieved) {
             int finalTag = notary.getFinalTag();
             Message finalValue = notary.getFinalValue();
             readWriteLock.unlockRead();
-            if(!finalValue.isEqual(m)){ //if notupdated
+            if (!finalValue.isEqual(m)) { //if notupdated
                 //writeback
             }
-        }
-        else{
+        } else {
             try {
                 readWriteLock.lockWrite();
+                //write tag received
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
     }
+
+    public void write(){
+
+    }
 }
+
