@@ -31,7 +31,7 @@ public class Message {
 	}
 
 	// FIXME Throw exception if arguments are invalid
-	public Message(int origin, char operation, int gid,int for_sale, int tag) {
+	public Message(int origin, char operation, int gid, int for_sale, int tag) {
 		this.origin = origin;
 		this.destination = -1;
 		this.operation = operation;

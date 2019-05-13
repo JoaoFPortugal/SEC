@@ -129,7 +129,10 @@ public class NotaryConnection {
 
 		flag = true;
 
-		Utils.write(new Message(uid, 'S', gid), out, user.getPrivateKey());
+		int tag = getFinalTag();
+		for (DataOutputStream out : outs) {
+			Utils.write(new Message(uid, 'S', gid, -1, tag + 1), out, user.getPrivateKey());
+		}
 
 		//below is wrong
 

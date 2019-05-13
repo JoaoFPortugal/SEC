@@ -35,28 +35,28 @@ public class NotaryThread implements Runnable {
 
     @Override
     public void run(){
+        SecureSession secureSession = new SecureSession();
+        Message m = null;
 
         if(writer == 0){
-            read();
+            read(secureSession,m);
         }
 
         if(writer == 1){
-            read();
-            write();
+            read(secureSession,m);
+            write(secureSession,m);
         }
         }
 
 
-    public void read() {
-        SecureSession secureSession = new SecureSession();
-        Message m = null;
+    public void read(SecureSession secureSession, Message m) {
+
         try {
             m = secureSession.readFromUser(in);
         } catch (IOException | InvalidKeyException | NoSuchAlgorithmException | InvalidKeySpecException | SignatureException | InvalidSignatureException | IllegalAccessException | ReplayAttackException | NullPublicKeyException e) {
             e.printStackTrace();
         }
         assert m != null;
-        int receivedTag = m.getTag();
 
         try {
             readWriteLock.lockRead();
@@ -94,7 +94,12 @@ public class NotaryThread implements Runnable {
         }
     }
 
-    public void write(){
+    public void write(SecureSession secureSession, Message m){
+        try {
+            m = secureSession.readFromUser(in);
+        } catch (IOException | InvalidKeyException | NoSuchAlgorithmException | InvalidKeySpecException | SignatureException | InvalidSignatureException | IllegalAccessException | ReplayAttackException | NullPublicKeyException e) {
+            e.printStackTrace();
+        }
 
     }
 }
