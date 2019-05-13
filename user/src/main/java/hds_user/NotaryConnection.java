@@ -30,10 +30,9 @@ public class NotaryConnection {
 	private String serverPubKeyPath;
 
 	private boolean quorumAchieved = false;
-	private int finalTag=0;
+	private int finalTag=-1;
 	private Message finalValue;
 	private ReadWriteLock readWriteLock = new ReadWriteLock();
-	private int tag;
 	private int responses=0;
 	private final Object lock = new Object();
 	private boolean flag;
@@ -46,7 +45,6 @@ public class NotaryConnection {
 		this.user = user;
 		notarySS = new SecureSession();
 		this.serverPubKeyPath = "./src/main/resources/serverPublicKey.txt";
-		this.tag = -1;
 		this.flag = true;
 		this.notReceived = true;
 	}
@@ -112,8 +110,8 @@ public class NotaryConnection {
 
 		// Origin value of reply is actually the 'owner' value.
 		// Good ID value of reply is actually the 'for_sale' value.
-
 		if(replyMessage.getOrigin() < 0) {
+			System.out.println("aaaaa");
 			return null;
 		}
 		Good g = new Good(gid, replyMessage.getOrigin(), replyMessage.getGoodID() == 1);
@@ -224,6 +222,7 @@ public class NotaryConnection {
 			int tag = m.getTag();
 			if (tag > getFinalTag()) {
 				setFinalTag(tag);
+				System.out.println("holdum nur");
 				setFinalValue(m);
 			}
 		}
