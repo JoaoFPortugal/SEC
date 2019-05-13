@@ -95,9 +95,14 @@ public class NotaryConnection {
             Utils.write(new Message(uid, 'G', gid, -1,-1), out, user.getPrivateKey());
         }
 
+		while(flag){
+			waitLock();
+		}
+
+		flag = true;
 
         //below is wrong
-		Message replyMessage = notarySS.readFromCC(in, serverPubKeyPath);
+		Message replyMessage = getFinalValue();
 
 		// Origin value of reply is actually the 'owner' value.
 		// Good ID value of reply is actually the 'for_sale' value.
@@ -122,13 +127,7 @@ public class NotaryConnection {
 		sendRead(gid, uid);
 
 		while(flag){
-			synchronized (lock){
-				try{
-					lock.wait();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
+			waitLock();
 		}
 
 		flag = true;
@@ -139,13 +138,7 @@ public class NotaryConnection {
 		}
 
 		while(notReceived){
-			synchronized (lock){
-				try{
-					lock.wait();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
+			waitLock();
 		}
 
 		notReceived = true;
@@ -166,13 +159,27 @@ public class NotaryConnection {
 			NullPublicKeyException, InvalidKeySpecException, ReplayAttackException {
 		connect(1);
 
-		Utils.write(new Message(owner, buyer, 'T', good), out, user.getPrivateKey());
+		sendRead(good, owner);
+
+		while(flag){
+			waitLock();
+		}
+
+		int tag = getFinalTag();
+		for (DataOutputStream out : outs) {
+			Utils.write(new Message(owner, buyer, 'T', good, tag+1), out, user.getPrivateKey());
+		}
+
+		while(notReceived){
+			waitLock();
+		}
+
+		notReceived = true;
 
 		//below is wrong
-		Message replyMessage = notarySS.readFromCC(in, serverPubKeyPath);
 
 		disconnect();
-		return replyMessage;
+		return reply;
 	}
 
 
@@ -233,6 +240,16 @@ public class NotaryConnection {
 		notReceived=false;
 		lock.notifyAll();
 		reply = m;
+	}
+
+	private void waitLock(){
+		synchronized (lock){
+			try{
+				lock.wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 

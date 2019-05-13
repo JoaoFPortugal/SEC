@@ -71,14 +71,12 @@ public class NotaryThread implements Runnable {
             Message finalValue = notary.getFinalValue();
             readWriteLock.unlockRead();
             if(finalTag > m.getTag()) {
-                if (!finalValue.isEqual(m)) { //if notupdated
                     try {
                         Utils.write(new Message(finalValue.getOrigin(), 'W', finalValue.getGoodID(), finalValue.getFor_sale(), finalValue.getTag()), out, notary.getUser().getPrivateKey());
                     }catch(Exception e){
                         e.printStackTrace();
                     }
                 }
-            }
         }
 
         else {
