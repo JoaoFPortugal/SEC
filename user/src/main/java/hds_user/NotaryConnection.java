@@ -16,6 +16,7 @@ import hds_security.exceptions.NullDestination;
 import hds_security.exceptions.NullPrivateKeyException;
 import hds_security.exceptions.NullPublicKeyException;
 import hds_security.exceptions.ReplayAttackException;
+import java.util.HashMap;
 
 public class NotaryConnection {
 
@@ -30,13 +31,12 @@ public class NotaryConnection {
 	private AtomicInteger currentTag;
 	private int[] portsBehindTag;
 	private boolean quorumAchieved = false;
-	private int finalTag;
+	private int finalTag=0;
 	private Message finalValue;
 	private ReadWriteLock readWriteLock = new ReadWriteLock();
 	private int tag;
 	private int responses=0;
-	private int owner;
-	private int for_sale;
+	private HashMap<Integer,Message> responsesMessages = new HashMap<>();
 
 	public NotaryConnection(String serverName, int[] ports, User user) {
 		this.serverName = serverName;
@@ -153,24 +153,27 @@ public class NotaryConnection {
 	public synchronized void setQuorum(boolean bool){
 		quorumAchieved = bool;
 	}
+	public User getUser(){
+		return user;
+	}
 
 	public synchronized void responseFromServer(Message m) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException{
-		while (responses<3) {
+		responses +=1;
 
-			if (m.getTag() < this.tag) {
-				//writeback
-				for (DataOutputStream out : outs) {
-					Utils.write(new Message(owner, 'W', m.getGoodID(), for_sale, this.tag), out, user.getPrivateKey());
-					return;
-				}
+		if (responses<=3) {
+			int tag = m.getTag();
+			responsesMessages.put(tag, m);
+
+			if (tag > getFinalTag()) {
+				setFinalTag(tag);
+				setFinalValue(m);
 			}
-
-			owner = m.getOrigin();
-			for_sale = m.getFor_sale();
-
-
-			responses +=1;
 		}
+
+		if(responses==3){
+			setQuorum(true);
+		}
+
 	}
 
 

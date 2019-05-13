@@ -3,6 +3,7 @@ package hds_user;
 
 import hds_security.Message;
 import hds_security.SecureSession;
+import hds_security.Utils;
 import hds_security.exceptions.InvalidSignatureException;
 import hds_security.exceptions.NullPublicKeyException;
 import hds_security.exceptions.ReplayAttackException;
@@ -57,31 +58,34 @@ public class NotaryThread implements Runnable {
         assert m != null;
         int receivedTag = m.getTag();
 
-        //fazer isto dentro de if char da msg for G
-        try {
-            notary.responseFromServer(m);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
         try {
             readWriteLock.lockRead();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+
         quorumAchieved = notary.getQuorum();
         if (quorumAchieved) {
             int finalTag = notary.getFinalTag();
             Message finalValue = notary.getFinalValue();
             readWriteLock.unlockRead();
-            if (!finalValue.isEqual(m)) { //if notupdated
-                //writeback
+            if(finalTag > m.getTag()) {
+                if (!finalValue.isEqual(m)) { //if notupdated
+                    try {
+                        Utils.write(new Message(finalValue.getOrigin(), 'W', finalValue.getGoodID(), finalValue.getFor_sale(), finalValue.getTag()), out, notary.getUser().getPrivateKey());
+                    }catch(Exception e){
+                        e.printStackTrace();
+                    }
+                }
             }
         } else {
             try {
                 readWriteLock.lockWrite();
+                notary.responseFromServer(m);
+
                 //write tag received
-            } catch (InterruptedException e) {
+            } catch (InterruptedException | IOException | NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {
                 e.printStackTrace();
             }
         }
