@@ -62,8 +62,6 @@ public class NotaryConnection {
 			ins.clear();
 		}
 
-		System.out.println(ports.length);
-
 	    for(int port : ports) {
             servers.add(new Socket(serverName, port));
         }
@@ -77,7 +75,6 @@ public class NotaryConnection {
 
 		for (int i = 0; i < ports.length; i++) {
 			NotaryThread t = new NotaryThread(this, ins.get(i), outs.get(i), readWriteLock, wr,ports[i]);
-			System.out.println("1SCASDFJAEWOFAJFVOIAJVIARJI1");
 			t.start();
 		}
 	}
@@ -102,7 +99,10 @@ public class NotaryConnection {
 		for(DataInputStream in : instobedcd){
 			ins.remove(in);
 		}
-    }
+		portstobedcd.clear();
+		instobedcd.clear();
+		outstobedcd.clear();
+	}
 
 	public void sendRead(int gid, int uid)throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException{
 		for (DataOutputStream out : outs){
@@ -137,10 +137,7 @@ public class NotaryConnection {
 		if(replyMessage.getOrigin() < 0) {
 			return null;
 		}
-		System.out.println(replyMessage.getOrigin());
 		Good g = new Good(gid, replyMessage.getOrigin(), replyMessage.getFor_sale() == 1);
-		System.out.println(replyMessage.getFor_sale());
-		System.out.println("HELLLLOOOOOOO");
 		disconnect();
 		return g;
 	}
