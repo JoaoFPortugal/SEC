@@ -52,6 +52,9 @@ public class NotaryConnection {
 	}
 
 	private void connect(int wr) throws IOException {
+
+		System.out.println(ports.length);
+
 	    for(int port : ports) {
             servers.add(new Socket(serverName, port));
         }
@@ -66,7 +69,7 @@ public class NotaryConnection {
 		for (int i = 0; i < ports.length; i++) {
 			NotaryThread t = new NotaryThread(this, ins.get(i), outs.get(i), readWriteLock, wr,ports[i]);
 			System.out.println("1SCASDFJAEWOFAJFVOIAJVIARJI1");
-			t.run();
+			t.start();
 		}
 	}
 
@@ -231,16 +234,20 @@ public class NotaryConnection {
 		}
 
 		if(responses==3){
-			flag = false;
-			lock.notifyAll();
+			synchronized (lock) {
+				flag = false;
+				lock.notifyAll();
+			}
 			setQuorum(true);
 		}
 
 	}
 
 	public synchronized  void returnReply(Message m){
-		notReceived=false;
-		lock.notifyAll();
+		synchronized (lock) {
+			notReceived = false;
+			lock.notifyAll();
+		}
 		reply = m;
 	}
 

@@ -16,7 +16,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 
-public class NotaryThread implements Runnable {
+public class NotaryThread extends Thread {
 
     private final ReadWriteLock readWriteLock ;
     private final NotaryConnection notary;

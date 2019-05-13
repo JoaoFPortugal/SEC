@@ -7,7 +7,7 @@ import java.nio.ByteBuffer;
  */
 public class Message {
 	
-	public static final int length = 30;
+	public static final int length = 38;
 
 	protected char operation;
 	protected int origin;
