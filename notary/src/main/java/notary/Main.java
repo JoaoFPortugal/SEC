@@ -1,13 +1,11 @@
 package notary;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import hds_security.Utils;
 
 public class Main {
 
 	// Connection stuff
-	private int port = 6066;
 	private Server server;
 
 	// Thread stuff
@@ -28,13 +26,17 @@ public class Main {
 		int cores = Runtime.getRuntime().availableProcessors();
 		System.out.println("CPU cores: " + cores);
 
-		String port = Utils.readString(
-				"Port:\n");
+		int port = Utils.readInt("Port:\n");
+		while (port <= 1023 || port > 65535) {
+			// Ports 0-1023 are reserved in Linux for special services.
+			port = Utils.readInt("Port number should be between 1024 and 65535.\nPort:\n");
+		}
 
-		main.db = new Database(main.db_name + port + ".db");
+		// Will fail if .db file does not exist.
+		main.db = new Database(main.db_name + String.format("%04d", port) + ".db");
+		
 		String pass = Utils.readString("Password:\n");
 		int cc = Utils.readInt("Hello!\n" + "Would you like to use your CC?\n" + "0. No\n" + "1. Yes\n");
-
 
 		try {
 			main.server = new Server(port, main.db, cc, pass);

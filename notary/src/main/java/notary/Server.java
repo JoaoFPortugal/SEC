@@ -8,7 +8,6 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.HashMap;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import hds_security.LoadKeys;
 import hds_security.Message;
@@ -25,7 +24,7 @@ public class Server extends Thread {
 	private Database db;
 	private ServerSocket serverSocket;
 	private int cc;
-	private String port;
+	private int port;
 	private SecureSession secureSession;
 	private BlockingQueue<Request> requests;
 	private PublicKey publicKey;
@@ -37,12 +36,12 @@ public class Server extends Thread {
 	// concern)
 	private final int max_queue = 1024;
 
-	public Server(String port, Database db, int cc, String password) throws Exception {
+	public Server(int port, Database db, int cc, String password) throws Exception {
 		this.db = db;
 		this.cc = cc;
 		this.port = port;
 		this.password = password;
-		serverSocket = new ServerSocket(Integer.valueOf(port));
+		serverSocket = new ServerSocket(port);
 		loadPrivKey();
 		loadPubKey();
 		this.tags = new HashMap<>();
