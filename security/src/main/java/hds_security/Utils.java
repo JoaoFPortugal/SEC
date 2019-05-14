@@ -17,6 +17,8 @@ import java.util.Scanner;
 import pteidlib.PteidException;
 import sun.security.pkcs11.wrapper.PKCS11Exception;
 
+import javax.swing.*;
+
 public class Utils {
 
 	private Utils() {
@@ -36,7 +38,7 @@ public class Utils {
 	 */
 	public static String readString(String prompt) {
 
-		/*String input = "";
+		String input = "";
 		Console c = System.console();
 
 		if (c == null) {
@@ -45,14 +47,6 @@ public class Utils {
 			println(prompt);
 			input = c.readLine();
 
-		}*/
-
-		BufferedReader buff = new BufferedReader(new InputStreamReader(System.in));
-		String input = null;
-		try {
-			input = buff.readLine();
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
 		return input;
 	}
@@ -63,7 +57,7 @@ public class Utils {
 	 */
 	public static String readPassword(String prompt) {
 
-		/*String input = "";
+		String input = "";
 		Console c = System.console();
 
 		if (c == null) {
@@ -71,17 +65,8 @@ public class Utils {
 		} else {
 			char[] in = System.console().readPassword(prompt);
 			input = String.valueOf(in);
-		}*/
-
-		BufferedReader buff = new BufferedReader(new InputStreamReader(System.in));
-		String input = null;
-		try {
-			input = buff.readLine();
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
 		return input;
-
 	}
 
 	public static int readInt(String prompt) {
