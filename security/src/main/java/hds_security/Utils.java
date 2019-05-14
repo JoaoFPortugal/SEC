@@ -1,8 +1,6 @@
 package hds_security;
 
-import java.io.DataOutputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -20,7 +18,6 @@ import pteidlib.PteidException;
 import sun.security.pkcs11.wrapper.PKCS11Exception;
 
 public class Utils {
-	static Scanner scanner = new Scanner(System.in);
 
 	private Utils() {
 	}
@@ -50,9 +47,14 @@ public class Utils {
 
 		}*/
 
-		String input= scanner.nextLine();
+		BufferedReader buff = new BufferedReader(new InputStreamReader(System.in));
+		String input = null;
+		try {
+			input = buff.readLine();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		return input;
-
 	}
 
 	/**
@@ -71,7 +73,13 @@ public class Utils {
 			input = String.valueOf(in);
 		}*/
 
-		String input= scanner.nextLine();
+		BufferedReader buff = new BufferedReader(new InputStreamReader(System.in));
+		String input = null;
+		try {
+			input = buff.readLine();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		return input;
 
 	}
