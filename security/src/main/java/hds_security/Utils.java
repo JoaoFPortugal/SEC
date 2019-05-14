@@ -20,6 +20,8 @@ import pteidlib.PteidException;
 import sun.security.pkcs11.wrapper.PKCS11Exception;
 
 public class Utils {
+	static Scanner scanner = new Scanner(System.in);
+
 	private Utils() {
 	}
 
@@ -48,7 +50,6 @@ public class Utils {
 
 		}*/
 
-		Scanner scanner = new Scanner(System.in);
 		String input= scanner.nextLine();
 		return input;
 
@@ -70,7 +71,6 @@ public class Utils {
 			input = String.valueOf(in);
 		}*/
 
-		Scanner scanner = new Scanner(System.in);
 		String input= scanner.nextLine();
 		return input;
 
