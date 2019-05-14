@@ -138,6 +138,7 @@ public class Server extends Thread {
 			Message msg = request.getMessage();
 
 			int tag = tags.get(msg.getOrigin());
+			System.out.println(tag);
 
 
 			if (msg.getOperation() == 'G') {

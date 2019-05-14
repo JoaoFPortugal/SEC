@@ -36,11 +36,13 @@ public class NotaryConnection {
 	private Message finalValue;
 	private ReadWriteLock readWriteLock = new ReadWriteLock();
 	private int responses=0;
+	private int writeResponses=0;
 	private final Object lock = new Object();
 	private final Object lock1 = new Object();
 	private boolean flag;
 	private boolean notReceived;
 	private Message reply;
+	private HashMap<Integer,Integer> responsesMap = new HashMap<>();
 
 	public NotaryConnection(String serverName, int[] ports, User user) {
 		this.serverName = serverName;
@@ -64,6 +66,10 @@ public class NotaryConnection {
 		if(!ins.isEmpty()){
 			ins.clear();
 		}
+		if(!responsesMap.isEmpty()){
+			responsesMap.clear();
+		}
+
 
 	    for(int port : ports) {
             servers.add(new Socket(serverName, port));
@@ -130,9 +136,11 @@ public class NotaryConnection {
 
 		sendRead(gid, uid);
 
+		System.out.println("aqui");
 		while(flag){
 			waitLock();
 		}
+        System.out.println("depois");
 
 		flag = true;
 
@@ -147,6 +155,7 @@ public class NotaryConnection {
 		connect(1);
 
 		for (DataOutputStream out : outs) {
+            System.out.println(tag+1);
 			Utils.write(new Message(uid, 'S', gid, -1, tag + 1), out, user.getPrivateKey());
 		}
 
@@ -189,6 +198,7 @@ public class NotaryConnection {
 
 
 		for (DataOutputStream out : outs) {
+		    System.out.println(tag+1);
 			Utils.write(new Message(owner, buyer, 'T', good, tag+1), out, user.getPrivateKey());
 		}
 
@@ -235,27 +245,38 @@ public class NotaryConnection {
 
 	public synchronized void responseFromServer(Message m,int port,DataOutputStream out, DataInputStream in) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException{
 		responses +=1;
+        int counter=0;
 
-		if (responses<=3) {
-			int tag = m.getTag();
-			if (tag >= getFinalTag()) {
-				setFinalTag(tag);
-				setFinalValue(m);
-			}
-		}
+		if(responsesMap.get(m.getTag())==null){
+		    responsesMap.put(m.getTag(),1);
+        }
+
+        else{
+		    counter = responsesMap.get(m.getTag());
+		    counter++;
+		    responsesMap.replace(m.getTag(),counter);
+        }
+
+
+        if (counter==4){
+		    int tag = m.getTag();
+		    setFinalTag(tag);
+		    setFinalValue(m);
+            synchronized (lock) {
+                flag = false;
+                lock.notifyAll();
+            }
+            setQuorum(true);
+        }
+
+
 
 		if(responses == 5){
 			responses = 0;
 			setQuorum(false);
 		}
 
-		if(responses==3){
-			synchronized (lock) {
-				flag = false;
-				lock.notifyAll();
-			}
-			setQuorum(true);
-		}
+
 
 	}
 
