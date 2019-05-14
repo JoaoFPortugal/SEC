@@ -4,10 +4,10 @@ import java.io.*;
 import java.net.Socket;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.sun.org.apache.xml.internal.security.algorithms.SignatureAlgorithm;
 import hds_security.Message;
 import hds_security.SecureSession;
 import hds_security.Utils;
@@ -18,7 +18,6 @@ import hds_security.exceptions.NullPublicKeyException;
 import hds_security.exceptions.ReplayAttackException;
 
 import javax.xml.crypto.Data;
-import java.util.HashMap;
 
 public class NotaryConnection {
 
@@ -44,6 +43,8 @@ public class NotaryConnection {
 	private Message reply;
 	private HashMap<Integer,Integer> responsesMap = new HashMap<>();
 	private HashMap<Integer,Integer> writesMap = new HashMap<>();
+	private List<Message> writesMessages = new ArrayList<>();
+	private HashMap<Integer,List<DataOutputStream>> outsMap = new HashMap<>();
 
 	public NotaryConnection(String serverName, int[] ports, User user) {
 		this.serverName = serverName;
@@ -69,6 +70,9 @@ public class NotaryConnection {
 		}
 		if(!responsesMap.isEmpty()){
 			responsesMap.clear();
+		}
+		if(!writesMap.isEmpty()){
+			writesMap.clear();
 		}
 
 
@@ -137,11 +141,11 @@ public class NotaryConnection {
 
 		sendRead(gid, uid);
 
-		System.out.println("aqui");
 		while(flag){
 			waitLock();
 		}
-        System.out.println("depois");
+
+		checkWriteBack();
 
 		flag = true;
 
@@ -238,11 +242,33 @@ public class NotaryConnection {
 	public synchronized void setQuorum(boolean bool){
 		quorumAchieved = bool;
 	}
+	public synchronized List<Message> getWritesMessages(){
+		return writesMessages;
+	}
 	public User getUser(){
 		return user;
 	}
 
 
+	private synchronized void checkWriteBack() {
+		List<DataOutputStream> outsForWB;
+
+		for (Integer v : responsesMap.keySet()) {
+			if (v < 4) {
+				outsForWB = outsMap.get(v);
+
+				for (DataOutputStream out : outsForWB) {
+					for (Message msg : writesMessages){
+						try {
+							Utils.write(msg, out, user.getPrivateKey());
+						}catch( IOException | InvalidKeyException | NoSuchAlgorithmException | SignatureException e){
+							e.printStackTrace();
+						}
+					}
+				}
+			}
+		}
+	}
 
 	public synchronized void responseFromServer(Message m,int port,DataOutputStream out, DataInputStream in) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException{
 		responses +=1;
@@ -250,12 +276,21 @@ public class NotaryConnection {
 
 		if(responsesMap.get(m.getTag())==null){
 		    responsesMap.put(m.getTag(),1);
-        }
+
+			List<DataOutputStream> p = new ArrayList<>();
+		    if(outsMap.get(m.getTag())!=null) {
+				p = outsMap.get(m.getTag());
+			}
+			p.add(out);
+		    outsMap.put(m.getTag(),p);
+
+		}
 
         else{
 		    counter = responsesMap.get(m.getTag());
 		    counter++;
 		    responsesMap.replace(m.getTag(),counter);
+
         }
 
 
@@ -278,7 +313,6 @@ public class NotaryConnection {
 		}
 
 
-
 	}
 
 	public synchronized  void returnReply(Message m){
@@ -297,6 +331,7 @@ public class NotaryConnection {
 
 		if (counter==4){
 			reply = m;
+			writesMessages.add(m);
 			synchronized (lock1) {
 				notReceived = false;
 				lock1.notifyAll();

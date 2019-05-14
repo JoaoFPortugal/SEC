@@ -15,6 +15,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.List;
 
 public class NotaryThread extends Thread {
 
@@ -79,13 +80,16 @@ public class NotaryThread extends Thread {
                 e.printStackTrace();
             }
             int finalTag = notary.getFinalTag();
-            Message finalValue = notary.getFinalValue();
             if(finalTag > m.getTag()) {
+                List<Message> writesMessages = notary.getWritesMessages();
+                User user = notary.getUser();
+                for (Message msg : writesMessages){
                     try {
-                        Utils.write(new Message(finalValue.getOrigin(), 'W', finalValue.getGoodID(), finalValue.getFor_sale(), finalValue.getTag()), out, notary.getUser().getPrivateKey());
-                    }catch(Exception e){
+                        Utils.write(msg, out, user.getPrivateKey());
+                    }catch( IOException | InvalidKeyException | NoSuchAlgorithmException | SignatureException e){
                         e.printStackTrace();
                     }
+                }
                 }
             try {
                 readWriteLock.unlockWrite();
