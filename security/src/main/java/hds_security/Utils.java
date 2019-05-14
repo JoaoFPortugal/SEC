@@ -12,12 +12,9 @@ import java.util.Date;
 import java.util.Random;
 import java.util.Scanner;
 
-import java.io.Console;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Scanner;
-
-import javax.swing.JOptionPane;
 
 import pteidlib.PteidException;
 import sun.security.pkcs11.wrapper.PKCS11Exception;
@@ -40,7 +37,7 @@ public class Utils {
 	 */
 	public static String readString(String prompt) {
 
-		String input = "";
+		/*String input = "";
 		Console c = System.console();
 
 		if (c == null) {
@@ -49,8 +46,10 @@ public class Utils {
 			println(prompt);
 			input = c.readLine();
 
-		}
+		}*/
 
+		Scanner scanner = new Scanner(System.in);
+		String input = scanner.next();
 		return input;
 	}
 
@@ -60,7 +59,7 @@ public class Utils {
 	 */
 	public static String readPassword(String prompt) {
 
-		String input = "";
+		/*String input = "";
 		Console c = System.console();
 
 		if (c == null) {
@@ -68,8 +67,12 @@ public class Utils {
 		} else {
 			char[] in = System.console().readPassword(prompt);
 			input = String.valueOf(in);
-		}
+		}*/
+
+		Scanner scanner = new Scanner(System.in);
+		String input = scanner.next();
 		return input;
+
 	}
 
 	public static int readInt(String prompt) {
