@@ -49,8 +49,9 @@ public class Utils {
 		}*/
 
 		Scanner scanner = new Scanner(System.in);
-		String input = scanner.next();
+		String input= scanner.nextLine();
 		return input;
+
 	}
 
 	/**
@@ -70,7 +71,7 @@ public class Utils {
 		}*/
 
 		Scanner scanner = new Scanner(System.in);
-		String input = scanner.next();
+		String input= scanner.nextLine();
 		return input;
 
 	}
