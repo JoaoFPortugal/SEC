@@ -89,7 +89,9 @@ public class Server extends Thread {
 			System.out.println(message.getFor_sale());
 			System.out.println(message.getTag());
 			System.out.println(message.getOperation());
-			Utils.write(message, request.getDataOutputStream(), this.getPrivateKey());}
+			Utils.write(message, request.getDataOutputStream(), this.getPrivateKey());
+			System.out.println("alalal");
+		}
 	}
 
 	@Override
@@ -115,7 +117,6 @@ public class Server extends Thread {
 
 			// Read is done in Request constructor
 			Request request = new Request(serverSocket.accept(), secureSession);
-			System.out.println("CANCRO FDS VAI TE MATAR");
 			// 'put' blocks, 'add' throws exception
 			requests.put(request);
 

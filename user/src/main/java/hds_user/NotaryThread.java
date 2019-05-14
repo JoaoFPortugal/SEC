@@ -55,7 +55,6 @@ public class NotaryThread extends Thread {
     public void read(SecureSession secureSession, Message m) {
 
         try {
-            System.out.println("Connected and waiting for server from port " + port);
             m = secureSession.readFromUser(in,Integer.toString(port));
         } catch (IOException | InvalidKeyException | NoSuchAlgorithmException | InvalidKeySpecException | SignatureException | InvalidSignatureException | IllegalAccessException | ReplayAttackException | NullPublicKeyException e) {
             e.printStackTrace();
@@ -110,9 +109,7 @@ public class NotaryThread extends Thread {
     public void write(SecureSession secureSession, Message m){
         while(true) {
             try {
-                System.out.println("Connected and waiting for server from port " + port);
                 m = secureSession.readFromUser(in, Integer.toString(port));
-                System.out.println("HELLO FROM NARNIA");
             } catch (IOException | InvalidKeyException | NoSuchAlgorithmException | InvalidKeySpecException | SignatureException | InvalidSignatureException | IllegalAccessException | ReplayAttackException | NullPublicKeyException e) {
                 e.printStackTrace();
             }

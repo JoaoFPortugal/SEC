@@ -54,9 +54,14 @@ public class NotaryConnection {
 
 	private void connect(int wr) throws IOException {
 		setQuorum(false);
-		if((!servers.isEmpty()) && !(outs.isEmpty()) && (ins.isEmpty())){
+
+		if(!servers.isEmpty()){
 			servers.clear();
+		}
+		if(!outs.isEmpty()) {
 			outs.clear();
+		}
+		if(!ins.isEmpty()){
 			ins.clear();
 		}
 
@@ -132,8 +137,12 @@ public class NotaryConnection {
 		flag = true;
 
 		int tag = getFinalTag();
-		System.out.println(tag);
 
+		try {
+			Thread.sleep(1000);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
 
 		connect(1);
 
@@ -146,13 +155,9 @@ public class NotaryConnection {
 			waitLock1();
 		}
 
-		System.out.println("SAHSADUFHASUFVHAUGAHUHU");
-
 		notReceived = true;
-		System.out.println("SAHSADUFHASUFVHAUGAHUHU");
 
-		// Good id contains 'for_sale' value.
-		return (reply.getGoodID());
+		return (reply.getFor_sale());
 	}
 
 	/**

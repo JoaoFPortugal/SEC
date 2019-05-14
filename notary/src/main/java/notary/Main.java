@@ -47,7 +47,7 @@ public class Main {
 			 * and without delaying the answer to each client.
 			 */
 			main.consumers = new ArrayList<>(cores);
-			for (int i = 0; i < cores; i++) {
+			for (int i = 0; i < 1; i++) {
 				Thread c = new Thread(main.server, "consumer_" + i);
 				main.consumers.add(c);
 				c.start();
