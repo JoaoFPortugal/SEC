@@ -168,15 +168,26 @@ public class NotaryConnection {
 	public Message transferGood(int good, int owner, int buyer) throws IOException, InvalidSignatureException,
 			NoSuchAlgorithmException, InvalidKeyException, SignatureException, NullPrivateKeyException, NullDestination,
 			NullPublicKeyException, InvalidKeySpecException, ReplayAttackException {
-		connect(1);
+		connect(0);
 
 		sendRead(good, owner);
 
 		while(flag){
 			waitLock();
 		}
+		flag = true;
 
 		int tag = getFinalTag();
+
+        try {
+            Thread.sleep(1000);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        connect(1);
+
+
 		for (DataOutputStream out : outs) {
 			Utils.write(new Message(owner, buyer, 'T', good, tag+1), out, user.getPrivateKey());
 		}
