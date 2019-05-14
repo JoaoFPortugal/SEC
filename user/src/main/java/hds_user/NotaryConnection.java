@@ -43,6 +43,7 @@ public class NotaryConnection {
 	private boolean notReceived;
 	private Message reply;
 	private HashMap<Integer,Integer> responsesMap = new HashMap<>();
+	private HashMap<Integer,Integer> writesMap = new HashMap<>();
 
 	public NotaryConnection(String serverName, int[] ports, User user) {
 		this.serverName = serverName;
@@ -281,11 +282,26 @@ public class NotaryConnection {
 	}
 
 	public synchronized  void returnReply(Message m){
-		synchronized (lock1) {
-			notReceived = false;
-			lock1.notifyAll();
+		writeResponses +=1;
+		int counter=0;
+
+		if(writesMap.get(m.getTag())==null){
+			writesMap.put(m.getTag(),1);
 		}
-		reply = m;
+
+		else{
+			counter = writesMap.get(m.getTag());
+			counter++;
+			writesMap.replace(m.getTag(),counter);
+		}
+
+		if (counter==4){
+			reply = m;
+			synchronized (lock1) {
+				notReceived = false;
+				lock1.notifyAll();
+			}
+		}
 	}
 
 	private void waitLock(){
