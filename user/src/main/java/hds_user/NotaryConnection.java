@@ -145,10 +145,9 @@ public class NotaryConnection {
 		while(flag){
 			waitLock();
 		}
-
-		checkWriteBack();
-
 		flag = true;
+
+		writeBack();
 
 		int tag = getFinalTag();
 
@@ -191,6 +190,8 @@ public class NotaryConnection {
 			waitLock();
 		}
 		flag = true;
+
+		writeBack();
 
 		int tag = getFinalTag();
 
@@ -251,7 +252,7 @@ public class NotaryConnection {
 	}
 
 
-	private synchronized void checkWriteBack() {
+	private synchronized void writeBack() {
 		List<DataOutputStream> outsForWB;
 
 		for (Integer v : responsesMap.keySet()) {
@@ -260,10 +261,12 @@ public class NotaryConnection {
 
 				for (DataOutputStream out : outsForWB) {
 					for (Message msg : writesMessages){
-						try {
-							Utils.write(msg, out, user.getPrivateKey());
-						}catch( IOException | InvalidKeyException | NoSuchAlgorithmException | SignatureException e){
-							e.printStackTrace();
+						if (msg.getTag()>v) {
+							try {
+								Utils.write(msg, out, user.getPrivateKey());
+							} catch (IOException | InvalidKeyException | NoSuchAlgorithmException | SignatureException e) {
+								e.printStackTrace();
+							}
 						}
 					}
 				}

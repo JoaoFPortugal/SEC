@@ -45,11 +45,13 @@ public class Server extends Thread {
 		loadPrivKey();
 		loadPubKey();
 		this.tags = new HashMap<>();
+//fazer com que server va buscar a database valor das tags correto
 		tags.put(1, 0);
 		tags.put(2, 0);
 		tags.put(3, 0);
 		tags.put(4, 0);
 		tags.put(5, 0);
+
 
 		/**
 		 * 1st parameter: capacity - the capacity of this queue 2nd parameter: fair - if
