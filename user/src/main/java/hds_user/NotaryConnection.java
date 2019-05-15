@@ -76,6 +76,7 @@ public class NotaryConnection {
 		}
 
 
+
 	    for(int port : ports) {
             servers.add(new Socket(serverName, port));
         }
@@ -254,7 +255,7 @@ public class NotaryConnection {
 		List<DataOutputStream> outsForWB;
 
 		for (Integer v : responsesMap.keySet()) {
-			if (v < 4) {
+			if (responsesMap.get(v) < 4) {
 				outsForWB = outsMap.get(v);
 
 				for (DataOutputStream out : outsForWB) {
@@ -278,19 +279,20 @@ public class NotaryConnection {
 		    responsesMap.put(m.getTag(),1);
 
 			List<DataOutputStream> p = new ArrayList<>();
-		    if(outsMap.get(m.getTag())!=null) {
-				p = outsMap.get(m.getTag());
-			}
 			p.add(out);
 		    outsMap.put(m.getTag(),p);
 
 		}
 
         else{
+
+			List<DataOutputStream> p = outsMap.get(m.getTag());
+			p.add(out);
+			outsMap.put(m.getTag(),p);
+
 		    counter = responsesMap.get(m.getTag());
 		    counter++;
 		    responsesMap.replace(m.getTag(),counter);
-
         }
 
 
@@ -316,7 +318,6 @@ public class NotaryConnection {
 	}
 
 	public synchronized  void returnReply(Message m){
-		writeResponses +=1;
 		int counter=0;
 
 		if(writesMap.get(m.getTag())==null){
