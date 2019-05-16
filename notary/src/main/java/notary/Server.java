@@ -45,6 +45,7 @@ public class Server extends Thread {
 		loadPrivKey();
 		loadPubKey();
 		this.tags = new HashMap<>();
+		System.out.println(db.getTags());
 //fazer com que server va buscar a database valor das tags correto
 		tags.put(1, 0);
 		tags.put(2, 0);
