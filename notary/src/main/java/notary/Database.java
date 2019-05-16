@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.HashMap;
+import java.util.List;
 
 public class Database {
 
@@ -216,6 +217,21 @@ public class Database {
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		}
+	}
+
+	public String getTags(){
+		String sql = "SELECT tag FROM tags";
+		String output="";
+		try (Statement stmt = this.conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
+
+			while (rs.next()) {
+				 output += rs.getInt("tags") + "\n";
+			}
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+
+		return (output.isEmpty() ? "null" : output);
 	}
 
 	// Not being used
