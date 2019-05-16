@@ -7,7 +7,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.sun.org.apache.xml.internal.security.algorithms.SignatureAlgorithm;
+
 import hds_security.Message;
 import hds_security.SecureSession;
 import hds_security.Utils;
@@ -78,8 +78,13 @@ public class NotaryConnection {
 
 
 	    for(int port : ports) {
-            servers.add(new Socket(serverName, port));
-        }
+			try {
+				servers.add(new Socket(serverName, port));
+
+			}catch (Exception e){
+				System.out.println("server from port " + port + " is down");
+			}
+		}
 
 		for (Socket server : servers) {
             outs.add(new DataOutputStream(server.getOutputStream()));
@@ -88,8 +93,12 @@ public class NotaryConnection {
 
 
 		for (int i = 0; i < ports.length; i++) {
-			NotaryThread t = new NotaryThread(this, ins.get(i), outs.get(i), readWriteLock, wr,ports[i]);
-			t.start();
+			try {
+				NotaryThread t = new NotaryThread(this, ins.get(i), outs.get(i), readWriteLock, wr, ports[i]);
+				t.start();
+			}catch(Exception e){
+				System.out.println("server " + i+1 + " is down");
+			}
 		}
 	}
 
@@ -117,6 +126,8 @@ public class NotaryConnection {
 		while(flag){
 			waitLock();
 		}
+
+		writeBack();
 
 		flag = true;
 
@@ -258,6 +269,7 @@ public class NotaryConnection {
 		for (Integer v : responsesMap.keySet()) {
 			if (responsesMap.get(v) < 4) {
 				outsForWB = outsMap.get(v);
+				System.out.println("outs:" + outsForWB);
 
 				for (DataOutputStream out : outsForWB) {
 					for (Message msg : writesMessages){

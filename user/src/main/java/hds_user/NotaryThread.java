@@ -70,7 +70,7 @@ public class NotaryThread extends Thread {
             e.printStackTrace();
         }
 
-
+        System.out.println(m.getTag());
         quorumAchieved = notary.getQuorum();
 
         if (quorumAchieved) {
@@ -80,6 +80,8 @@ public class NotaryThread extends Thread {
                 e.printStackTrace();
             }
             int finalTag = notary.getFinalTag();
+            System.out.println("finaltag: " + finalTag);
+            System.out.println("msgtag: " + m.getTag());
             if(finalTag > m.getTag()) {
                 List<Message> writesMessages = notary.getWritesMessages();
                 User user = notary.getUser();
