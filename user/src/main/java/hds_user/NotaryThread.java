@@ -58,7 +58,7 @@ public class NotaryThread extends Thread {
     public void read(SecureSession secureSession, Message m) {
         try {
             if(cc==1){
-                m= secureSession.readFromCC(in, Integer.toString(port));
+                m= secureSession.readFromCC(in, "./src/main/resources/serverPublicKey.txt");
             }
             else {
                 System.out.println("Connected and waiting for server from port " + port);
@@ -124,7 +124,7 @@ public class NotaryThread extends Thread {
         while(true) {
             try {
                 if(cc==1){
-                    m= secureSession.readFromCC(in, Integer.toString(port));
+                    m= secureSession.readFromCC(in, "./src/main/resources/serverPublicKey.txt");
                 }
                 else {
                     System.out.println("Connected and waiting for server from port " + port);
