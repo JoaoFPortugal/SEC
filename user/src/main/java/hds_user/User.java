@@ -39,9 +39,10 @@ public class User {
 		loadPubKey();
 		loadPrivKey();
 
+
 		this.userSS = new SecureSession();
 		this.conn = new NotaryConnection(serverName, notaryPorts, this, cc);
-		
+
 		this.userListener = new UserListener(userListenerPort, "userListenerThread", this);
 		userListener.start();
 		Utils.println("User listening on port: " + userListenerPort);

@@ -25,7 +25,14 @@ public class Main {
 		int cc = Utils.readInt("Hello!\n" + "Is the server using CC?\n" + "0. No\n" + "1. Yes\n");
 		
 		try {
-			main.user = new User(uid, password, main.serverName, main.notaryPorts, main.userListenerPort, cc);
+			int[] ccports = {6066};
+			if(cc==1){
+				main.user = new User(uid, password, main.serverName,ccports , main.userListenerPort, cc);
+
+			}
+			else{
+				main.user = new User(uid, password, main.serverName, main.notaryPorts, main.userListenerPort, cc);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			Utils.println(e.getMessage());

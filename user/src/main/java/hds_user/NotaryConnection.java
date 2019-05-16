@@ -45,6 +45,7 @@ public class NotaryConnection {
 	private HashMap<Integer,Integer> writesMap = new HashMap<>();
 	private List<Message> writesMessages = new ArrayList<>();
 	private HashMap<Integer,List<DataOutputStream>> outsMap = new HashMap<>();
+	private int Quorum_Servers;
 
 	public NotaryConnection(String serverName, int[] ports, User user, int cc) {
 		this.serverName = serverName;
@@ -55,6 +56,13 @@ public class NotaryConnection {
 		this.serverPubKeyPath = "./src/main/resources/serverPublicKey.txt";
 		this.flag = true;
 		this.notReceived = true;
+
+		if(cc == 1){
+			Quorum_Servers = 1;
+		}
+		else{
+			Quorum_Servers = 4;
+		}
 	}
 
 	private void connect(int wr) throws IOException {
@@ -312,7 +320,7 @@ public class NotaryConnection {
         }
 
 
-        if (counter==4){
+        if (counter==Quorum_Servers){
 		    int tag = m.getTag();
 		    setFinalTag(tag);
 		    setFinalValue(m);
@@ -346,7 +354,7 @@ public class NotaryConnection {
 			writesMap.replace(m.getTag(),counter);
 		}
 
-		if (counter==4){
+		if (counter==Quorum_Servers){
 			reply = m;
 			writesMessages.add(m);
 			synchronized (lock1) {
@@ -375,7 +383,4 @@ public class NotaryConnection {
 			}
 		}
 	}
-
-
-
 }
