@@ -21,9 +21,11 @@ public class Main {
 		main.userListenerPort = Utils.readIntFromFile("./src/main/resources/" + uid + "_port.txt");
 
 		String password = Utils.readPassword("Please enter your secret password: ");
+
+		int cc = Utils.readInt("Hello!\n" + "Is the server using CC?\n" + "0. No\n" + "1. Yes\n");
 		
 		try {
-			main.user = new User(uid, password, main.serverName, main.notaryPorts, main.userListenerPort);
+			main.user = new User(uid, password, main.serverName, main.notaryPorts, main.userListenerPort, cc);
 		} catch (Exception e) {
 			e.printStackTrace();
 			Utils.println(e.getMessage());

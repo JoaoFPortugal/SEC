@@ -35,7 +35,7 @@ public class NotaryConnection {
 	private Message finalValue;
 	private ReadWriteLock readWriteLock = new ReadWriteLock();
 	private int responses=0;
-	private int writeResponses=0;
+	private int cc;
 	private final Object lock = new Object();
 	private final Object lock1 = new Object();
 	private boolean flag;
@@ -46,10 +46,11 @@ public class NotaryConnection {
 	private List<Message> writesMessages = new ArrayList<>();
 	private HashMap<Integer,List<DataOutputStream>> outsMap = new HashMap<>();
 
-	public NotaryConnection(String serverName, int[] ports, User user) {
+	public NotaryConnection(String serverName, int[] ports, User user, int cc) {
 		this.serverName = serverName;
 		this.ports = ports;
 		this.user = user;
+		this.cc = cc;
 		notarySS = new SecureSession();
 		this.serverPubKeyPath = "./src/main/resources/serverPublicKey.txt";
 		this.flag = true;
@@ -94,7 +95,7 @@ public class NotaryConnection {
 
 		for (int i = 0; i < ports.length; i++) {
 			try {
-				NotaryThread t = new NotaryThread(this, ins.get(i), outs.get(i), readWriteLock, wr, ports[i]);
+				NotaryThread t = new NotaryThread(this, ins.get(i), outs.get(i), readWriteLock, wr, ports[i], cc);
 				t.start();
 			}catch(Exception e){
 				System.out.println("server " + i+1 + " is down");

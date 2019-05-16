@@ -26,14 +26,16 @@ public class NotaryThread extends Thread {
     private final int writer;
     private final int port;
     private boolean quorumAchieved = false;
+    private int cc;
 
-    public NotaryThread(NotaryConnection notary, DataInputStream in, DataOutputStream out, ReadWriteLock readWriteLock, int writer, int port){
+    public NotaryThread(NotaryConnection notary, DataInputStream in, DataOutputStream out, ReadWriteLock readWriteLock, int writer, int port, int cc){
         this.notary = notary;
         this.in = in;
         this.out = out;
         this.readWriteLock  = readWriteLock;
         this.writer = writer;
         this.port = port;
+        this.cc = cc;
     }
 
     @Override
@@ -54,11 +56,15 @@ public class NotaryThread extends Thread {
 
 
     public void read(SecureSession secureSession, Message m) {
-
         try {
-            System.out.println("Connected and waiting for server from port " + port);
-            m = secureSession.readFromUser(in,Integer.toString(port));
-            System.out.println("ehywwwwwwww");
+            if(cc==1){
+                m= secureSession.readFromCC(in, Integer.toString(port));
+            }
+            else {
+                System.out.println("Connected and waiting for server from port " + port);
+                m = secureSession.readFromUser(in, Integer.toString(port));
+                System.out.println("ehywwwwwwww");
+            }
         } catch (IOException | InvalidKeyException | NoSuchAlgorithmException | InvalidKeySpecException | SignatureException | InvalidSignatureException | IllegalAccessException | ReplayAttackException | NullPublicKeyException e) {
             e.printStackTrace();
         }
@@ -117,9 +123,14 @@ public class NotaryThread extends Thread {
     public void write(SecureSession secureSession, Message m){
         while(true) {
             try {
-                System.out.println("Connected and waiting for server from port " + port);
-                m = secureSession.readFromUser(in, Integer.toString(port));
-                System.out.println("ehy");
+                if(cc==1){
+                    m= secureSession.readFromCC(in, Integer.toString(port));
+                }
+                else {
+                    System.out.println("Connected and waiting for server from port " + port);
+                    m = secureSession.readFromUser(in, Integer.toString(port));
+                    System.out.println("ehy");
+                }
             } catch (IOException | InvalidKeyException | NoSuchAlgorithmException | InvalidKeySpecException | SignatureException | InvalidSignatureException | IllegalAccessException | ReplayAttackException | NullPublicKeyException e) {
                 e.printStackTrace();
             }

@@ -33,14 +33,14 @@ public class User {
 	private SecureSession userSS;
 	private UserListener userListener;
 
-	public User(int id, String password, String serverName, int[] notaryPorts, int userListenerPort) throws Exception {
+	public User(int id, String password, String serverName, int[] notaryPorts, int userListenerPort, int cc) throws Exception {
 		this.uid = id;
 		this.password = password;
 		loadPubKey();
 		loadPrivKey();
-		
+
 		this.userSS = new SecureSession();
-		this.conn = new NotaryConnection(serverName, notaryPorts, this);
+		this.conn = new NotaryConnection(serverName, notaryPorts, this, cc);
 		
 		this.userListener = new UserListener(userListenerPort, "userListenerThread", this);
 		userListener.start();
