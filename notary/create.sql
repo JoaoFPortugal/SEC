@@ -23,10 +23,10 @@ CREATE TABLE IF NOT EXISTS `goods` (
 --- tags
 ---
 CREATE TABLE IF NOT EXISTS `tags` (
-  `owner_id` INTEGER,
-  `tag` INTEGER,
-  FOREIGN KEY(`owner_id`) REFERENCES  `users`(`uid`)
-)
+	`tag` INTEGER,
+	`owner_id` INTEGER,
+	FOREIGN KEY(`owner_id`) REFERENCES  `users`(`uid`)
+);
 
 ---
 --- Log
