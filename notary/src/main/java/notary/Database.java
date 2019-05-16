@@ -8,6 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -219,19 +220,19 @@ public class Database {
 		}
 	}
 
-	public String getTags(){
+	public List<Integer> getTags(){
 		String sql = "SELECT tag FROM tags";
-		String output="";
+		List<Integer> output= new ArrayList<>();
 		try (Statement stmt = this.conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
 
 			while (rs.next()) {
-				 output += rs.getInt("tags") + "\n";
+				output.add(rs.getInt("tag"));
 			}
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		}
 
-		return (output.isEmpty() ? "null" : output);
+		return (output.isEmpty() ? null : output);
 	}
 
 	// Not being used

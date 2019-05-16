@@ -6,6 +6,7 @@ import java.net.ServerSocket;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -45,13 +46,7 @@ public class Server extends Thread {
 		loadPrivKey();
 		loadPubKey();
 		this.tags = new HashMap<>();
-		System.out.println(db.getTags());
-//fazer com que server va buscar a database valor das tags correto
-		tags.put(1, 0);
-		tags.put(2, 0);
-		tags.put(3, 0);
-		tags.put(4, 0);
-		tags.put(5, 0);
+		getTagsFromBD();
 
 
 		/**
@@ -61,6 +56,16 @@ public class Server extends Thread {
 		 */
 		requests = new ArrayBlockingQueue<Request>(max_queue, true);
 		secureSession = new SecureSession();
+	}
+
+	private void getTagsFromBD(){
+		List<Integer> tagsFromDB = db.getTags();
+		System.out.println(tagsFromDB);
+		tags.put(1, tagsFromDB.get(0));
+		tags.put(2, tagsFromDB.get(1));
+		tags.put(3, tagsFromDB.get(2));
+		tags.put(4, tagsFromDB.get(3));
+		tags.put(5, tagsFromDB.get(4));
 	}
 
 	private void loadPubKey()
