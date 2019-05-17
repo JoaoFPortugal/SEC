@@ -48,7 +48,6 @@ public class Server extends Thread {
 		this.tags = new HashMap<>();
 		getTagsFromBD();
 
-
 		/**
 		 * 1st parameter: capacity - the capacity of this queue 2nd parameter: fair - if
 		 * true then queue accesses for threads blocked on insertion or removal, are
@@ -97,7 +96,6 @@ public class Server extends Thread {
 			System.out.println(message.getTag());
 			System.out.println(message.getOperation());
 			Utils.write(message, request.getDataOutputStream(), this.getPrivateKey());
-			System.out.println("alalal");
 		}
 	}
 
