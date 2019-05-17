@@ -12,7 +12,6 @@ import java.util.Scanner;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Scanner;
 
 import pteidlib.PteidException;
 import sun.security.pkcs11.wrapper.PKCS11Exception;

@@ -1,7 +1,7 @@
 *.jar
 !lib/pteidlibj.jar
 !lib/pteidlibj-2.0.jar
-!lib/linux/pteid_jni/pteidlibj.jar
+!lib/linux/lib/pteid_jni/pteidlibj.jar
 .fuse_hidden*
 
 # Compiled class file

@@ -32,6 +32,7 @@ public class Server extends Thread {
 	private PrivateKey privateKey;
 	private String password;
 	private HashMap<Integer, Integer> tags;
+	//private HashMap<Integer, NoobChain> userChains;
 
 	// Does not allow more than 'max_queue' requests on the queue (for resources
 	// concern)
@@ -55,6 +56,13 @@ public class Server extends Thread {
 		 */
 		requests = new ArrayBlockingQueue<Request>(max_queue, true);
 		secureSession = new SecureSession();
+		
+		/**
+		 * With each user a blockchain will be associated, to which a new block will be added
+		 * after each request 
+		 * Unfinished proof of work
+		userChains = new HashMap<Integer, NoobChain>();
+		*/
 	}
 
 	private void getTagsFromBD(){
@@ -122,6 +130,14 @@ public class Server extends Thread {
 
 			// Read is done in Request constructor
 			Request request = new Request(serverSocket.accept(), secureSession);
+			
+			/* Unfinished proof of work
+			int userID = request.getMessage().getOrigin();
+			if (!userChains.containsKey(userID)) {
+			    userChains.put(userID, new NoobChain());
+			}
+			*/
+			
 			// 'put' blocks, 'add' throws exception
 			requests.put(request);
 
